@@ -1,0 +1,66 @@
+name: Actualización mensual (BDUA ADRES)
+
+# Corre el día 20 de cada mes a las 8:00 a. m. de Bogotá (13:00 UTC).
+# Si falla, abre un issue: GitHub le envía un correo al dueño del repositorio.
+on:
+  schedule:
+    - cron: "0 13 20 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install "pandas>=2.0" "openpyxl>=3.1" "requests>=2.31"
+
+      - name: Descargar el corte vigente de la BDUA (datos.gov.co)
+        run: python scripts/00_descargar_fuentes.py adres
+
+      - name: Procesar el corte nuevo y regenerar los datos del sitio
+        run: |
+          CORTE=$(ls -d data/raw/adres_datos_abiertos/corte-* | sort | tail -1 | sed 's#.*/corte-##')
+          echo "Corte más reciente: $CORTE"
+          if [ -f "data/processed/adres_bdua_eps_municipio_sexo_grupo_upc_${CORTE}.csv.gz" ]; then
+            echo "El corte $CORTE ya estaba procesado; no hay nada nuevo."
+          else
+            python scripts/04_adres_bdua_upc.py "$CORTE"
+            python scripts/10_datos_sitio.py
+          fi
+
+      - name: Guardar cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          if git diff --cached --quiet; then
+            echo "Sin cambios."
+          else
+            git commit -m "Actualización mensual: corte de la BDUA de la ADRES"
+            git push
+          fi
+
+      - name: Avisar por correo si falló (abre un issue)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `Falló la actualización mensual (${new Date().toISOString().slice(0,10)})`,
+              body: `La actualización automática de la BDUA de la ADRES no terminó.\n\nRegistro: ${url}\n\n` +
+                    `Causas frecuentes: datos.gov.co no respondió, cambió el formato del conjunto o apareció ` +
+                    `un municipio nuevo sin código DANE (ver scripts/comun.py).`
+            });

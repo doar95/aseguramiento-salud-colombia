@@ -1,13 +1,16 @@
 cff-version: 1.2.0
 message: "Si usa estos datos, cite el repositorio y las fuentes oficiales listadas en docs/fuentes.md."
-title: "Afiliación en salud en Colombia: afiliados por EPS, municipio, edad y régimen, y parámetros de la UPC"
-version: "0.1"
-date-released: "2026-10-15"
+title: "Aseguramiento en salud en Colombia, 2013-2026: afiliación por municipio, UPC y sus zonas, finanzas de la ADRES y seguimiento judicial"
+version: "1.0"
+date-released: "2026-10-16"
 type: dataset
 authors:
   - name: "Claude (Anthropic)"
   - family-names: "Aguilar"
     given-names: "David"
-repository-code: "https://github.com/doar95/afiliacion-salud-colombia"
+  - family-names: "Gómez"
+    given-names: "Camila"
+repository-code: "https://github.com/doar95/aseguramiento-salud-colombia"
+url: "https://doar95.github.io/aseguramiento-salud-colombia/"
 license: MIT
-keywords: [BDUA, ADRES, UPC, afiliación, salud, Colombia, EPS, SISPRO]
+keywords: [BDUA, ADRES, UPC, afiliación, salud, Colombia, EPS, SISPRO, presupuestos máximos, datos abiertos]

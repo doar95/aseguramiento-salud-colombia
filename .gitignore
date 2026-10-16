@@ -5,3 +5,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Insumos grandes del DANE (se descargan con scripts/00_descargar_fuentes.py; ver docs/guia_descarga.md)
+data/raw/dane/PPED-AreaSexoEdadMun-2018-2042_VP.xlsx
+data/raw/dane/DCD-area-sexo-edad-proypoblacion-Mun-2005-2017_VP.xlsx
+data/raw/dane/MGN2024_MPIO_POLITICO.zip
+data/raw/dane/_mgn/

@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aseguramiento en salud en Colombia</title>
+<meta name="description" content="Afiliación al SGSSS por municipio, parámetros de la UPC y sus zonas, finanzas de la ADRES y seguimiento de la Corte Constitucional, 2013-2026, con datos abiertos del Estado colombiano.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Aseguramiento en salud en Colombia, 2013–2026">
+<meta property="og:description" content="Afiliados por municipio, UPC y zonas, finanzas de la ADRES y autos de la Corte Constitucional. Datos abiertos, métodos y descargas.">
+<meta property="og:image" content="https://doar95.github.io/aseguramiento-salud-colombia/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://doar95.github.io/aseguramiento-salud-colombia/">
+<meta property="og:locale" content="es_CO">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+:root{
+  --azul:#3366CC; --azul-osc:#004884; --azul-cl:#E6EFFD; --amarillo:#FFAB00; --rojo:#A80521; --verde:#069169;
+  --gris:#4B4B4B; --gris-cl:#F2F2F2; --borde:#D9D9D9; --fondo:#FFFFFF; --texto:#1F1F1F; --sub:#5C5C5C; --panel:#FAFBFD;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --azul:#7FA6F0; --azul-osc:#A9C3F5; --azul-cl:#1B2A44; --gris:#C8C8C8; --gris-cl:#262A31;
+    --borde:#3A3F48; --fondo:#14171C; --texto:#ECECEC; --sub:#B5B5B5; --panel:#191D23; }
+}
+:root[data-theme="dark"]{ --azul:#7FA6F0; --azul-osc:#A9C3F5; --azul-cl:#1B2A44; --gris:#C8C8C8; --gris-cl:#262A31;
+  --borde:#3A3F48; --fondo:#14171C; --texto:#ECECEC; --sub:#B5B5B5; --panel:#191D23; }
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--texto)}
+body{font-family:"Work Sans",system-ui,sans-serif;font-size:15px;line-height:1.5}
+a{color:var(--azul)}
+.govbar{background:#004884;color:#fff;font-size:13px;padding:6px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.govbar b{letter-spacing:.02em}
+.govbar button{background:transparent;border:1px solid #fff9;color:#fff;border-radius:4px;padding:2px 10px;cursor:pointer;font:inherit}
+.govbar button.on{background:#fff;color:#004884}
+header.titulo{max-width:1500px;margin:0 auto;padding:22px 16px 6px}
+.revista{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);border-bottom:2px solid var(--amarillo);display:inline-block;padding-bottom:2px}
+h1{font-family:"Source Serif 4",Georgia,serif;font-size:clamp(26px,3.4vw,40px);line-height:1.15;margin:10px 0 6px;color:var(--azul-osc)}
+.autores{font-size:15px}
+.autores b{font-weight:600}
+.afil{font-size:12.5px;color:var(--sub)}
+.aviso{max-width:1500px;margin:10px auto 0;padding:0 16px}
+.aviso div{background:var(--azul-cl);border-left:4px solid var(--azul);padding:9px 12px;font-size:13.5px;border-radius:2px}
+.grid{max-width:1500px;margin:0 auto;padding:12px 16px 40px;display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+@media (min-width:1150px){ .grid{grid-template-columns:minmax(0,46fr) minmax(0,54fr)} .panel{position:sticky;top:8px;align-self:start;max-height:calc(100vh - 16px);overflow:auto} }
+.paper{font-family:"Source Serif 4",Georgia,serif;font-size:16.5px;line-height:1.62}
+.paper h2{font-size:21px;color:var(--azul-osc);margin:28px 0 8px;border-bottom:1px solid var(--borde);padding-bottom:4px}
+.paper h3{font-size:17px;margin:18px 0 6px}
+.paper p{margin:0 0 12px;text-align:justify;hyphens:auto}
+.resumen{border-top:2px solid var(--texto);border-bottom:1px solid var(--texto);padding:10px 0 12px;margin-bottom:14px}
+.resumen h2{border:0;margin:0 0 4px;font-size:16px;text-transform:uppercase;letter-spacing:.05em}
+.clave{font-size:14px;color:var(--sub)}
+.paper table{border-collapse:collapse;width:100%;font-family:"Work Sans",sans-serif;font-size:13px;margin:8px 0 6px;display:block;overflow-x:auto}
+.paper th,.paper td{border-bottom:1px solid var(--borde);padding:5px 6px;text-align:left;vertical-align:top}
+.paper th{border-bottom:2px solid var(--texto);font-weight:600}
+.cap{font-family:"Work Sans",sans-serif;font-size:12.5px;color:var(--sub);margin:2px 0 14px}
+.refs li{font-size:14px;margin-bottom:6px;text-align:left}
+.panel{background:var(--panel);border:1px solid var(--borde);border-radius:6px;padding:10px 12px}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:2px solid var(--azul);margin-bottom:10px}
+.tabs button{background:transparent;border:0;border-radius:4px 4px 0 0;padding:8px 10px;font:500 13.5px "Work Sans",sans-serif;color:var(--texto);cursor:pointer}
+.tabs button.on{background:var(--azul);color:#fff}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end;margin:4px 0 8px;font-size:13px}
+.ctrl label{display:flex;flex-direction:column;gap:2px;color:var(--sub)}
+select,input[type=range]{font:inherit;color:var(--texto);background:var(--fondo);border:1px solid var(--borde);border-radius:4px;padding:4px 6px;max-width:100%}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:6px 0 8px}
+.kpi{background:var(--fondo);border:1px solid var(--borde);border-top:3px solid var(--azul);border-radius:4px;padding:6px 8px}
+.kpi .v{font-size:19px;font-weight:700;color:var(--azul-osc);font-variant-numeric:tabular-nums}
+.kpi .l{font-size:11.5px;color:var(--sub)}
+#mapa{height:min(58vh,560px);min-height:360px;border:1px solid var(--borde);border-radius:4px;background:var(--fondo)}
+.leyenda{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;margin:6px 0;color:var(--sub)}
+.leyenda span i{display:inline-block;width:14px;height:10px;margin-right:4px;vertical-align:middle;border:1px solid #0002}
+.play{display:flex;gap:8px;align-items:center;margin:6px 0}
+.play button{background:var(--azul);color:#fff;border:0;border-radius:4px;padding:5px 12px;cursor:pointer;font:600 13px "Work Sans"}
+.play input{flex:1}
+.nota{font-size:12px;color:var(--sub);margin:6px 0}
+.sel{font-size:13px;margin:4px 0 6px}
+.sel b{color:var(--azul-osc)}
+.sel button{font:inherit;font-size:12px;border:1px solid var(--borde);background:var(--fondo);color:var(--texto);border-radius:4px;padding:1px 8px;cursor:pointer;margin-left:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th,.tbl td{border-bottom:1px solid var(--borde);padding:4px 5px;text-align:right;font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.scroll{overflow-x:auto}
+.chartbox{position:relative;height:320px}
+.linea{border-left:3px solid var(--azul);margin:0 0 0 6px;padding:0 0 0 14px}
+.hito{position:relative;margin:0 0 14px}
+.hito:before{content:"";position:absolute;left:-21px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--amarillo);border:2px solid var(--azul-osc)}
+.hito .f{font-size:12px;color:var(--sub)}
+.hito .t{font-weight:600}
+.hito .c{font-size:11px;display:inline-block;padding:0 6px;border-radius:8px;background:var(--azul-cl);margin-left:6px}
+.hito p{font-size:13px;margin:4px 0}
+.pie{max-width:1500px;margin:0 auto;padding:18px 16px 40px;border-top:1px solid var(--borde);font-size:13px;color:var(--sub)}
+.maplibregl-popup-content{font-family:"Work Sans",sans-serif;font-size:12.5px;color:#1F1F1F;max-width:280px}
+[hidden]{display:none!important}
+html[lang="en"] [data-l="es"], html[lang="es"] [data-l="en"]{display:none!important}
+@media (max-width:1149px){ .panel{order:-1} .paper p{text-align:left} }
+@media print{.panel,.govbar{display:none}.grid{display:block}}
+</style>
+</head>
+<body>
+<div class="govbar">
+  <b data-i18n="barra">Repositorio abierto · datos públicos del Estado colombiano</b>
+  <span><button id="b-es" class="on" type="button">ES</button> <button id="b-en" type="button">EN</button></span>
+</div>
+
+<header class="titulo">
+  <span class="revista" data-i18n="tipo">Documento de trabajo · versión 1.0 · octubre de 2026</span>
+  <h1><span data-l="es">Aseguramiento en salud en Colombia, 2013–2026: afiliación por municipio, UPC y sus zonas, finanzas de la ADRES y seguimiento judicial</span><span data-l="en">Health insurance in Colombia, 2013–2026: enrollment by municipality, the capitation payment (UPC) and its zones, ADRES finances and court oversight</span></h1>
+  <div class="autores"><b>Claude (Anthropic)</b>, <b>David Aguilar</b> <span data-i18n="y">y</span> <b>Camila Gómez</b></div>
+  <div class="afil" data-i18n="merito">El mérito es de las entidades que publican datos abiertos: Ministerio de Salud y Protección Social, ADRES, SISPRO, DANE, Corte Constitucional y DNP.</div>
+</header>
+
+<div class="aviso"><div data-i18n="aviso"><b>Antes de usar estas cifras.</b> Los afiliados se cuentan en el <b>municipio de afiliación</b> registrado en la BDUA, que no siempre es el de residencia o atención. Este repositorio <b>no reemplaza</b> la Liquidación Mensual de Afiliados (LMA) ni el proceso de compensación, ni las cifras oficiales de las entidades. Donde no hay distribución por edad no se reparten afiliados por edad (no se prorratea).</div></div>
+
+<div class="grid">
+<main class="paper" id="paper">
+
+<!-- ======================== ESPAÑOL ======================== -->
+<div data-l="es">
+<section class="resumen">
+<h2>Resumen</h2>
+<p>Reunimos en un solo repositorio, con código reproducible, las fuentes públicas que describen el aseguramiento en salud en Colombia: los afiliados vigentes por municipio y régimen (SISPRO y Ministerio de Salud, 2009–2026), la afiliación por EPS, municipio, sexo y grupo de edad que publica la ADRES en datos.gov.co, los parámetros de la Unidad de Pago por Capitación (UPC) de las catorce resoluciones anuales de 2013 a 2026 —valor base, estructura de costo por edad, primas por zona y listas de municipios de sus anexos—, la ejecución presupuestal mensual de la ADRES desde agosto de 2017 y los autos de la Corte Constitucional sobre la suficiencia de la UPC y de los presupuestos máximos. Cada valor de la UPC se verificó contra las tablas por edad de la propia resolución. Entre diciembre de 2013 y agosto de 2026 los afiliados vigentes pasaron de 43,2 a 52,6 millones; el 53,9 % está en el régimen subsidiado. La UPC base creció 2,92 veces en el contributivo y 3,03 veces en el subsidiado, frente a 1,97 veces del IPC. En 2025 la ADRES reconoció 45,4 billones de pesos por UPC del contributivo y 43,4 billones por la del subsidiado. El gasto no financiado con la UPC pasó del recobro a los presupuestos máximos en 2020; lo presentamos como una sola serie empalmada.</p>
+<p class="clave"><b>Palabras clave:</b> SGSSS, BDUA, UPC, ADRES, presupuestos máximos, datos abiertos, Colombia.</p>
+</section>
+
+<h2>1. Introducción</h2>
+<p>El Sistema General de Seguridad Social en Salud (SGSSS) afilia a casi toda la población a través de dos regímenes: el contributivo, financiado con cotizaciones, y el subsidiado, financiado con recursos públicos. Por cada afiliado, la ADRES reconoce a la EPS una prima anual, la Unidad de Pago por Capitación (UPC), que el Ministerio de Salud fija cada diciembre por resolución. La UPC no es igual para todos: se multiplica por un ponderador según la edad y el sexo del afiliado y recibe primas adicionales según la zona del municipio (dispersión geográfica, grandes ciudades, San Andrés y, desde 2023, Guainía en el subsidiado).</p>
+<p>La información para estudiar estos componentes es pública, pero está dispersa en tableros, archivos de Excel, PDF escaneados y conjuntos de datos abiertos con formatos distintos. Este trabajo la reúne, la documenta y la deja lista para descargar y reproducir, con una regla: no presentar como dato lo que no lo es. Cuando un insumo no existe, como la distribución por edad de los afiliados de cada municipio y mes, el repositorio lo dice y no lo estima.</p>
+
+<h2>2. Datos</h2>
+<table>
+<thead><tr><th>Fuente</th><th>Qué aporta</th><th>Periodo</th><th>Desagregación</th></tr></thead>
+<tbody>
+<tr><td>SISPRO, cubo BDUA (tablero público)</td><td>Afiliados por estado de afiliación</td><td>dic. 2009 – ago. 2026</td><td>Municipio, régimen, mes</td></tr>
+<tr><td>MinSalud, cifras de aseguramiento</td><td>Afiliados por EPS y cobertura</td><td>jul. 2025 – sep. 2026</td><td>EPS, municipio, régimen; EPS, departamento, edad quinquenal y sexo</td></tr>
+<tr><td>ADRES, BDUA en datos.gov.co</td><td>Afiliados activos</td><td>Corte más reciente</td><td>EPS, municipio, sexo, grupo de edad de la UPC</td></tr>
+<tr><td>MinSalud, resoluciones de UPC</td><td>Valor base, ponderadores, primas, anexos</td><td>Vigencias 2013–2026</td><td>Régimen, grupo de edad, zona, municipio</td></tr>
+<tr><td>ADRES, ejecución presupuestal (URA)</td><td>Ingresos y gastos por rubro</td><td>ago. 2017 – sep. 2026</td><td>Rubro, mes</td></tr>
+<tr><td>DANE</td><td>Proyecciones de población, DIVIPOLA, Marco Geoestadístico, IPC</td><td>2013–2030</td><td>Municipio, edad simple, sexo</td></tr>
+<tr><td>Corte Constitucional</td><td>Autos de seguimiento a la Sentencia T-760 de 2008</td><td>2023–2025</td><td>Providencia</td></tr>
+<tr><td>Bases de los coautores</td><td>Altitud y clima; categoría de ruralidad 2018</td><td>—</td><td>Municipio</td></tr>
+</tbody></table>
+<p class="cap">Tabla 1. Fuentes. La cita completa de cada una, con la fecha de consulta, está en <a href="fuentes.md">docs/fuentes.md</a>.</p>
+
+<h2>3. Métodos</h2>
+<h3>3.1 Afiliado vigente</h3>
+<p>Se cuenta como vigente al afiliado en estado activo, activo por emergencia, protección laboral o suspendido. Con esa definición, los totales mensuales del cubo de SISPRO coinciden exactamente con los del tablero del Ministerio durante los catorce meses en que ambas fuentes se superponen. Los nombres de municipio de la BDUA se cruzan con el código DANE de la DIVIPOLA mediante una tabla de equivalencias; no quedan municipios sin código.</p>
+<h3>3.2 Parámetros de la UPC</h3>
+<p>Se leyó el texto de cada resolución (extracción directa o reconocimiento óptico de caracteres en las escaneadas de 2013, 2014, 2015, 2018 y 2021). Cada artículo que fija una UPC trae una tabla por grupo de edad; dividir el valor del grupo «menores de un año» entre su ponderador da la UPC anual del artículo. Así se comprobó cada prima: dispersión 10 % (contributivo) y 11,47 % (subsidiado); ciudades 9,86 % (9,85 % en 2013) y 15 %; San Andrés 37,9 %. En el subsidiado, San Andrés tiene un valor fijo desde 2019 (1,4516 veces la UPC base; 1,55 en 2023–2025). Guainía tiene una prima de 17,81 % en el subsidiado desde 2023. La UPC diferencial indígena es 3,04 % mayor en 2015–2016 y 4,81 % mayor desde 2017. En 2016–2018 hubo una prueba piloto de igualación de la prima pura del subsidiado al contributivo en Bogotá, Medellín, Cali y Barranquilla, que por eso no figuran en la lista de ciudades del subsidiado esos años. En 2022 la resolución fija dos juegos de valores: sin y con las inclusiones de la Resolución 2292 de 2021.</p>
+<h3>3.3 Municipios por zona</h3>
+<p>Los anexos de dispersión se leen por código y nombre. En los años escaneados se aplicó reconocimiento óptico solo a la columna de códigos, después de borrar las líneas de la tabla. Un código ilegible se corrige solo si difiere en un dígito de un único código válido. Una fila que el reconocimiento óptico no lee se incluye solo si el anexo tiene el mismo número de filas que el de los años vecinos y todas las demás coinciden; las que se revisaron sobre la imagen se marcan como verificadas. En 2013 no hay anexo: la prima se definió por departamentos y por «la región de Urabá», con excepciones cuyas «áreas de influencia» la resolución no delimita, y así se registra. Cada fila trae una columna que dice cómo se obtuvo.</p>
+<h3>3.4 Finanzas de la ADRES</h3>
+<p>Se leyeron 110 ejecuciones mensuales. Como los códigos de rubro cambiaron en 2020 al Catálogo de Clasificación Presupuestal, se clasificaron solo los rubros más desagregados, por su nombre, con reglas explícitas y una justificación para cada categoría. La suma de esos rubros reproduce el total de cada mes, con una diferencia máxima de 14,5 mil millones de pesos en 2020. El gasto no financiado con la UPC se presenta empalmado: recobros hasta 2019 y presupuestos máximos desde 2020 (art. 240 de la Ley 1955 de 2019). El saneamiento de deudas va aparte porque paga servicios de años anteriores. Antes de 2020 el no UPC del subsidiado lo pagaban los departamentos y no pasa por la ADRES; el artículo 231 de la Ley 1955 lo trasladó a la Nación desde 2020. Los precios constantes usan el IPC del DANE con base en septiembre de 2026.</p>
+
+<h2>4. Resultados</h2>
+<p>Los afiliados vigentes pasaron de 43,2 millones en diciembre de 2013 a 52,6 millones en agosto de 2026. El subsidiado tenía el 52,9 % de los afiliados de los dos regímenes principales en 2013, el 50,3 % en 2018 y el 53,9 % en 2026. Frente a las proyecciones de población del DANE, la relación entre afiliados y habitantes subió de 95,1 % a 98,4 %. Esta relación no es una cobertura exacta: compara el municipio de afiliación con la población proyectada.</p>
+<p>La UPC base del contributivo pasó de 568.944 pesos en 2013 a 1.658.912 pesos en 2026 y la del subsidiado de 508.993 a 1.541.706 pesos. En pesos de septiembre de 2026, la del contributivo pasó de 1,17 a 1,73 millones. La relación entre la UPC del subsidiado y la del contributivo fue 0,8946 de 2013 a 2021, 0,9374 en 2022, 0,8698 en 2023 y 0,9293 en 2026.</p>
+<p>La lista de dispersión geográfica es estable: 363 municipios y áreas no municipalizadas de 2014 a 2022. En 2023 los municipios de Guainía no figuran en el anexo. En 2024 y 2025 hay listas separadas: 363 en el contributivo y 354 en el subsidiado, que reconoce a Guainía una prima propia. La de 2026 tiene 363 e incluye a Nuevo Belén de Bajirá. En 2025 la ADRES reconoció 45,35 billones de pesos corrientes por la UPC del contributivo y 43,43 billones por la del subsidiado. El gasto no UPC empalmado fue de 3,1 billones en recobros en 2018 y de 4,2; 6,0; 2,7; 3,7; 4,0 y 5,8 billones en presupuestos máximos entre 2020 y 2025. La caída de 2022 coincide con la UPC «con nuevas inclusiones» que fijó ese año la Resolución 2381 de 2021. En 2025 los ingresos principales fueron el Presupuesto General de la Nación (37,3 billones), las cotizaciones (36,6) y el Sistema General de Participaciones (16,6).</p>
+<p>Como verificación gruesa, se multiplicaron los afiliados activos por edad del último corte de la ADRES por los ponderadores, la UPC base de 2026 y la prima de su zona. El resultado anual es de 51,7 billones en el contributivo y 51,6 en el subsidiado. Es del mismo orden que lo reconocido en 2025, pero no es una conciliación: la compensación y la LMA liquidan por días y novedades.</p>
+
+<h2>5. Limitaciones</h2>
+<p>(i) El municipio es el de afiliación. (ii) No hay serie histórica por edad en el ámbito municipal; la única distribución por edad disponible es la del último corte de la ADRES, y el tablero de simulación la usa solo para ese fin, con advertencia. Las series por edad se completarán cuando se recupere el acceso al cubo de la BDUA. (iii) En SISPRO los regímenes de excepción aparecen incompletos antes de 2018. (iv) En los años escaneados algunas filas de anexos se infirieron con las reglas descritas. En 2013 la zona de dispersión depende de una definición departamental con áreas no delimitadas. (v) La serie de la ADRES empieza en agosto de 2017, cuando la entidad entró en operación. (vi) No se replican regímenes especiales ni de excepción.</p>
+
+<h2>6. Cómo descargar y reproducir</h2>
+<p>Todo está en el repositorio <a href="https://github.com/doar95/aseguramiento-salud-colombia">github.com/doar95/aseguramiento-salud-colombia</a>. Las tablas listas para usar están en <code>data/processed/</code>, en formato CSV con separador coma y codificación UTF-8. Los insumos originales están en <code>data/raw/</code>, las resoluciones en PDF en <code>normativa/upc/</code> y los scripts numerados en <code>scripts/</code>. Los dos libros de proyecciones del DANE no se versionan por su tamaño y se descargan con <code>python scripts/00_descargar_fuentes.py</code>. La guía paso a paso, con los enlaces de cada entidad, está en <a href="guia_descarga.md">docs/guia_descarga.md</a>.</p>
+<table><thead><tr><th>Archivo</th><th>Contenido</th></tr></thead><tbody id="tabla-archivos"></tbody></table>
+<p class="cap">Tabla 2. Principales salidas.</p>
+
+<h2>7. Datos abiertos y créditos</h2>
+<p>Este trabajo es posible porque el Estado publica sus datos. La Ley 1712 de 2014, de transparencia y del derecho de acceso a la información pública nacional, obliga a las entidades a publicar la información pública en formatos que permitan reutilizarla, y el portal datos.gov.co la reúne. Las cifras usadas son agregadas y no contienen datos personales (Ley 1581 de 2012). Los datos derivados de la ADRES se redistribuyen con la licencia del conjunto original (CC BY-SA 4.0). El código se publica con licencia MIT. Las bases de altitud, clima y ruralidad 2018 fueron aportadas por los coautores. La de altitud y clima cita como fuente a la Unidad de Analítica en Salud del IETS y al DNP. La de ruralidad 2018 no trae fuente en el archivo: se presenta como base interna y se muestra junto a la categoría de ruralidad que publica SISPRO.</p>
+
+<h2>Cómo citar</h2>
+<p>Claude (Anthropic), Aguilar, D. y Gómez, C. (2026). <i>Aseguramiento en salud en Colombia, 2013–2026: afiliación por municipio, UPC y sus zonas, finanzas de la ADRES y seguimiento judicial</i> (versión 1.0) [Repositorio de datos y código]. GitHub. https://github.com/doar95/aseguramiento-salud-colombia</p>
+</div>
+
+<!-- ======================== ENGLISH ======================== -->
+<div data-l="en">
+<section class="resumen">
+<h2>Abstract</h2>
+<p>We bring together, with reproducible code, the public sources that describe health insurance in Colombia. They include enrolled persons by municipality and scheme (SISPRO and Ministry of Health, 2009–2026); enrollment by insurer (EPS), municipality, sex and UPC age group published by ADRES on datos.gov.co; and the parameters of the capitation payment (UPC) from the fourteen annual resolutions for 2013–2026: base value, age cost structure, zone premiums and the municipality lists in their annexes. They also include ADRES monthly budget execution since August 2017 and the Constitutional Court rulings on the sufficiency of the UPC and of the "maximum budgets". Every UPC value was checked against the age tables of the resolution itself. Between December 2013 and August 2026 enrollment rose from 43.2 to 52.6 million; 53.9% are in the subsidized scheme. The contributory base UPC grew 2.92-fold and the subsidized one 3.03-fold, against 1.97-fold for the CPI. In 2025 ADRES recognized COP 45.4 trillion for the contributory UPC and 43.4 trillion for the subsidized UPC. Spending on services not funded by the UPC moved from reimbursement claims to maximum budgets in 2020, and we present it as one linked series.</p>
+<p class="clave"><b>Keywords:</b> Colombian health system, BDUA, capitation, ADRES, open data.</p>
+</section>
+<h2>1. Introduction</h2>
+<p>Colombia's General Social Security Health System covers almost everyone through two schemes. The contributory scheme is funded by payroll contributions and the subsidized scheme by public funds. For each enrollee, ADRES pays the insurer an annual premium, the UPC, set every December by the Ministry of Health. It is multiplied by an age-sex weight and receives extra premiums by municipality zone: geographic dispersion, large cities, San Andrés and, since 2023, Guainía in the subsidized scheme. The data are public but scattered across dashboards, spreadsheets, scanned PDFs and open datasets. This repository gathers and documents them under one rule: nothing is presented as data when it is not. Where an input does not exist, such as the age distribution of each municipality's enrollees by month, the repository says so and does not estimate it.</p>
+<h2>2. Data and 3. Methods</h2>
+<p>Sources are listed in Table 1 of the Spanish version and in <a href="fuentes.md">docs/fuentes.md</a>. An enrollee counts as current if active, active by emergency, under labor protection or suspended. With this definition, SISPRO and Ministry totals match exactly over 14 overlapping months. UPC zone premiums were read from each resolution and verified by dividing the "under one year" value of each age table by its weight. The verified premiums are: dispersion 10% (contributory) and 11.47% (subsidized); cities 9.86% and 15%; San Andrés 37.9%. Since 2019 the subsidized scheme has a fixed San Andrés value. Guainía receives 17.81% since 2023. The indigenous UPC is 4.81% higher since 2017. From 2016 to 2018, a pilot equalized the subsidized pure premium with the contributory one in Bogotá, Medellín, Cali and Barranquilla. Annex municipality lists in scanned years were read with OCR applied to the code column only. Every row records how it was obtained. ADRES leaf budget lines were classified by name with explicit, justified rules. Non-UPC spending is linked: reimbursement claims up to 2019 and maximum budgets from 2020 (Law 1955 of 2019, art. 240). Debt clean-up payments are kept separate. Constant prices use DANE's CPI with September 2026 as the base.</p>
+<h2>4. Results and 5. Limitations</h2>
+<p>Enrollment grew from 43.2 million (Dec 2013) to 52.6 million (Aug 2026). The ratio of enrollees to DANE projected population rose from 95.1% to 98.4%; it is not an exact coverage rate. In September 2026 pesos, the contributory UPC rose from 1.17 to 1.73 million. The dispersion list held steady at 363 areas from 2014 to 2022. Limitations: municipality of enrollment, not residence; no historical age series at the municipal level, pending access to the BDUA cube; incomplete exception schemes in SISPRO before 2018; some annex rows inferred in scanned years; ADRES data start in August 2017. This repository does not replace the official monthly settlement (LMA) or the compensation process.</p>
+<h2>6. Download and credits</h2>
+<p>Everything is at <a href="https://github.com/doar95/aseguramiento-salud-colombia">github.com/doar95/aseguramiento-salud-colombia</a>, with ready-to-use CSV files in <code>data/processed/</code>. Colombia's Law 1712 of 2014 on transparency and access to public information makes this work possible. Credit goes to the Ministry of Health, ADRES, SISPRO, DANE, the Constitutional Court and DNP. Code is released under the MIT license; ADRES-derived data under CC BY-SA 4.0.</p>
+</div>
+
+<h2 data-i18n="refs">Referencias</h2>
+<ol class="refs">
+<li>Administradora de los Recursos del Sistema General de Seguridad Social en Salud – ADRES. (2017–2026). <i>Ejecución presupuestal de ingresos y gastos, Unidad de Recursos Administrados</i>. https://www.adres.gov.co</li>
+<li>ADRES. (2026). <i>Base de Datos Única de Afiliados – régimen contributivo y subsidiado</i> [conjuntos tq4m-hmg2 y d7a5-cnra]. datos.gov.co.</li>
+<li>Corte Constitucional de Colombia, Sala Especial de Seguimiento a la Sentencia T-760 de 2008. Autos 2881 de 2023; 2049 de 2024; 007, 088, 504, 1000, 1002 y 2049 de 2025. https://www.corteconstitucional.gov.co/relatoria/</li>
+<li>Departamento Administrativo Nacional de Estadística – DANE. (2025). <i>Proyecciones de población municipal por área, sexo y edad 2018–2042</i> (actualización de julio de 2025); <i>Retroproyecciones 2005–2017</i>; <i>DIVIPOLA</i>; <i>Marco Geoestadístico Nacional 2024</i>; <i>Índice de Precios al Consumidor</i>.</li>
+<li>Ministerio de Salud y Protección Social. (2012–2025). Resoluciones 4480 de 2012, 5522 de 2013, 5925 de 2014, 5593 de 2015, 6411 de 2016, 5268 de 2017, 5858 de 2018, 3513 de 2019, 2503 de 2020, 2381 de 2021, 2809 de 2022, 2364 de 2023, 2717 de 2024 y 2764 de 2025, por las cuales se fija el valor de la UPC.</li>
+<li>Ministerio de Salud y Protección Social. (2020). Resolución 94 de 2020, lineamientos para el reconocimiento de servicios y tecnologías no financiados con cargo a la UPC.</li>
+<li>Ministerio de Salud y Protección Social. (2026). <i>Cifras de aseguramiento en salud</i>; SISPRO, cubo de la BDUA (tablero público).</li>
+<li>Congreso de la República. Ley 1712 de 2014; Ley 1581 de 2012; Ley 1955 de 2019, Plan Nacional de Desarrollo 2018–2022.</li>
+</ol>
+</main>
+
+<!-- ======================== TABLERO ======================== -->
+<aside class="panel" id="panel" aria-label="Tablero">
+  <nav class="tabs" role="tablist">
+    <button class="on" data-tab="afil" data-i18n="t_afil">Afiliación</button>
+    <button data-tab="terr" data-i18n="t_terr">Territorio</button>
+    <button data-tab="upc" data-i18n="t_upc">UPC y zonas</button>
+    <button data-tab="fin" data-i18n="t_fin">Finanzas ADRES</button>
+    <button data-tab="sim" data-i18n="t_sim">Simulación</button>
+    <button data-tab="corte" data-i18n="t_corte">Corte Constitucional</button>
+  </nav>
+
+  <div class="sel" id="sel"></div>
+
+  <!-- controles compartidos del mapa -->
+  <section id="map-wrap">
+    <div class="ctrl" id="ctrl-afil">
+      <label><span data-i18n="variable">Variable</span>
+        <select id="var">
+          <option value="total" data-i18n="v_total">Afiliados (total)</option>
+          <option value="ps" data-i18n="v_ps">% en régimen subsidiado</option>
+          <option value="cob" data-i18n="v_cob">Afiliados / población DANE</option>
+          <option value="var13" data-i18n="v_var13">Variación desde dic. 2013 (%)</option>
+        </select></label>
+    </div>
+    <div class="ctrl" id="ctrl-upc" hidden>
+      <label><span data-i18n="vigencia">Vigencia</span><select id="upc-anio"></select></label>
+      <label><span data-i18n="regimen">Régimen</span><select id="upc-reg"><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option></select></label>
+    </div>
+    <div class="ctrl" id="ctrl-sim" hidden>
+      <label><span data-i18n="vigencia">Vigencia</span><select id="sim-anio"></select></label>
+      <label><span data-i18n="regimen">Régimen</span><select id="sim-reg"><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option></select></label>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div id="mapa" role="img" aria-label="Mapa municipal de Colombia"></div>
+    <div class="leyenda" id="leyenda"></div>
+    <div class="play" id="play-wrap">
+      <button id="play" type="button">▶</button>
+      <input type="range" id="frame" min="0" max="0" value="0" aria-label="Periodo">
+      <b id="frame-lbl"></b>
+    </div>
+  </section>
+
+  <section data-tab-panel="afil">
+    <p class="nota" data-i18n="n_afil">Fuente: SISPRO, cubo BDUA, afiliados vigentes por municipio de afiliación, diciembre de cada año y último mes disponible. Población: DANE. Pase el cursor o toque un municipio para ver el detalle; haga clic para seleccionarlo.</p>
+    <div class="chartbox" style="height:220px"><canvas id="g-nac"></canvas></div>
+  </section>
+
+  <section data-tab-panel="terr" hidden>
+    <div class="ctrl">
+      <label><span data-i18n="depto">Departamento</span><select id="f-dep"></select></label>
+      <label><span data-i18n="rural">Ruralidad 2018</span><select id="f-rur"></select></label>
+      <label><span data-i18n="clima">Clima</span><select id="f-cli"></select></label>
+      <label><span data-i18n="altitud">Altitud (m s. n. m.)</span><select id="f-alt"></select></label>
+      <label><span data-i18n="zona">Zona UPC (subsidiado, año del mapa)</span><select id="f-zon"></select></label>
+    </div>
+    <p class="nota" data-i18n="n_terr">Los filtros atenúan en el mapa los municipios que no cumplen y recalculan los indicadores. Ruralidad 2018, altitud y clima: bases aportadas por los coautores (ver Datos). La categoría de ruralidad de SISPRO se muestra en el detalle del municipio.</p>
+    <div class="scroll"><table class="tbl" id="t-terr"></table></div>
+  </section>
+
+  <section data-tab-panel="upc" hidden>
+    <p class="nota" data-i18n="n_upc">El mapa muestra la zona de la UPC de cada municipio en la vigencia y el régimen elegidos. La columna «verificación» de upc_municipio_zona.csv dice cómo se obtuvo cada municipio.</p>
+    <div class="chartbox" style="height:240px"><canvas id="g-upc"></canvas></div>
+    <div class="scroll"><table class="tbl" id="t-upc"></table></div>
+    <h4 data-i18n="ponds">Ponderadores por grupo de edad (estructura de costo)</h4>
+    <div class="scroll"><table class="tbl" id="t-pond"></table></div>
+    <h4 data-i18n="etaria">Prima por concentración de riesgo etario (contributivo)</h4>
+    <div id="t-eta" class="nota"></div>
+  </section>
+
+  <section data-tab-panel="fin" hidden>
+    <div class="ctrl">
+      <label><span data-i18n="serie">Serie</span><select id="fin-serie">
+        <option value="gasto_obligacion" data-i18n="s_go">Gastos – obligaciones</option>
+        <option value="gasto_compromiso" data-i18n="s_gc">Gastos – compromisos</option>
+        <option value="ingreso_recaudo" data-i18n="s_ir">Ingresos – recaudo</option></select></label>
+      <label><span data-i18n="precios">Precios</span><select id="fin-prec">
+        <option value="c" data-i18n="p_const">Constantes (sep. 2026)</option>
+        <option value="n" data-i18n="p_corr">Corrientes</option></select></label>
+    </div>
+    <div class="chartbox" style="height:360px"><canvas id="g-fin"></canvas></div>
+    <p class="nota" data-i18n="n_fin">Billones de pesos. 2017: agosto a diciembre (inicio de la ADRES). 2026: enero a septiembre. Rubros más desagregados de la ejecución mensual de la Unidad de Recursos Administrados, clasificados por nombre.</p>
+    <h4 data-i18n="empalme">Gasto no UPC empalmado: recobros y presupuestos máximos</h4>
+    <div class="chartbox" style="height:260px"><canvas id="g-emp"></canvas></div>
+    <p class="nota" data-i18n="n_emp">Antes de 2020 el no UPC del régimen subsidiado lo pagaban los departamentos y no aparece en la ADRES (Ley 1955 de 2019, art. 231). El saneamiento paga cuentas de años anteriores y se muestra aparte.</p>
+    <details><summary data-i18n="justif">Justificación de cada categoría</summary><div id="t-just" class="nota"></div></details>
+  </section>
+
+  <section data-tab-panel="sim" hidden>
+    <p class="nota" data-i18n="n_sim"><b>Ejercicio ilustrativo.</b> Usa la distribución por edad del último corte de la ADRES (la única disponible por municipio) y le aplica los ponderadores, la UPC base y la prima de zona de la vigencia elegida. No reemplaza la LMA ni la compensación. No incluye la UPC indígena, la prima por riesgo etario de algunas EPS ni los días efectivamente reconocidos. Para otras fechas no hay datos de edad y no se estiman.</p>
+    <div class="scroll"><table class="tbl" id="t-sim"></table></div>
+  </section>
+
+  <section data-tab-panel="corte" hidden>
+    <p class="nota" data-i18n="n_corte">Seguimiento a las órdenes 21 y 22 de la Sentencia T-760 de 2008. Resúmenes de la parte resolutiva leída en el texto oficial de la relatoría.</p>
+    <div class="linea" id="linea"></div>
+  </section>
+</aside>
+</div>
+
+<footer class="pie">
+  <span data-i18n="pie">Repositorio de datos y código. Código: licencia MIT. Datos derivados de la ADRES: CC BY-SA 4.0. Este sitio no es una publicación oficial de ninguna entidad del Estado.</span>
+  · <a href="https://github.com/doar95/aseguramiento-salud-colombia">GitHub</a> · <span id="meta"></span>
+</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+"use strict";
+const REPO = "https://github.com/doar95/aseguramiento-salud-colombia/blob/main/";
+const T = {
+ es:{}, en:{
+  barra:"Open repository · Colombian public data", tipo:"Working paper · version 1.0 · October 2026", y:"and",
+  merito:"Credit goes to the agencies that publish open data: Ministry of Health, ADRES, SISPRO, DANE, Constitutional Court and DNP.",
+  aviso:"<b>Before using these figures.</b> Enrollees are counted in the <b>municipality of enrollment</b> recorded in the BDUA, which is not always where they live or seek care. This repository <b>does not replace</b> the official monthly settlement (LMA), the compensation process or official statistics. Where no age distribution exists, enrollees are not split by age.",
+  t_afil:"Enrollment", t_terr:"Territory", t_upc:"UPC & zones", t_fin:"ADRES finances", t_sim:"Simulation", t_corte:"Constitutional Court",
+  variable:"Variable", v_total:"Enrollees (total)", v_ps:"% in subsidized scheme", v_cob:"Enrollees / DANE population", v_var13:"Change since Dec 2013 (%)",
+  vigencia:"Year", regimen:"Scheme", contrib:"Contributory", subs:"Subsidized", depto:"Department", rural:"Rurality 2018", clima:"Climate",
+  altitud:"Altitude (m a.s.l.)", zona:"UPC zone (subsidized, map year)", refs:"References",
+  n_afil:"Source: SISPRO, BDUA cube, current enrollees by municipality of enrollment, December of each year and latest month. Population: DANE. Hover or tap a municipality for details; click to select it.",
+  n_terr:"Filters dim non-matching municipalities and recompute indicators. Rurality 2018, altitude and climate: datasets provided by the co-authors. SISPRO's rurality category appears in the municipality detail.",
+  n_upc:"The map shows each municipality's UPC zone for the selected year and scheme. The 'verificacion' column of upc_municipio_zona.csv states how each row was obtained.",
+  ponds:"Age-group weights (cost structure)", etaria:"Age-risk concentration premium (contributory)", serie:"Series", precios:"Prices",
+  s_go:"Spending – obligations", s_gc:"Spending – commitments", s_ir:"Revenue – collected", p_const:"Constant (Sep 2026)", p_corr:"Current",
+  n_fin:"COP trillion. 2017: August–December (ADRES start). 2026: January–September. Most disaggregated lines of the monthly execution, classified by name.",
+  empalme:"Linked non-UPC spending: reimbursement claims and maximum budgets",
+  n_emp:"Before 2020, subsidized non-UPC services were paid by departments and do not appear in ADRES (Law 1955 of 2019, art. 231). Debt clean-up pays prior-year bills and is shown separately.",
+  justif:"Justification of each category",
+  n_sim:"<b>Illustrative exercise.</b> Applies the weights, base UPC and zone premium of the chosen year to the age distribution of the latest ADRES snapshot (the only one by municipality). It does not replace the LMA or compensation. It excludes the indigenous UPC, insurer-specific age premiums and days actually paid. No age data exist for other dates and none are estimated.",
+  n_corte:"Follow-up of orders 21 and 22 of ruling T-760 of 2008. Summaries of the operative part read in the official text.",
+  pie:"Data and code repository. Code: MIT license. ADRES-derived data: CC BY-SA 4.0. This site is not an official publication of any government agency."
+ }};
+document.querySelectorAll("[data-i18n]").forEach(e=>{T.es[e.dataset.i18n]=e.innerHTML});
+let LANG="es";
+const t=k=>(T[LANG][k]??T.es[k]??k);
+function setLang(l){LANG=l;document.documentElement.lang=l;
+  document.querySelectorAll("[data-i18n]").forEach(e=>{e.innerHTML=t(e.dataset.i18n)});
+  document.getElementById("b-es").classList.toggle("on",l==="es");document.getElementById("b-en").classList.toggle("on",l==="en");
+  try{localStorage.setItem("lang",l)}catch(e){}
+  if(window.APP_READY) refreshAll();}
+document.getElementById("b-es").onclick=()=>setLang("es");
+document.getElementById("b-en").onclick=()=>setLang("en");
+
+const L=()=>LANG==="es"?"es-CO":"en-US";
+const fmt=(v,d=0)=>v==null||isNaN(v)?"–":Number(v).toLocaleString(L(),{maximumFractionDigits:d,minimumFractionDigits:d});
+const pct=(v,d=1)=>v==null||isNaN(v)?"–":fmt(v*100,d)+" %";
+const mill=v=>v==null?"–":fmt(v/1e6,2)+(LANG==="es"?" M":" M");
+const RAMP=["#E6EFFD","#B3CBF2","#6F99E3","#3366CC","#004884"];
+const ZCOL={resto_pais:"#E9ECEF",dispersion:"#069169",ciudades:"#3366CC",ciudades_piloto:"#9B59B6",san_andres:"#FFAB00",guainia:"#A80521"};
+const ZNOM={es:{resto_pais:"Resto del país",dispersion:"Dispersión geográfica",ciudades:"Ciudades",ciudades_piloto:"Ciudades piloto (igualación)",san_andres:"San Andrés (zona alejada)",guainia:"Guainía"},
+            en:{resto_pais:"Rest of country",dispersion:"Geographic dispersion",ciudades:"Cities",ciudades_piloto:"Pilot cities (equalization)",san_andres:"San Andrés (remote)",guainia:"Guainía"}};
+const zn=z=>ZNOM[LANG][z]||z;
+
+const S={tab:"afil",frame:0,sel:null,dep:"",rur:"",cli:"",alt:"",zon:""};
+let D={}, map, charts={};
+
+async function load(){
+  const f=["municipios_atributos","afiliacion_municipio","afiliacion_nacional","eps_municipio","edad_municipio","upc","finanzas","corte","meta"];
+  const r=await Promise.all(f.map(n=>fetch("data/"+n+".json").then(x=>x.json())));
+  f.forEach((n,i)=>D[n]=r[i]);
+  D.geo=await fetch("data/municipios.geojson").then(x=>x.json());
+  D.cods=D.geo.features.map(f=>f.properties.cod);
+}
+
+/* ---------- utilidades de datos ---------- */
+const AT=c=>D.municipios_atributos.datos[c]||[];
+function altR(a){if(a==null)return "";return a<1000?"0-1000":a<2000?"1000-2000":a<3000?"2000-3000":"3000+"}
+function frameYear(){return +D.afiliacion_municipio.periodos[S.frame].slice(0,4)}
+function zonaDe(c,anio,reg){const z=(D.upc.zonas_municipio[String(anio)]||{})[reg]||{};return z[c]||"resto_pais"}
+function pasaFiltro(c){
+  const a=AT(c); if(!a.length) return false;
+  if(S.dep && c.slice(0,2)!==S.dep) return false;
+  if(S.rur && a[3]!==S.rur) return false;
+  if(S.cli && a[6]!==S.cli) return false;
+  if(S.alt && altR(a[5])!==S.alt) return false;
+  if(S.zon && zonaDe(c,Math.min(frameYear(),2026),"S")!==S.zon) return false;
+  return true;
+}
+function areaCods(){ if(S.sel) return [S.sel]; return Object.keys(D.afiliacion_municipio.datos).filter(pasaFiltro); }
+function hayFiltro(){return S.dep||S.rur||S.cli||S.alt||S.zon}
+function suma(cods,k){const A=D.afiliacion_municipio;let s=[0,0,0,0],p=0,p0=0,s0=0;
+  for(const c of cods){const v=(A.datos[c]||[])[k];if(v){for(let i=0;i<4;i++)s[i]+=v[i]||0}
+    const pp=(A.poblacion_dane[c]||[])[k]; if(pp) p+=pp;}
+  return {c:s[0],s:s[1],e:s[2],t:s[3],pob:p};}
+
+/* ---------- mapa ---------- */
+function initMap(){
+  map=new maplibregl.Map({container:"mapa",style:{version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":getComputedStyle(document.body).getPropertyValue("--fondo").trim()||"#fff"}}]},
+    center:[-73.5,4.3],zoom:4.3,minZoom:3.5,maxZoom:11,attributionControl:false,dragRotate:false});
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
+  map.addControl(new maplibregl.AttributionControl({customAttribution:"DANE – MGN 2024"}));
+  map.on("load",()=>{
+    map.addSource("m",{type:"geojson",data:D.geo,promoteId:"cod"});
+    map.addLayer({id:"f",type:"fill",source:"m",paint:{
+      "fill-color":["coalesce",["feature-state","col"],"#E9ECEF"],
+      "fill-opacity":["case",["boolean",["feature-state","off"],false],0.18,0.95]}});
+    map.addLayer({id:"l",type:"line",source:"m",paint:{"line-color":"#ffffff","line-width":["case",["boolean",["feature-state","sel"],false],2.5,0.25]}});
+    map.addLayer({id:"ls",type:"line",source:"m",filter:["==",["get","cod"],""],paint:{"line-color":"#FFAB00","line-width":2.5}});
+    map.fitBounds([[-79.1,-4.3],[-66.8,12.6]],{padding:10,duration:0});
+    const pop=new maplibregl.Popup({closeButton:false,closeOnClick:false});
+    map.on("mousemove","f",e=>{const c=e.features[0].properties.cod;map.getCanvas().style.cursor="pointer";pop.setLngLat(e.lngLat).setHTML(tip(c)).addTo(map)});
+    map.on("mouseleave","f",()=>{map.getCanvas().style.cursor="";pop.remove()});
+    map.on("click","f",e=>{const c=e.features[0].properties.cod;S.sel=S.sel===c?null:c;refreshAll()});
+    paint();
+  });
+}
+function breaks(vals){const v=vals.filter(x=>x!=null&&isFinite(x)).sort((a,b)=>a-b);if(!v.length)return[0,0,0,0];
+  return [0.2,0.4,0.6,0.8].map(q=>v[Math.floor(q*(v.length-1))]);}
+function colorQ(v,b){if(v==null||!isFinite(v))return null;let i=0;while(i<4&&v>b[i])i++;return RAMP[i];}
+function valorAfil(c){const A=D.afiliacion_municipio,k=S.frame,v=(A.datos[c]||[])[k];if(!v)return null;const vr=document.getElementById("var").value;
+  if(vr==="total")return v[3]; if(vr==="ps")return (v[0]+v[1])?v[1]/(v[0]+v[1]):null;
+  if(vr==="cob"){const p=(A.poblacion_dane[c]||[])[k];return p?v[3]/p:null}
+  if(vr==="var13"){const v0=(A.datos[c]||[])[0];return v0&&v0[3]?v[3]/v0[3]-1:null}}
+function simVal(c){const reg=document.getElementById("sim-reg").value,an=+document.getElementById("sim-anio").value;
+  const e=(D.edad_municipio.datos[c]||{})[reg];if(!e)return null;const P=((D.upc.ponderadores[String(an)]||{})[reg])||{};
+  let n=0,w=0;D.edad_municipio.grupos.forEach((g,i)=>{n+=e[i];w+=e[i]*(P[g]||0)});return n?w/n:null;}
+function paint(){
+  if(!map||!map.getSource("m"))return;
+  let vals={},cats=null;
+  if(S.tab==="upc"){const an=+document.getElementById("upc-anio").value,reg=document.getElementById("upc-reg").value;cats={};
+    D.cods.forEach(c=>{const z=zonaDe(c,an,reg);vals[c]=ZCOL[z];cats[z]=(cats[z]||0)+1});}
+  else if(S.tab==="sim"){const v={};D.cods.forEach(c=>v[c]=simVal(c));const b=breaks(Object.values(v));D.cods.forEach(c=>vals[c]=colorQ(v[c],b));legendQ(b,x=>fmt(x,3));}
+  else{const v={};D.cods.forEach(c=>v[c]=valorAfil(c));const b=breaks(Object.values(v));D.cods.forEach(c=>vals[c]=colorQ(v[c],b));
+    const vr=document.getElementById("var").value;legendQ(b,vr==="total"?x=>fmt(x):x=>pct(x,0));}
+  const filt=hayFiltro()&&S.tab!=="upc";
+  D.cods.forEach(c=>map.setFeatureState({source:"m",id:c},{col:vals[c]||"#E9ECEF",off:filt&&!pasaFiltro(c),sel:S.sel===c}));
+  map.setFilter("ls",["==",["get","cod"],S.sel||""]);
+  if(cats) legendCat(cats);
+}
+function legendQ(b,f){const lg=document.getElementById("leyenda");
+  const lab=[`≤ ${f(b[0])}`,`${f(b[0])} – ${f(b[1])}`,`${f(b[1])} – ${f(b[2])}`,`${f(b[2])} – ${f(b[3])}`,`> ${f(b[3])}`];
+  lg.innerHTML=RAMP.map((c,i)=>`<span><i style="background:${c}"></i>${lab[i]}</span>`).join("")+`<span><i style="background:#E9ECEF"></i>${LANG==="es"?"sin dato":"no data"}</span>`;}
+function legendCat(cats){document.getElementById("leyenda").innerHTML=Object.keys(ZCOL).filter(z=>cats[z]).map(z=>`<span><i style="background:${ZCOL[z]}"></i>${zn(z)} (${cats[z]})</span>`).join("");}
+function tip(c){const a=AT(c),A=D.afiliacion_municipio,k=S.frame,v=(A.datos[c]||[])[k]||[],p=(A.poblacion_dane[c]||[])[k];
+  let h=`<b>${a[1]||c}</b> · ${a[0]||""}<br><small>DANE ${c}</small><br>`;
+  if(S.tab==="upc"){const an=+document.getElementById("upc-anio").value,reg=document.getElementById("upc-reg").value;const z=zonaDe(c,an,reg);
+    h+=`${an} · ${reg==="C"?t("contrib"):t("subs")}: <b>${zn(z)}</b>`;const vf=((D.upc.verificacion_no_directa[String(an)]||{})[reg]||{})[c];if(vf)h+=`<br><small>${vf}</small>`;return h;}
+  if(S.tab==="sim"){const x=simVal(c);return h+`${LANG==="es"?"Ponderador promedio":"Mean weight"}: <b>${fmt(x,3)}</b><br><small>${LANG==="es"?"Edad: ADRES corte":"Age: ADRES snapshot"} ${D.edad_municipio.corte}</small>`;}
+  h+=`${A.periodos[k].slice(4)}/${A.periodos[k].slice(0,4)}: <b>${fmt(v[3])}</b> ${LANG==="es"?"afiliados":"enrollees"}<br>`+
+     `${t("contrib")}: ${fmt(v[0])} · ${t("subs")}: ${fmt(v[1])}<br>`+(p?`${LANG==="es"?"Población DANE":"DANE pop."}: ${fmt(p)} (${pct(v[3]/p,0)})<br>`:"")+
+     `<small>${t("rural")}: ${a[3]||"–"} · SISPRO: ${a[4]||"–"}<br>${t("altitud")}: ${fmt(a[5])} · ${a[6]||"–"}</small>`;
+  const e=D.eps_municipio.datos[c];if(e)h+=`<br><small>EPS (${D.eps_municipio.periodo}): ${e.slice(0,3).map(x=>x[0]+" "+fmt(x[1]+x[2]+x[3])).join("; ")}</small>`;
+  return h;}
+
+/* ---------- KPIs y selección ---------- */
+function selText(){const el=document.getElementById("sel");let s;
+  if(S.sel){const a=AT(S.sel);s=`<b>${a[1]}</b> (${a[0]})`}else if(hayFiltro())s=`<b>${LANG==="es"?"Municipios filtrados":"Filtered municipalities"}</b> (${areaCods().length})`;else s=`<b>Colombia</b>`;
+  el.innerHTML=(LANG==="es"?"Área: ":"Area: ")+s+(S.sel||hayFiltro()?` <button id="clr">${LANG==="es"?"ver todo el país":"whole country"}</button>`:"");
+  const b=document.getElementById("clr");if(b)b.onclick=()=>{S.sel=null;S.dep=S.rur=S.cli=S.alt=S.zon="";syncFiltros();refreshAll()};}
+function kpis(){const k=document.getElementById("kpis");
+  if(S.tab==="sim"){k.innerHTML=simKpis();return}
+  if(S.tab==="upc"){const an=+document.getElementById("upc-anio").value,b=D.upc.base.find(x=>x.vigencia===an);
+    k.innerHTML=[[`UPC-C ${an}`,"$ "+fmt(b.upc_c)],[`UPC-S ${an}`,"$ "+fmt(b.upc_s)],["S / C",fmt(b.razon_s_c,4)],[LANG==="es"?"Resolución":"Resolution",`<a href="${b.url}" target="_blank" rel="noopener">${b.resolucion.replace("Resolución ","")}</a>`]]
+      .map(x=>`<div class="kpi"><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");return}
+  const A=D.afiliacion_municipio,cods=S.sel?[S.sel]:(hayFiltro()?areaCods():null);
+  let s;if(cods)s=suma(cods,S.frame);else{const N=D.afiliacion_nacional,i=N.periodo.indexOf(A.periodos[S.frame]);
+    s={c:N.contributivo[i],s:N.subsidiado[i],e:N.excepcion[i],t:N.total[i],pob:N.poblacion_dane_anual[A.periodos[S.frame].slice(0,4)]}}
+  k.innerHTML=[[LANG==="es"?"Afiliados vigentes":"Current enrollees",mill(s.t)],[t("contrib"),mill(s.c)],[t("subs"),mill(s.s)],
+    [LANG==="es"?"Excepción":"Exception",mill(s.e)],[LANG==="es"?"% subsidiado":"% subsidized",pct(s.s/(s.c+s.s))],[LANG==="es"?"Afiliados / pob. DANE":"Enrollees / DANE pop.",pct(s.pob?s.t/s.pob:null)]]
+    .map(x=>`<div class="kpi"><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");}
+
+/* ---------- pestañas ---------- */
+function setTab(tb){S.tab=tb;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tb));
+  document.querySelectorAll("[data-tab-panel]").forEach(p=>p.hidden=p.dataset.tabPanel!==tb);
+  const conMapa=!["fin","corte"].includes(tb);document.getElementById("map-wrap").hidden=!conMapa;
+  document.getElementById("ctrl-afil").hidden=!["afil","terr"].includes(tb);document.getElementById("ctrl-upc").hidden=tb!=="upc";
+  document.getElementById("ctrl-sim").hidden=tb!=="sim";document.getElementById("play-wrap").hidden=!["afil","terr"].includes(tb);
+  document.getElementById("sel").hidden=!conMapa;
+  if(conMapa&&map)setTimeout(()=>map.resize(),30);
+  refreshAll();}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+
+/* ---------- afiliación: serie nacional ---------- */
+function gNac(){const N=D.afiliacion_nacional,lab=N.periodo.map(p=>p.slice(0,4)+"-"+p.slice(4));
+  const ds=[[t("contrib"),N.contributivo,"#3366CC"],[t("subs"),N.subsidiado,"#069169"],[LANG==="es"?"Excepción":"Exception",N.excepcion,"#FFAB00"]]
+   .map(([l,d,c])=>({label:l,data:d.map(x=>x/1e6),borderColor:c,backgroundColor:c,pointRadius:0,borderWidth:2}));
+  mk("g-nac",{type:"line",data:{labels:lab,datasets:ds},options:base(LANG==="es"?"Millones de afiliados (nacional, SISPRO)":"Million enrollees (national, SISPRO)")});}
+function base(title,stack){const col=getComputedStyle(document.body).getPropertyValue("--texto").trim();
+  return {responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:"index",intersect:false},
+  plugins:{title:{display:true,text:title,color:col,font:{family:"Work Sans",size:13,weight:"600"}},legend:{labels:{color:col,boxWidth:12,font:{size:11}}},
+    tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.parsed.y,2)}`}}},
+  scales:{x:{stacked:!!stack,ticks:{color:col,maxTicksLimit:12,font:{size:10}},grid:{display:false}},y:{stacked:!!stack,ticks:{color:col,font:{size:10}},grid:{color:"#8882"}}}};}
+function mk(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+
+/* ---------- territorio ---------- */
+function opts(sel,arr,todos){sel.innerHTML=`<option value="">${todos}</option>`+arr.map(([v,l])=>`<option value="${v}">${l}</option>`).join("");}
+function initFiltros(){const M=D.municipios_atributos.datos,deps={};Object.entries(M).forEach(([c,a])=>deps[c.slice(0,2)]=a[0]);
+  const td=LANG==="es"?"Todos":"All";
+  opts(document.getElementById("f-dep"),Object.entries(deps).sort((a,b)=>a[1].localeCompare(b[1])),td);
+  opts(document.getElementById("f-rur"),[...new Set(Object.values(M).map(a=>a[3]).filter(Boolean))].sort().map(x=>[x,x]),td);
+  opts(document.getElementById("f-cli"),[...new Set(Object.values(M).map(a=>a[6]).filter(Boolean))].sort().map(x=>[x,x]),td);
+  opts(document.getElementById("f-alt"),["0-1000","1000-2000","2000-3000","3000+"].map(x=>[x,x]),td);
+  opts(document.getElementById("f-zon"),["resto_pais","dispersion","ciudades","ciudades_piloto","san_andres","guainia"].map(z=>[z,zn(z)]),td);
+  [["f-dep","dep"],["f-rur","rur"],["f-cli","cli"],["f-alt","alt"],["f-zon","zon"]].forEach(([id,k])=>document.getElementById(id).onchange=e=>{S[k]=e.target.value;S.sel=null;refreshAll()});}
+function syncFiltros(){[["f-dep","dep"],["f-rur","rur"],["f-cli","cli"],["f-alt","alt"],["f-zon","zon"]].forEach(([id,k])=>document.getElementById(id).value=S[k]);}
+function tTerr(){const M=D.municipios_atributos.datos,cods=Object.keys(D.afiliacion_municipio.datos).filter(pasaFiltro),k=S.frame,g={};
+  cods.forEach(c=>{const a=M[c]||[],key=a[3]||"–",v=(D.afiliacion_municipio.datos[c]||[])[k];if(!v)return;const o=g[key]||(g[key]={n:0,c:0,s:0,t:0,p:0});
+    o.n++;o.c+=v[0]||0;o.s+=v[1]||0;o.t+=v[3]||0;o.p+=(D.afiliacion_municipio.poblacion_dane[c]||[])[k]||0;});
+  const es=LANG==="es";document.getElementById("t-terr").innerHTML=`<tr><th>${t("rural")}</th><th>${es?"Municipios":"Munic."}</th><th>${es?"Afiliados":"Enrollees"}</th><th>% ${t("subs").toLowerCase()}</th><th>${es?"Afil./pob.":"Enr./pop."}</th></tr>`+
+   Object.entries(g).sort().map(([r,o])=>`<tr><td>${r}</td><td>${o.n}</td><td>${fmt(o.t)}</td><td>${pct(o.s/(o.c+o.s))}</td><td>${pct(o.p?o.t/o.p:null)}</td></tr>`).join("");}
+
+/* ---------- UPC ---------- */
+function initUPC(){const an=D.upc.base.map(b=>b.vigencia);["upc-anio","sim-anio"].forEach(id=>{const s=document.getElementById(id);s.innerHTML=an.map(a=>`<option>${a}</option>`).join("");s.value=an[an.length-1];s.onchange=refreshAll});
+  document.getElementById("upc-reg").onchange=refreshAll;document.getElementById("sim-reg").onchange=refreshAll;}
+function ipcFactor(per){const I=D.finanzas.ipc,m=Object.fromEntries(I);return m["2026-09"]/m[per];}
+function gUPC(){const B=D.upc.base,lab=B.map(b=>b.vigencia),es=LANG==="es";
+  const ds=[[`UPC-C ${es?"corriente":"current"}`,B.map(b=>b.upc_c),"#3366CC",[]],[`UPC-S ${es?"corriente":"current"}`,B.map(b=>b.upc_s),"#069169",[]],
+    [`UPC-C ${es?"constante sep. 2026":"constant Sep 2026"}`,B.map(b=>b.upc_c*ipcFactor(b.vigencia+"-01")),"#3366CC",[5,4]],[`UPC-S ${es?"constante sep. 2026":"constant Sep 2026"}`,B.map(b=>b.upc_s*ipcFactor(b.vigencia+"-01")),"#069169",[5,4]]]
+   .map(([l,d,c,da])=>({label:l,data:d.map(x=>x/1e6),borderColor:c,backgroundColor:c,borderDash:da,pointRadius:2,borderWidth:2}));
+  mk("g-upc",{type:"line",data:{labels:lab,datasets:ds},options:base(es?"UPC base anual (millones de pesos; constante con IPC de enero de cada vigencia)":"Annual base UPC (COP million; constant using January CPI of each year)")});}
+function tUPC(){const P=D.upc.primas,es=LANG==="es";const g=(a,r,z)=>{const x=P.find(p=>p.vigencia===a&&p.regimen===r&&p.variante==="general"&&p.zona===z);return x?pct(x.prima,2):"–"};
+  document.getElementById("t-upc").innerHTML=`<tr><th>${t("vigencia")}</th><th>${es?"Resolución":"Resolution"}</th><th>UPC-C</th><th>UPC-S</th><th>C ${es?"disp.":"disp."}</th><th>C ${es?"ciud.":"cities"}</th><th>C SAI</th><th>S ${es?"disp.":"disp."}</th><th>S ${es?"ciud.":"cities"}</th><th>S SAI</th><th>S Guainía</th></tr>`+
+  D.upc.base.map(b=>`<tr><td>${b.vigencia}</td><td><a href="${b.url}" target="_blank" rel="noopener">${b.resolucion.replace("Resolución ","")}</a></td><td>${fmt(b.upc_c)}</td><td>${fmt(b.upc_s)}</td><td>${g(b.vigencia,"C","dispersion")}</td><td>${g(b.vigencia,"C","ciudades")}</td><td>${g(b.vigencia,"C","san_andres")}</td><td>${g(b.vigencia,"S","dispersion")}</td><td>${g(b.vigencia,"S","ciudades")}</td><td>${g(b.vigencia,"S","san_andres")}</td><td>${g(b.vigencia,"S","guainia")}</td></tr>`).join("")+
+  `<tr><td colspan="11" style="text-align:left"><small>${es?"Prima sobre la UPC base. SAI: San Andrés; en el subsidiado desde 2019 es un valor fijo (se muestra su equivalente). 2013–2014: San Andrés y Providencia estaban en la lista de ciudades. 2022: valores sin las inclusiones de la Resolución 2292 de 2021; los valores con inclusiones están en upc_primas_zona.csv.":"Premium over base UPC. SAI: San Andrés; fixed value in the subsidized scheme since 2019 (equivalent shown). 2013–2014: San Andrés and Providencia were in the city list. 2022: values without Resolution 2292 of 2021 inclusions; values with inclusions are in upc_primas_zona.csv."}</small></td></tr>`;
+  const an=document.getElementById("upc-anio").value,Pd=D.upc.ponderadores[an]||{};
+  document.getElementById("t-pond").innerHTML=`<tr><th>${es?"Grupo":"Group"}</th>${D.upc.grupos.map(g=>`<th>${g}</th>`).join("")}</tr>`+
+    ["C","S"].map(r=>`<tr><td>${r==="C"?t("contrib"):t("subs")} ${an}</td>${D.upc.grupos.map(g=>`<td>${fmt((Pd[r]||{})[g],4)}</td>`).join("")}</tr>`).join("");
+  const E=D.upc.prima_etaria_eps.filter(x=>String(x.vigencia)===an);
+  document.getElementById("t-eta").innerHTML=E.length?E.map(x=>`${x.eps}: ${pct(x.prima,0)}`).join(" · ")+` (${E[0].resolucion})`:(es?"No se identificó en el texto de esta vigencia.":"Not identified in this year's text.");}
+
+/* ---------- finanzas ---------- */
+const PAL=["#004884","#3366CC","#6F99E3","#069169","#7BC8A4","#FFAB00","#F6C86B","#A80521","#E3787F","#4B4B4B","#9E9E9E","#9B59B6","#C39BD3","#2C3E50","#BDBDBD","#7F8C8D"];
+function gFin(){const F=D.finanzas,k=document.getElementById("fin-serie").value,c=document.getElementById("fin-prec").value==="c"?3:2,rows=F.datos[k].anual,es=LANG==="es";
+  const anios=[...new Set(rows.map(r=>r[0]))].sort(),cats=[...new Set(rows.map(r=>r[1]))];
+  const tot=Object.fromEntries(cats.map(x=>[x,rows.filter(r=>r[1]===x).reduce((s,r)=>s+Math.abs(r[c]),0)]));cats.sort((a,b)=>tot[b]-tot[a]);
+  const ds=cats.filter(x=>tot[x]>0.5).map((x,i)=>({label:x,data:anios.map(a=>{const r=rows.find(r=>r[0]===a&&r[1]===x);return r?r[c]/1000:0}),backgroundColor:PAL[i%PAL.length]}));
+  const o=base(es?"Billones de pesos":"COP trillion",true);o.plugins.legend.position="bottom";o.plugins.legend.labels.font={size:10};
+  mk("g-fin",{type:"bar",data:{labels:anios,datasets:ds},options:o});
+  const s=F.datos.gasto_obligacion.subcategorias.filter(r=>r[1].startsWith("No UPC")||r[1].startsWith("Saneamiento"));
+  const grp=r=>r[1].startsWith("Saneamiento")?(es?"Saneamiento de deudas (aparte)":"Debt clean-up (separate)"):r[1]==="No UPC: recobros"?(es?"Recobros":"Reimbursement claims"):r[1]==="No UPC: presupuestos máximos"?(r[2].startsWith("Ajuste")?(es?"Presupuestos máximos: ajustes de vigencias anteriores":"Maximum budgets: prior-year adjustments"):(es?"Presupuestos máximos":"Maximum budgets")):(es?"Otros no financiados":"Other non-funded");
+  const gs=[...new Set(s.map(grp))],an2=[...new Set(s.map(r=>r[0]))].sort();const cc=["#E3787F","#3366CC","#6F99E3","#069169","#FFAB00"];
+  const d2=gs.map((g,i)=>{const sane=g.startsWith("Saneamiento")||g.startsWith("Debt");return {label:g,type:sane?"line":"bar",stack:sane?"b":"a",data:an2.map(a=>s.filter(r=>r[0]===a&&grp(r)===g).reduce((x,r)=>x+r[c+1],0)/1000),
+    backgroundColor:sane?"#A80521":cc[i%cc.length],borderColor:sane?"#A80521":cc[i%cc.length],pointRadius:3}});
+  const o2=base(es?"Obligaciones, billones de pesos "+(c===3?"constantes":"corrientes"):"Obligations, COP trillion",true);o2.plugins.legend.position="bottom";
+  mk("g-emp",{type:"bar",data:{labels:an2,datasets:d2},options:o2});
+  document.getElementById("t-just").innerHTML=F.justificacion.filter(j=>j.justificacion).map(j=>`<p><b>${j.categoria}</b>: ${j.justificacion}</p>`).join("")+
+    `<p><a href="${REPO}data/reference/adres_clasificacion_rubros.csv">adres_clasificacion_rubros.csv</a></p>`;}
+document.getElementById("fin-serie").onchange=()=>gFin();document.getElementById("fin-prec").onchange=()=>gFin();
+
+/* ---------- simulación ---------- */
+function simCalc(cods){const reg=document.getElementById("sim-reg").value,an=+document.getElementById("sim-anio").value,P=((D.upc.ponderadores[String(an)]||{})[reg])||{};
+  const b=D.upc.base.find(x=>x.vigencia===an),base0=reg==="C"?b.upc_c:b.upc_s;
+  const fz={};D.upc.primas.filter(p=>p.vigencia===an&&p.regimen===reg&&p.variante==="general").forEach(p=>fz[p.zona]=1+p.prima);
+  let n=0,w=0,u=0;const porG=D.edad_municipio.grupos.map(()=>0);
+  cods.forEach(c=>{const e=(D.edad_municipio.datos[c]||{})[reg];if(!e)return;const f=fz[zonaDe(c,an,reg)]||1;
+    D.edad_municipio.grupos.forEach((g,i)=>{n+=e[i];w+=e[i]*(P[g]||0);u+=e[i]*(P[g]||0)*base0*f;porG[i]+=e[i]})});
+  return {n,pm:n?w/n:null,u,porG,base0,an,reg};}
+function simKpis(){const cods=S.sel?[S.sel]:(hayFiltro()?areaCods():Object.keys(D.edad_municipio.datos));
+  const r=simCalc(cods),es=LANG==="es";
+  return [[es?`Afiliados activos (ADRES ${D.edad_municipio.corte})`:`Active enrollees (ADRES ${D.edad_municipio.corte})`,mill(r.n)],[es?"Ponderador etario promedio":"Mean age weight",fmt(r.pm,4)],
+    [es?`UPC base ${r.an}`:`Base UPC ${r.an}`,"$ "+fmt(r.base0)],[es?"UPC teórica anual (billones)":"Theoretical annual UPC (COP tn)",fmt(r.u/1e12,2)],[es?"Por afiliado al año":"Per enrollee per year","$ "+fmt(r.n?r.u/r.n:null)]]
+    .map(x=>`<div class="kpi"><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");}
+function tSim(){const cods=S.sel?[S.sel]:(hayFiltro()?areaCods():Object.keys(D.edad_municipio.datos));const r=simCalc(cods),P=((D.upc.ponderadores[String(r.an)]||{})[r.reg])||{},es=LANG==="es";
+  document.getElementById("t-sim").innerHTML=`<tr><th>${es?"Grupo":"Group"}</th><th>${es?"Afiliados":"Enrollees"}</th><th>%</th><th>${es?"Ponderador":"Weight"}</th></tr>`+
+   D.edad_municipio.grupos.map((g,i)=>`<tr><td>${g}</td><td>${fmt(r.porG[i])}</td><td>${pct(r.n?r.porG[i]/r.n:null)}</td><td>${fmt(P[g],4)}</td></tr>`).join("");}
+
+/* ---------- Corte ---------- */
+function linea(){document.getElementById("linea").innerHTML=D.corte.map(a=>`<div class="hito"><div class="f">${a.fecha} · ${a.magistrado_sustanciador}</div>
+  <div class="t"><a href="${a.url_relatoria}" target="_blank" rel="noopener">${a.providencia}</a><span class="c">${a.componente}</span></div><p>${a.decision_resumen}</p></div>`).join("")+
+  `<p class="nota">${LANG==="es"?"La «Resolución 067 de 2025» mencionada en la planeación no se localizó en la relatoría ni en el Ministerio durante esta versión; queda pendiente y no se incluye.":"A 'Resolution 067 of 2025' mentioned in planning could not be located; it is pending and not included."}</p>`;}
+
+/* ---------- archivos ---------- */
+function tArchivos(){const f=[["afiliados vigentes por municipio y mes (SISPRO)","data/processed/sispro_afiliados_activos_municipio_mensual.csv"],
+  ["afiliados por EPS, municipio y régimen (MinSalud)","data/processed/minsalud_eps_municipio_regimen_mensual.csv"],
+  ["afiliados por EPS, municipio, sexo y grupo de edad UPC (ADRES)","data/processed/adres_bdua_eps_municipio_sexo_grupo_upc_2026-09.csv.gz"],
+  ["UPC base y estructura de costo por edad","data/processed/upc_estructura_costo_grupo_etario.csv"],
+  ["primas por zona y valores por artículo","data/processed/upc_primas_zona.csv"],["municipio → zona UPC por vigencia y régimen, con verificación","data/processed/upc_municipio_zona.csv"],
+  ["ejecución ADRES por rubro y mes","data/processed/adres_ejecucion_rubros_mensual.csv"],["ejecución ADRES por categoría, corriente y constante","data/processed/adres_ejecucion_categorias_mensual.csv"],
+  ["población DANE por municipio y grupo UPC","data/processed/dane_poblacion_municipio_grupo_upc.csv"],["atributos municipales (ruralidad, altitud, clima)","data/processed/municipios_atributos.csv"],
+  ["autos de la Corte Constitucional","data/reference/corte_constitucional_autos.csv"]];
+  document.getElementById("tabla-archivos").innerHTML=f.map(([d,p])=>`<tr><td><a href="${REPO}${p}">${p.split("/").pop()}</a></td><td>${d}</td></tr>`).join("");}
+
+/* ---------- ciclo ---------- */
+function refreshAll(){selText();kpis();paint();
+  if(S.tab==="afil")gNac();if(S.tab==="terr")tTerr();if(S.tab==="upc"){gUPC();tUPC()}if(S.tab==="fin")gFin();if(S.tab==="sim")tSim();if(S.tab==="corte")linea();
+  const p=D.afiliacion_municipio.periodos[S.frame];document.getElementById("frame-lbl").textContent=p.slice(4)+"/"+p.slice(0,4);}
+let timer=null;
+function initPlay(){const r=document.getElementById("frame"),n=D.afiliacion_municipio.periodos.length;r.max=n-1;r.value=n-1;S.frame=n-1;
+  r.oninput=()=>{S.frame=+r.value;refreshAll()};
+  document.getElementById("play").onclick=()=>{if(timer){clearInterval(timer);timer=null;document.getElementById("play").textContent="▶";return}
+    document.getElementById("play").textContent="❚❚";if(S.frame>=n-1){S.frame=0}
+    timer=setInterval(()=>{r.value=S.frame;refreshAll();if(S.frame>=n-1){clearInterval(timer);timer=null;document.getElementById("play").textContent="▶";return}S.frame++},900);};
+  document.getElementById("var").onchange=refreshAll;}
+
+(async function(){
+  try{const l=localStorage.getItem("lang");if(l==="en")setLang("en")}catch(e){}
+  await load();
+  document.getElementById("meta").textContent=(LANG==="es"?"Datos generados: ":"Data generated: ")+D.meta.generado;
+  initPlay();initFiltros();initUPC();tArchivos();initMap();window.APP_READY=true;refreshAll();
+})();
+</script>
+</body>
+</html>

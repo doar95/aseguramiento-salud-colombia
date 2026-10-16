@@ -12,8 +12,9 @@ Salidas:
   adres_upc_teorica_eps_municipio_<corte>.csv  (ILUSTRATIVO, ver advertencias)
 
 ADVERTENCIAS sobre la UPC teórica:
-  * No aplica primas por zona (dispersión geográfica, ciudades, San Andrés), que dependen
-    de los anexos de municipios de cada resolución. Todo se calcula a la UPC de zona normal.
+  * Aplica la UPC de la zona del municipio de afiliación (dispersión, ciudades, San Andrés,
+    Guainía) según data/processed/upc_municipio_zona.csv (scripts/08_upc_zonas.py). El
+    municipio de la BDUA es el de afiliación, no necesariamente el de residencia o atención.
   * No aplica la prima por concentración de riesgo etario, la UPC diferencial indígena,
     ni los días efectivamente compensados/liquidados.
   * La BDUA publicada es una foto del corte; la compensación (contributivo) y la LMA
@@ -70,12 +71,25 @@ t = (d.groupby(["regimen", "ent_id", "ent_nombre", "cod_municipio", "dpr_nombre"
 t.insert(0, "corte", CORTE)
 t.to_csv(OUT / f"adres_bdua_eps_municipio_sexo_grupo_upc_{CORTE}.csv.gz", index=False, encoding="utf-8")
 
-# --- UPC teórica ilustrativa (zona normal) ---
+# --- UPC teórica ilustrativa (con prima de zona) ---
 p = pd.read_csv(OUT / "upc_estructura_costo_grupo_etario.csv")
+if VIGENCIA not in set(p["vigencia"]):
+    print(f"La resolución de UPC de {VIGENCIA} aún no está en el repositorio: se guarda la afiliación "
+          "y se omite la UPC teórica de este corte.")
+    sys.exit(0)
 p = p[p["vigencia"] == VIGENCIA][["regimen", "grupo_clave", "estructura_costo", "valor_anual_zona_normal"]]
 u = t.merge(p, on=["regimen", "grupo_clave"], how="left")
-u["upc_teorica_anual"] = u["afiliados"] * u["valor_anual_zona_normal"]
-r = (u.groupby(["corte", "regimen", "cod_eps", "eps", "cod_municipio", "departamento", "municipio"], dropna=False)
+# factor de zona = UPC de la zona / UPC base (variante general de la resolución de la vigencia)
+pz = pd.read_csv(OUT / "upc_primas_zona.csv")
+pz = pz[(pz["vigencia"] == VIGENCIA) & (pz["variante"] == "general")]
+fz = {(r.regimen, r.zona): 1 + r.prima for r in pz.itertuples()}
+mz = pd.read_csv(OUT / "upc_municipio_zona.csv", dtype={"cod_municipio": str})
+mz = mz[mz["vigencia"] == VIGENCIA]
+zona = {(("contributivo" if r.regimen == "C" else "subsidiado"), r.cod_municipio): r.zona for r in mz.itertuples()}
+u["zona_upc"] = [zona.get((a, b), "resto_pais") for a, b in zip(u["regimen"], u["cod_municipio"])]
+u["factor_zona"] = [fz.get(("C" if a == "contributivo" else "S", z), 1.0) for a, z in zip(u["regimen"], u["zona_upc"])]
+u["upc_teorica_anual"] = u["afiliados"] * u["valor_anual_zona_normal"] * u["factor_zona"]
+r = (u.groupby(["corte", "regimen", "cod_eps", "eps", "cod_municipio", "departamento", "municipio", "zona_upc"], dropna=False)
        .agg(afiliados=("afiliados", "sum"),
             suma_ponderada=("estructura_costo", lambda s: (s * u.loc[s.index, "afiliados"]).sum()),
             upc_teorica_anual=("upc_teorica_anual", "sum"))

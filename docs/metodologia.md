@@ -63,10 +63,48 @@ entre 2013 y 2026. `upc_estructura_costo_grupo_etario.csv` trae la estructura de
   (2013, 2014, 2015, 2018 y 2021) son escaneos: se pasaron por OCR en español y las tablas de
   2014 y 2018 se revisaron además contra la imagen de la página. La columna `verificacion` lo indica.
 
-**Pendiente:** primas por zona especial de dispersión geográfica, ciudades y San Andrés, con
-sus anexos de municipios por vigencia; prima por concentración de riesgo etario por EPS; UPC
-diferencial indígena; y los ajustes que se expidieron durante algunas vigencias (p. ej., 2024
-y 2025). Son necesarios para que la simulación por municipio refleje la UPC realmente aplicable.
+### 3.1 Primas por zona y municipios (`scripts/08_upc_zonas.py`)
+
+**Comprobación de cada valor.** Cada artículo que fija una UPC trae una tabla por grupo de edad.
+Al dividir el valor del grupo «menores de un año» entre su ponderador se obtiene la UPC anual de
+ese artículo. `upc_valores_por_articulo.csv` guarda esa UPC implícita y su razón frente a la UPC
+base. La prima escrita en el texto se acepta solo si coincide con esa razón; la columna `metodo`
+de `upc_primas_zona.csv` lo dice.
+
+| Zona | Contributivo | Subsidiado |
+|---|---|---|
+| Dispersión geográfica | 10 % | 11,47 % |
+| Ciudades | 9,85 % (2013), 9,86 % (2014–2026) | 15 % |
+| San Andrés (zona alejada) | 37,9 % desde 2015 (2013–2014: en la lista de ciudades) | 37,9 % en 2015–2018; desde 2019 un valor fijo: 1,4516 × UPC-S (2019–2022 y 2026) y 1,5509 × UPC-S (2023–2025) |
+| Guainía | — | 17,81 % desde 2023 |
+| UPC diferencial indígena (EPSI) | — | +3,04 % (2015–2016); +4,81 % desde 2017; sobre ella se aplican las primas de dispersión y ciudades |
+| Prueba piloto de igualación de prima pura | — | Bogotá, Medellín, Cali y Barranquilla, 2016–2018 (1,2013 × UPC-S) |
+| 2022, «con nuevas inclusiones» (Res. 2292 de 2021) | 1,1208 × UPC-C base y sus primas | 1,0400 × UPC-S base y sus primas |
+
+**Municipios.** Las listas de dispersión se leen de los anexos (código DANE y nombre). Si el código
+impreso no existe se busca el nombre dentro del departamento. En los años escaneados (2014, 2015,
+2018 y 2021) se borraron las líneas de la tabla de la imagen y se aplicó OCR solo a las columnas de
+número y código (`data/reference/upc_anexos_ocr/`). Un código ilegible se corrige solo si difiere
+en un dígito de un único código válido de las listas vecinas, y el orden de la tabla desempata.
+Una fila que el OCR no logró leer se incluye solo si el anexo tiene 363 filas, como las vigencias
+vecinas, y todas las filas leídas coinciden. Las filas revisadas sobre la imagen se marcan
+«verificada visualmente».
+
+- 2013 no tiene anexo. La prima se define para los departamentos de Amazonas, Arauca, Casanare,
+  Caquetá, Chocó, Guajira, Guainía, Guaviare, Meta, Putumayo, Sucre, Vaupés y Vichada, y para «la
+  región de Urabá». Se exceptúan Arauca, Florencia y Yopal «con sus respectivas áreas de
+  influencia», que la resolución no delimita. Urabá se interpretó como los 11 municipios de la
+  subregión Urabá antioqueño. Ambas decisiones quedan marcadas en la columna `verificacion`.
+- Cuando un municipio figura en dos listas se asigna una sola zona, por precedencia: San Andrés,
+  Guainía, ciudades piloto, ciudades y dispersión. Por ejemplo, Villavicencio en 2013. Queda marcado.
+- 2022: el código de Miraflores (Guaviare) es ilegible en el PDF («ozuu»); la fila 353 lo nombra.
+- Ciudades: hasta 2025 se leen del artículo; en 2026, del Anexo 2.
+
+**Prima por concentración de riesgo etario** (Acuerdo 026 de 2011 de la CRES): por EPS y
+vigencia, en `upc_prima_etaria_eps.csv`.
+
+**Pendiente:** los ajustes de la UPC que se expidieron durante algunas vigencias, después de la
+resolución anual, no están incorporados.
 
 ## 4. UPC teórica (ejercicio ilustrativo)
 
@@ -75,13 +113,62 @@ por la estructura de costo de su grupo etario y por la UPC base de la vigencia:
 
     UPC teórica anual = Σ_grupos afiliados_g × ponderador_g × UPC_base
 
-No es una estimación de lo girado. Usa siempre la zona normal y no aplica primas por
-dispersión, ciudades, concentración de riesgo etario ni UPC indígena. Tampoco considera los días
+No es una estimación de lo girado. Aplica la prima de la zona del municipio de afiliación, pero no
+la de concentración de riesgo etario ni la UPC indígena. Tampoco considera los días
 compensados o liquidados, las novedades ni las restituciones. Sirve para comparar EPS y
 municipios en una misma escala y para ver el efecto del envejecimiento: el ponderador promedio
 de septiembre de 2026 es 1,25 en el contributivo y 1,15 en el subsidiado.
 
-## 5. Vacíos conocidos
+## 5. Población del DANE (`scripts/05_dane_poblacion.py`)
+
+Proyecciones municipales por área, sexo y edad simple (2018–2042, actualización de julio de 2025)
+y retroproyecciones 2005–2017. Se usa el total del municipio, sin distinguir área. Las edades
+simples se suman en los 14 grupos de la UPC. Sirve como denominador; no se usa para repartir
+afiliados por edad.
+
+## 6. Finanzas de la ADRES (`scripts/06` y `07`)
+
+- **Insumo.** Ejecución presupuestal mensual de la Unidad de Recursos Administrados, de agosto de
+  2017 (inicio de la ADRES) a septiembre de 2026: 110 libros. Gastos con tres bloques (acumulado
+  anterior, mes y acumulado); se usan compromisos (registro presupuestal) y obligaciones.
+- **Comparabilidad.** En 2020 los códigos pasaron al Catálogo de Clasificación Presupuestal. Por
+  eso se clasifican solo los rubros más desagregados (hojas), por su nombre, con reglas
+  ordenadas. Las reglas y su justificación están en `data/reference/adres_clasificacion_rubros.csv`.
+  La suma de las hojas reproduce el total de cada mes, con una diferencia máxima de 14,5 mil
+  millones (2020). Lo no clasificado queda visible en `adres_hojas_no_clasificadas.csv`.
+- **Empalme no UPC.** Recobros (hasta 2019) y presupuestos máximos (desde 2020, art. 240 de la
+  Ley 1955 de 2019), con sus ajustes de vigencias anteriores, forman una sola serie
+  (`grupo_empalme`). El saneamiento de deudas va aparte porque paga cuentas de años anteriores.
+  Hay una ruptura de cobertura: antes de 2020 el no UPC del subsidiado lo pagaban los
+  departamentos y no aparece en la ADRES. El art. 231 de la Ley 1955 lo asignó a la Nación desde
+  el 1 de enero de 2020; ver también la Resolución 94 de 2020. La caída de 2022 coincide con la UPC
+  «con nuevas inclusiones» de la Resolución 2381 de 2021.
+- **Situación de fondos.** Parte del gasto se registra sin situación de fondos (SSF), por
+  ejemplo la UPC del contributivo hasta 2022 y la cofinanciación territorial del subsidiado. Se
+  marca en la columna `situacion_fondos`.
+- **Precios constantes.** IPC mensual del DANE, base septiembre de 2026.
+
+## 7. Territorio (`scripts/09_territorio.py`)
+
+DIVIPOLA (junio de 2026), geometría del Marco Geoestadístico Nacional 2024 simplificada para la
+web, y tres atributos:
+
+- Altitud y clima: base aportada por los coautores. El archivo cita a la Unidad de Analítica en
+  Salud del IETS y al DNP, con base en el «Mapa de Clasificación del Clima en Colombia».
+- Ruralidad 2018: base aportada por los coautores, sin fuente en el archivo. Se trata como
+  **base interna**. Usa las cuatro categorías de la Misión para la Transformación del Campo
+  (DNP), pero difiere en 159 de 1.121 municipios de la categoría que trae la geografía del cubo de SISPRO
+  (`ruralidad_sispro`), que también se publica.
+- Nuevo Belén de Bajirá (27493) aún no tiene geometría en el MGN 2024. Sus datos están en las
+  tablas, pero no aparece en el mapa.
+
+## 8. Corte Constitucional
+
+`data/reference/corte_constitucional_autos.csv` resume la parte resolutiva de cada auto, leída en
+el texto oficial de la relatoría. Un «Auto/Resolución 067 de 2025» mencionado en la planeación no
+se localizó y no se incluye.
+
+## 9. Vacíos conocidos
 
 - El extracto de SISPRO no tiene los meses de enero a octubre de 2010, enero de 2011 ni enero
   a marzo de 2012.
@@ -92,10 +179,10 @@ de septiembre de 2026 es 1,25 en el contributivo y 1,15 en el subsidiado.
 - La ADRES publica en `datos.gov.co` muchas "vistas" filtradas por municipio. No son fuentes
   distintas: son subconjuntos de los dos conjuntos nacionales que se usan aquí.
 
-## 6. Uso de inteligencia artificial
+## 10. Uso de inteligencia artificial
 
 La búsqueda de fuentes, la descarga, el OCR, la transcripción de parámetros y los scripts los
-hizo Claude (Anthropic) a pedido de David Aguilar. Los totales se validaron cruzando fuentes
-independientes (sección 2) y los parámetros de la UPC contra el texto o la imagen de cada
+hizo Claude (Anthropic) a pedido de David Aguilar y Camila Gómez, que definieron el alcance y aportaron las bases territoriales. Los totales se validaron cruzando fuentes
+independientes (sección 2) y los parámetros de la UPC contra las tablas por edad de cada
 resolución (sección 3). Antes de usar cifras para decisiones, revise los valores directamente
 en la norma citada.
