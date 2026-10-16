@@ -1,24 +1,24 @@
 vigencia,regimen,variante,zona,prima,upc_anual,metodo,resolucion
-2013,C,general,ciudades,0.0985,624984.98,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 4480 de 2012
-2013,C,general,dispersion,0.1,625838.4,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 4480 de 2012
+2013,C,general,ciudades,0.0985,625053.6,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 4480 de 2012
+2013,C,general,dispersion,0.1,625838.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 4480 de 2012
 2013,C,general,resto_pais,0.0,568944.0,valor base del artículo 1 / 10-12,Resolución 4480 de 2012
 2013,S,general,ciudades,0.15,585342.18,prima del texto; confirmada con la tabla etaria del ARTICULO DÉCIMO SEGUNDO,Resolución 4480 de 2012
-2013,S,general,dispersion,0.1147,567374.72,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 4480 de 2012
+2013,S,general,dispersion,0.1147,567374.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 4480 de 2012
 2013,S,general,resto_pais,0.0,508993.2,valor base del artículo 1 / 10-12,Resolución 4480 de 2012
-2014,C,general,ciudades,0.0986,652544.67,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5522 de 2013
-2014,C,general,dispersion,0.1,653376.24,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5522 de 2013
+2014,C,general,ciudades,0.0986,652543.2,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5522 de 2013
+2014,C,general,dispersion,0.1,653374.8,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5522 de 2013
 2014,C,general,resto_pais,0.0,593978.4,valor base del artículo 1 / 10-12,Resolución 5522 de 2013
-2014,S,general,ciudades,0.15,611097.12,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5522 de 2013
-2014,S,general,dispersion,0.1147,592339.1,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5522 de 2013
+2014,S,general,ciudades,0.15,611096.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5522 de 2013
+2014,S,general,dispersion,0.1147,592340.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5522 de 2013
 2014,S,general,resto_pais,0.0,531388.8,valor base del artículo 1 / 10-12,Resolución 5522 de 2013
-2015,C,general,ciudades,0.0986,692090.32,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5925 de 2014
-2015,C,general,dispersion,0.1,692972.28,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5925 de 2014
+2015,C,general,ciudades,0.0986,692089.2,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5925 de 2014
+2015,C,general,dispersion,0.1,692971.2,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5925 de 2014
 2015,C,general,resto_pais,0.0,629974.8,valor base del artículo 1 / 10-12,Resolución 5925 de 2014
 2015,C,general,san_andres,0.379,868735.25,prima del texto; confirmada con la tabla etaria del Artículo 4,Resolución 5925 de 2014
-2015,S,general,ciudades,0.15,648129.42,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5925 de 2014
-2015,S,general,dispersion,0.1147,628234.66,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5925 de 2014
+2015,S,general,ciudades,0.15,648129.6,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5925 de 2014
+2015,S,general,dispersion,0.1147,628236.0,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5925 de 2014
 2015,S,general,resto_pais,0.0,563590.8,valor base del artículo 1 / 10-12,Resolución 5925 de 2014
-2015,S,general,san_andres,0.379,777191.71,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5925 de 2014
+2015,S,general,san_andres,0.379,777193.2,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5925 de 2014
 2015,S,indigena_epsi,ciudades,0.185,667832.94,valor fijado en el Artículo 17 (derivado de su tabla etaria),Resolución 5925 de 2014
 2016,C,general,ciudades,0.0986,757493.49,prima del texto; confirmada con la tabla etaria del Artículo 3,Resolución 5593 de 2015
 2016,C,general,dispersion,0.1,758458.8,prima del texto; confirmada con la tabla etaria del Artículo 2,Resolución 5593 de 2015
@@ -44,20 +44,20 @@ vigencia,regimen,variante,zona,prima,upc_anual,metodo,resolucion
 2017,S,indigena_epsi,dispersion,0.1683,779770.88,valor fijado en el Artículo 16 (derivado de su tabla etaria),Resolución 6411 de 2016
 2017,S,indigena_epsi,resto_pais,0.0481,699534.39,valor fijado en el Artículo 15 (derivado de su tabla etaria),Resolución 6411 de 2016
 2017,S,piloto_igualacion_prima_pura,ciudades_piloto,0.2013,801788.24,valor fijado en el Artículo 19 (derivado de su tabla etaria),Resolución 6411 de 2016
-2018,C,general,ciudades,0.0986,883783.27,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5268 de 2017
-2018,C,general,dispersion,0.1,884909.52,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5268 de 2017
+2018,C,general,ciudades,0.0986,883782.0,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5268 de 2017
+2018,C,general,dispersion,0.1,884908.8,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5268 de 2017
 2018,C,general,resto_pais,0.0,804463.2,valor base del artículo 1 / 10-12,Resolución 5268 de 2017
-2018,C,general,san_andres,0.379,1109354.75,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5268 de 2017
-2018,S,general,ciudades,0.15,827643.96,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5268 de 2017
-2018,S,general,dispersion,0.1147,802238.89,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5268 de 2017
+2018,C,general,san_andres,0.379,1109354.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5268 de 2017
+2018,S,general,ciudades,0.15,827643.6,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5268 de 2017
+2018,S,general,dispersion,0.1147,802238.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5268 de 2017
 2018,S,general,resto_pais,0.0,719690.4,valor base del artículo 1 / 10-12,Resolución 5268 de 2017
-2018,S,general,san_andres,0.379,992453.06,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5268 de 2017
+2018,S,general,san_andres,0.379,992451.6,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5268 de 2017
 2018,S,indigena_epsi,ciudades,0.2053,867454.2,calculado: UPC indígena x (1 + 15.00%) según el artículo de la zona para EPSI,Resolución 5268 de 2017
 2018,S,indigena_epsi,dispersion,0.1683,840827.13,calculado: UPC indígena x (1 + 11.47%) según el artículo de la zona para EPSI,Resolución 5268 de 2017
 2018,S,indigena_epsi,resto_pais,0.0481,754308.0,"valor fijado en el Artículo 15 (texto OCR, línea 423-426: incremento del 4,81 %)",Resolución 5268 de 2017
 2018,S,piloto_igualacion_prima_pura,ciudades_piloto,0.2013,864568.8,"valor fijado en el Artículo 19 (texto OCR, línea 577-581)",Resolución 5268 de 2017
 2019,C,general,ciudades,0.0986,930712.83,prima del texto; confirmada con la tabla etaria del Artículo 3,Resolución 5858 de 2018
-2019,C,general,dispersion,0.1,931898.88,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 5858 de 2018
+2019,C,general,dispersion,0.1,931899.6,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 5858 de 2018
 2019,C,general,resto_pais,0.0,847180.8,valor base del artículo 1 / 10-12,Resolución 5858 de 2018
 2019,C,general,san_andres,0.379,1168262.32,prima del texto; confirmada con la tabla etaria del Artículo 4,Resolución 5858 de 2018
 2019,S,general,ciudades,0.15,905426.28,prima del texto; confirmada con la tabla etaria del Artículo 12,Resolución 5858 de 2018
@@ -68,21 +68,21 @@ vigencia,regimen,variante,zona,prima,upc_anual,metodo,resolucion
 2019,S,indigena_epsi,dispersion,0.1683,919849.86,valor fijado en el Artículo 15 (derivado de su tabla etaria),Resolución 5858 de 2018
 2019,S,indigena_epsi,resto_pais,0.0481,825199.83,valor fijado en el Artículo 14 (derivado de su tabla etaria),Resolución 5858 de 2018
 2020,C,general,ciudades,0.0986,980600.69,prima del texto; confirmada con la tabla etaria del Artículo 3,Resolución 3513 de 2019
-2020,C,general,dispersion,0.1,981850.32,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 3513 de 2019
+2020,C,general,dispersion,0.1,981850.32,calculado: prima del texto x UPC base (tabla etaria y valor no legibles en la extracción),Resolución 3513 de 2019
 2020,C,general,resto_pais,0.0,892591.2,valor base del artículo 1 / 10-12,Resolución 3513 de 2019
-2020,C,general,san_andres,0.379,1230883.26,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 3513 de 2019
+2020,C,general,san_andres,0.379,1230883.26,calculado: prima del texto x UPC base (tabla etaria y valor no legibles en la extracción),Resolución 3513 de 2019
 2020,S,general,ciudades,0.15,953955.36,prima del texto; confirmada con la tabla etaria del Artículo 13,Resolución 3513 de 2019
-2020,S,general,dispersion,0.1147,924673.08,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 3513 de 2019
+2020,S,general,dispersion,0.1147,924673.08,calculado: prima del texto x UPC base (tabla etaria y valor no legibles en la extracción),Resolución 3513 de 2019
 2020,S,general,resto_pais,0.0,829526.4,valor base del artículo 1 / 10-12,Resolución 3513 de 2019
 2020,S,general,san_andres,0.4516,1204120.2,valor fijado en el Artículo 14 (derivado de su tabla etaria),Resolución 3513 de 2019
 2020,S,indigena_epsi,ciudades,0.2053,999839.01,valor fijado en el Artículo 17 (derivado de su tabla etaria),Resolución 3513 de 2019
 2020,S,indigena_epsi,dispersion,0.1683,969149.06,valor fijado en el Artículo 16 (derivado de su tabla etaria),Resolución 3513 de 2019
 2020,S,indigena_epsi,resto_pais,0.0481,869424.6,valor fijado en el Articulo 15 (derivado de su tabla etaria),Resolución 3513 de 2019
-2021,C,general,ciudades,0.0986,1031394.24,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 2503 de 2020
-2021,C,general,dispersion,0.1,1032708.6,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 2503 de 2020
+2021,C,general,ciudades,0.0986,1031392.8,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 2503 de 2020
+2021,C,general,dispersion,0.1,1032710.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 2503 de 2020
 2021,C,general,resto_pais,0.0,938826.0,valor base del artículo 1 / 10-12,Resolución 2503 de 2020
-2021,C,general,san_andres,0.379,1294641.05,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 2503 de 2020
-2021,S,general,ciudades,0.15,1003370.4,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 2503 de 2020
+2021,C,general,san_andres,0.379,1294642.8,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 2503 de 2020
+2021,S,general,ciudades,0.15,1003370.4,valor anual escrito en el artículo (tabla etaria no legible en la extracción),Resolución 2503 de 2020
 2021,S,general,dispersion,0.1147,972571.29,prima del texto; confirmada con la tabla etaria del Artículo 12,Resolución 2503 de 2020
 2021,S,general,resto_pais,0.0,872496.0,valor base del artículo 1 / 10-12,Resolución 2503 de 2020
 2021,S,general,san_andres,0.4516,1266494.4,"valor fijado en el Artículo 14 (texto OCR, línea 540-544)",Resolución 2503 de 2020
@@ -129,7 +129,7 @@ vigencia,regimen,variante,zona,prima,upc_anual,metodo,resolucion
 2024,C,general,san_andres,0.379,1991394.59,prima del texto; confirmada con la tabla etaria del Artículo 4,Resolución 2364 de 2023
 2024,S,general,ciudades,0.15,1444487.4,prima del texto; confirmada con la tabla etaria del Artículo,Resolución 2364 de 2023
 2024,S,general,dispersion,0.1147,1400147.92,prima del texto; confirmada con la tabla etaria del Artículo 13,Resolución 2364 de 2023
-2024,S,general,guainia,0.1781,1479783.14,prima del texto x UPC base (tabla etaria no legible en la extracción),Resolución 2364 de 2023
+2024,S,general,guainia,0.1781,1479783.14,calculado: prima del texto x UPC base (tabla etaria y valor no legibles en la extracción),Resolución 2364 de 2023
 2024,S,general,resto_pais,0.0,1256076.0,valor base del artículo 1 / 10-12,Resolución 2364 de 2023
 2024,S,general,san_andres,0.5509,1948104.58,valor fijado en el Artículo (derivado de su tabla etaria),Resolución 2364 de 2023
 2024,S,indigena_epsi,ciudades,0.2053,1513969.62,valor fijado en el Artículo 19 (derivado de su tabla etaria),Resolución 2364 de 2023

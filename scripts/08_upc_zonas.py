@@ -162,6 +162,23 @@ VALORES_LEIDOS = [
 ]
 
 
+# UPC anual escrita en el artículo (cifra entre paréntesis) cuando la tabla etaria no se pudo leer.
+# Leídas del texto de la resolución (OCR en 2013-2015, 2018 y 2021). Pueden diferir en centavos del
+# cálculo base x (1 + prima) porque la resolución redondea el valor diario.
+VALORES_PUBLICADOS = {
+    (2013, "C", "dispersion"): 625838.40, (2013, "C", "ciudades"): 625053.60, (2013, "S", "dispersion"): 567374.40,
+    (2014, "C", "dispersion"): 653374.80, (2014, "C", "ciudades"): 652543.20, (2014, "S", "dispersion"): 592340.40,
+    (2014, "S", "ciudades"): 611096.40,
+    (2015, "C", "dispersion"): 692971.20, (2015, "C", "ciudades"): 692089.20, (2015, "S", "dispersion"): 628236.00,
+    (2015, "S", "ciudades"): 648129.60, (2015, "S", "san_andres"): 777193.20,
+    (2018, "C", "dispersion"): 884908.80, (2018, "C", "ciudades"): 883782.00, (2018, "C", "san_andres"): 1109354.40,
+    (2018, "S", "dispersion"): 802238.40, (2018, "S", "ciudades"): 827643.60, (2018, "S", "san_andres"): 992451.60,
+    (2019, "C", "dispersion"): 931899.60,
+    (2021, "C", "dispersion"): 1032710.40, (2021, "C", "ciudades"): 1031392.80, (2021, "C", "san_andres"): 1294642.80,
+    (2021, "S", "ciudades"): 1003370.40,
+}
+
+
 def primas(art):
     filas = []
     for y in range(2013, 2027):
@@ -178,8 +195,13 @@ def primas(art):
                     ok = abs(a.razon_vs_base.iloc[0] - (1 + d[y])) < 0.0006
                     metodo = "prima del texto; confirmada con la tabla etaria del " + a.articulo.iloc[0] if ok else \
                         f"prima del texto ({d[y]:.2%}) NO coincide con la tabla etaria (razón {a.razon_vs_base.iloc[0]})"
+                elif (y, reg, z) in VALORES_PUBLICADOS:
+                    upc = VALORES_PUBLICADOS[(y, reg, z)]
+                    metodo = "valor anual escrito en el artículo (tabla etaria no legible en la extracción)"
+                    if abs(upc / b - 1 - d[y]) > 0.0006:
+                        metodo += f"; equivale a una prima de {upc / b - 1:.2%}, no a la del texto ({d[y]:.2%})"
                 else:
-                    metodo = "prima del texto x UPC base (tabla etaria no legible en la extracción)"
+                    metodo = "calculado: prima del texto x UPC base (tabla etaria y valor no legibles en la extracción)"
                 filas.append(dict(vigencia=y, regimen=reg, variante="general", zona=z, prima=d[y], upc_anual=upc,
                                   metodo=metodo, resolucion=RES[y]))
     # zonas con valor fijo o variantes (indígena, piloto, inclusiones 2022, San Andrés RS desde 2019)
