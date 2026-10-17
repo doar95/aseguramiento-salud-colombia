@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EPS: afiliados e intervenciones</title>
-<meta name="description" content="Afiliados por EPS y régimen en Colombia: participación, tendencias, concentración por departamento, pirámides de edad y EPS bajo medida de la Supersalud.">
+<meta name="description" content="Afiliados por EPS y régimen en Colombia: participación, tendencias, concentración por departamento, pirámides de edad y EPS intervenidas por la Supersalud.">
 <meta property="og:title" content="EPS en Colombia: afiliados, tendencias e intervenciones">
 <meta property="og:description" content="Participación de cada EPS por departamento y municipio, tendencias y qué parte de los afiliados está en EPS intervenidas.">
 <meta property="og:image" content="https://doar95.github.io/aseguramiento-salud-colombia/assets/og.png">
@@ -23,7 +23,9 @@
     <label><span data-i18n="mun">Municipio (último mes)</span><select id="mun"></select></label>
     <label><span data-i18n="reg">Régimen</span><select id="reg"><option value="" data-i18n="ambos">Contributivo y subsidiado</option><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option></select></label>
     <label><span data-i18n="per">Mes</span><select id="per"></select></label>
-    <label class="chk"><input type="checkbox" id="mi" checked> <span data-i18n="marcar">Resaltar EPS bajo medida de la Supersalud</span></label>
+    <label><span data-i18n="fil">Mostrar</span><select id="fi"><option value="" data-i18n="f_todas">Todas las EPS</option><option value="si" data-i18n="f_si">Solo intervenidas</option><option value="no" data-i18n="f_no">Solo no intervenidas</option></select></label>
+    <label class="chk"><input type="checkbox" id="mi" checked> <span data-i18n="marcar">Resaltar EPS intervenidas</span></label>
+    <label class="chk"><input type="checkbox" id="coos" checked> <span data-i18n="coos">Contar Coosalud como intervenida (situación en disputa)</span></label>
     <button class="btn" id="share" type="button" data-i18n="compartir">Copiar enlace</button>
   </div>
   <div class="kpis" id="kpis"></div>
@@ -31,7 +33,7 @@
     <section class="card"><h3 data-i18n="g1">Afiliados por EPS</h3><div class="chartbox" style="height:620px"><canvas id="g1"></canvas></div><p class="nota" id="n1"></p></section>
     <section class="card"><h3 data-i18n="g2">Tendencia de las EPS más grandes</h3><div class="chartbox" style="height:380px"><canvas id="g2"></canvas></div>
       <p class="nota" data-i18n="n2">Hay un salto entre diciembre de 2024 y julio de 2025: no hay meses intermedios publicados con EPS en las fuentes usadas.</p>
-      <h3 style="margin-top:12px" data-i18n="g3">Afiliados en EPS bajo medida de la Supersalud</h3><div class="chartbox" style="height:200px"><canvas id="g3"></canvas></div></section>
+      <h3 style="margin-top:12px" data-i18n="g3">Porcentaje de afiliados en EPS intervenidas</h3><div class="chartbox" style="height:200px"><canvas id="g3"></canvas></div></section>
     <section class="card"><h3 data-i18n="g4">Concentración por departamento</h3>
       <p class="nota" data-i18n="n4">Índice de Herfindahl-Hirschman (HHI): suma de las participaciones al cuadrado, de 0 a 10.000. Más de 2.500 suele leerse como mercado muy concentrado. Haga clic en un departamento para seleccionarlo.</p>
       <div class="scroll"><table class="tbl" id="t4"></table></div></section>
@@ -39,8 +41,8 @@
       <div class="ctrl"><label>EPS<select id="eps"></select></label></div>
       <div class="chartbox" style="height:420px"><canvas id="g5"></canvas></div><p class="nota" id="n5"></p></section>
   </div>
-  <section class="card" style="margin-top:16px"><h3 data-i18n="g6">EPS bajo medida especial de la Superintendencia Nacional de Salud</h3>
-    <p class="nota" data-i18n="n6">Tabla revisada a mano con la resolución de la Supersalud, la decisión judicial o, cuando no se encontró la resolución, la noticia que la cita. Un mes cuenta como intervenido si la medida estaba vigente algún día de ese mes. Incluye solo las EPS con afiliados en el periodo del tablero; las EPS liquidadas antes no aparecen.</p>
+  <section class="card" style="margin-top:16px"><h3 data-i18n="g6">EPS intervenidas por la Superintendencia Nacional de Salud</h3>
+    <p class="nota" data-i18n="n6">Tabla revisada a mano con la resolución de la Supersalud, la decisión judicial o, cuando no se encontró la resolución, la noticia que la cita. Todas tienen toma de posesión o intervención forzosa administrativa para administrar. Un mes cuenta como intervenido si la intervención estaba vigente algún día de ese mes. Incluye solo las EPS con afiliados en el periodo del tablero; las EPS liquidadas antes no aparecen.</p>
     <div class="scroll"><table class="tbl" id="t6"></table></div>
     <p class="nota"><a id="lref" href="#">eps_medidas_supersalud.csv</a></p></section>
 </main>
@@ -49,10 +51,10 @@
 <script>
 TXT.en = {tit:"Insurers (EPS): enrollment, trends and interventions", intro:"Enrollees by insurer from the Ministry of Health. The insurer series is short: December 2024 and July 2025–September 2026. SISPRO has a long series but without insurers.",
   dep:"Department", mun:"Municipality (latest month)", reg:"Scheme", ambos:"Contributory and subsidized", contrib:"Contributory", subs:"Subsidized", per:"Month",
-  marcar:"Highlight insurers under Supersalud measures", compartir:"Copy link", g1:"Enrollees by insurer", g2:"Trend of the largest insurers",
+  marcar:"Highlight intervened insurers", fil:"Show", f_todas:"All insurers", f_si:"Intervened only", f_no:"Not intervened only", coos:"Count Coosalud as intervened (disputed)", compartir:"Copy link", g1:"Enrollees by insurer", g2:"Trend of the largest insurers",
   n2:"There is a gap between December 2024 and July 2025: no intermediate months with insurers were published in the sources used.",
-  g3:"Enrollees in insurers under Supersalud measures", g4:"Concentration by department", n4:"Herfindahl-Hirschman Index (sum of squared shares, 0–10,000). Above 2,500 is usually read as highly concentrated. Click a department to select it.",
-  g5:"Age and sex of an insurer's enrollees", g6:"Insurers under special measures of the National Health Superintendency",
+  g3:"Share of enrollees in intervened insurers", g4:"Concentration by department", n4:"Herfindahl-Hirschman Index (sum of squared shares, 0–10,000). Above 2,500 is usually read as highly concentrated. Click a department to select it.",
+  g5:"Age and sex of an insurer's enrollees", g6:"Insurers intervened by the National Health Superintendency",
   n6:"Hand-checked against the Supersalud resolution, the court ruling, or the news article citing it when the resolution was not found. A month counts as intervened if the measure was in force on any day of it."};
 cabecera("eps.html"); traducir(); piePagina();
 const ES = LANG === "es";
@@ -60,7 +62,7 @@ let D = {}, st = {};
 document.getElementById("lref").href = REPO + "data/reference/eps_medidas_supersalud.csv";
 
 function medida(e) { return D.s.medidas.find(m => m.eps_minsalud === e); }
-function interv(e, per) { const m = medida(e); if (!m) return false; const ini = per + "-01", y = +per.slice(0,4), mo = +per.slice(5);
+function interv(e, per) { const m = medida(e); if (!m) return false; if (e === "COOSALUD EPS" && !st.coos) return false; const ini = per + "-01", y = +per.slice(0,4), mo = +per.slice(5);
   const fin = new Date(y, mo, 0).toISOString().slice(0,10); return m.fecha_inicio <= fin && (!m.fecha_fin || m.fecha_fin >= ini); }
 function valores(e, d, k) { // [C,S,E] en el área para el periodo k
   const p = D.s.datos[e] || {}; const deps = d ? [d] : Object.keys(p); let c = 0, s = 0, x = 0;
@@ -69,6 +71,7 @@ const sumaReg = v => st.reg === "C" ? v[0] : st.reg === "S" ? v[1] : v[0] + v[1]
 const EXCL = ["REGIMEN DE EXCEPCION"];
 function listaEPS() { return Object.keys(D.s.datos).filter(e => !EXCL.includes(e)); }
 function area() { return st.mun ? `${D.at.datos[st.mun][1]} (${D.at.datos[st.mun][0]})` : st.dep ? D.s.nombres_dep[st.dep] : "Colombia"; }
+function filtrar(f, per) { return !st.fi ? f : f.filter(r => interv(r[0], per) === (st.fi === "si")); }
 function filas(k) {
   if (st.mun) return (D.mu.datos[st.mun] || []).filter(r => !EXCL.includes(r[0])).map(r => [r[0], [r[1], r[2], r[3]]]);
   return listaEPS().map(e => [e, valores(e, st.dep, k)]);
@@ -80,29 +83,29 @@ function kpis(k) {
   const hhi = f.reduce((s, r) => s + Math.pow(100 * sumaReg(r[1]) / tot, 2), 0);
   document.getElementById("kpis").innerHTML = [[`${area()} · ${st.mun ? D.mu.periodo : per}`, mill(tot)], [ES ? "EPS con afiliados" : "Insurers with enrollees", n],
     [ES ? "EPS más grande" : "Largest insurer", top ? `${top[0]}<div class="l">${pct(sumaReg(top[1]) / tot, 1)}</div>` : "–"],
-    [ES ? "En EPS bajo medida" : "In insurers under measures", pct(iv / tot, 1)], ["HHI", fmt(hhi)]]
+    [ES ? "Personas en EPS intervenidas" : "People in intervened insurers", `${mill(iv)}<div class="l">${pct(iv / tot, 1)} ${ES ? "de los afiliados" : "of enrollees"}</div>`], ["HHI", fmt(hhi)]]
     .map(x => `<div class="kpi"><div class="v" style="${String(x[1]).length > 14 ? "font-size:14px" : ""}">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");
 }
 function g1(k) {
   const per = st.mun ? D.mu.periodo : D.s.periodos[k];
-  const f = filas(k).filter(r => sumaReg(r[1]) > 0).sort((a, b) => sumaReg(b[1]) - sumaReg(a[1]));
+  const f = filtrar(filas(k), per).filter(r => sumaReg(r[1]) > 0).sort((a, b) => sumaReg(b[1]) - sumaReg(a[1]));
   const iv = f.map(r => st.mi && interv(r[0], per));
   const ds = [];
   if (st.reg !== "S") ds.push({label:tt("contrib","Contributivo"), data:f.map(r => r[1][0]), backgroundColor:iv.map(x => x ? "#A80521" : "#3366CC")});
   if (st.reg !== "C") ds.push({label:tt("subs","Subsidiado"), data:f.map(r => r[1][1]), backgroundColor:iv.map(x => x ? "#E3787F" : "#069169")});
   const o = opcBase(`${area()} · ${per}`, true, {indexAxis:"y"}); o.scales.y.ticks.autoSkip = false;
   o.plugins.tooltip.callbacks.label = x => `${x.dataset.label}: ${fmt(x.parsed.x)}`;
-  o.plugins.tooltip.callbacks.afterBody = it => { const e = f[it[0].dataIndex][0], m = medida(e); return m && interv(e, per) ? (ES ? "Bajo medida desde " : "Under measure since ") + m.fecha_inicio : ""; };
+  o.plugins.tooltip.callbacks.afterBody = it => { const e = f[it[0].dataIndex][0], m = medida(e); return m && interv(e, per) ? (ES ? "Intervenida desde " : "Intervened since ") + m.fecha_inicio : ""; };
   grafica("g1", {type:"bar", data:{labels:f.map(r => r[0]), datasets:ds}, options:o});
-  document.getElementById("n1").innerHTML = (st.mi ? `<span class="tag roja">${ES ? "rojo" : "red"}</span> ${ES ? "= EPS bajo medida de la Supersalud en ese mes. " : "= insurer under a Supersalud measure that month. "}` : "") +
+  document.getElementById("n1").innerHTML = (st.mi ? `<span class="tag roja">${ES ? "rojo" : "red"}</span> ${ES ? "= EPS intervenida en ese mes. " : "= insurer intervened that month. "}` : "") +
     (st.mun ? (ES ? "Municipio: solo el último mes publicado por MinSalud." : "Municipality: latest month only.") : "");
 }
 function g2() {
   const P = D.s.periodos, last = P.length - 1;
-  const top = listaEPS().map(e => [e, sumaReg(valores(e, st.dep, last))]).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const top = filtrar(listaEPS().map(e => [e, sumaReg(valores(e, st.dep, last))]), st.per).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const ds = top.map(([e], i) => ({label:e, data:P.map((_, k) => { const v = sumaReg(valores(e, st.dep, k)); return v ? v / 1e6 : null; }),
     borderColor:PAL[i], backgroundColor:PAL[i], pointRadius:2, spanGaps:true, borderDash:medida(e) ? [4, 3] : []}));
-  const o = opcBase(`${st.dep ? D.s.nombres_dep[st.dep] : "Colombia"} · ${ES ? "millones (línea punteada: EPS con medida en algún momento)" : "millions (dashed: insurer under a measure at some point)"}`, false);
+  const o = opcBase(`${st.dep ? D.s.nombres_dep[st.dep] : "Colombia"} · ${ES ? "millones (línea punteada: EPS intervenida en algún momento)" : "millions (dashed: insurer intervened at some point)"}`, false);
   o.plugins.legend.position = "bottom";
   grafica("g2", {type:"line", data:{labels:P, datasets:ds}, options:o});
   const sh = P.map((p, k) => { let t = 0, i = 0; listaEPS().forEach(e => { const v = sumaReg(valores(e, st.dep, k)); t += v; if (interv(e, p)) i += v; }); return t ? 100 * i / t : null; });
@@ -116,7 +119,7 @@ function t4(k) {
     const t = f.reduce((s, r) => s + r[1], 0); if (!t) return null;
     const iv = f.filter(r => interv(r[0], per)).reduce((s, r) => s + r[1], 0);
     return [d, n, t, f.length, f[0][0], f[0][1] / t, f.reduce((s, r) => s + Math.pow(100 * r[1] / t, 2), 0), iv / t]; }).filter(Boolean).sort((a, b) => b[6] - a[6]);
-  document.getElementById("t4").innerHTML = `<tr><th class="l">${ES ? "Departamento" : "Department"}</th><th>${ES ? "Afiliados" : "Enrollees"}</th><th>EPS</th><th class="l">${ES ? "Mayor" : "Largest"}</th><th>%</th><th>HHI</th><th>${ES ? "% en EPS con medida" : "% under measure"}</th></tr>` +
+  document.getElementById("t4").innerHTML = `<tr><th class="l">${ES ? "Departamento" : "Department"}</th><th>${ES ? "Afiliados" : "Enrollees"}</th><th>EPS</th><th class="l">${ES ? "Mayor" : "Largest"}</th><th>%</th><th>HHI</th><th>${ES ? "% en EPS intervenidas" : "% in intervened"}</th></tr>` +
     rows.map(r => `<tr style="cursor:pointer;${r[0] === st.dep ? "background:var(--azul-cl)" : ""}" data-d="${r[0]}"><td class="l">${r[1]}</td><td>${fmt(r[2])}</td><td>${r[3]}</td><td class="l">${r[4]}</td><td>${pct(r[5], 0)}</td><td>${fmt(r[6])}</td><td>${pct(r[7], 0)}</td></tr>`).join("");
   document.querySelectorAll("#t4 tr[data-d]").forEach(tr => tr.onclick = () => { st.dep = tr.dataset.d; st.mun = ""; sync(); todo(); window.scrollTo({top:0, behavior:"smooth"}); });
 }
@@ -140,7 +143,7 @@ function t6() {
 function todo() {
   const k = D.s.periodos.indexOf(st.per);
   kpis(k); g1(k); g2(); t4(k); g5(); t6();
-  escribirURL({dep:st.dep, mun:st.mun, reg:st.reg, per:st.per, eps:st.eps, mi:st.mi ? "" : "0"});
+  escribirURL({dep:st.dep, mun:st.mun, reg:st.reg, per:st.per, eps:st.eps, mi:st.mi ? "" : "0", fi:st.fi, coos:st.coos ? "" : "0"});
 }
 function sync() {
   document.getElementById("dep").value = st.dep;
@@ -150,13 +153,15 @@ function sync() {
 (async function () {
   [D.s, D.mu, D.q, D.at] = await Promise.all(["eps_series.json", "eps_municipio.json", "eps_edad.json", "municipios_atributos.json"].map(cargar));
   const u = leerURL(), P = D.s.periodos;
-  st = {dep:u.dep || "", mun:u.mun || "", reg:["C","S"].includes(u.reg) ? u.reg : "", per:P.includes(u.per) ? u.per : P[P.length - 1], eps:u.eps || "NUEVA EPS", mi:u.mi !== "0"};
+  st = {dep:u.dep || "", mun:u.mun || "", reg:["C","S"].includes(u.reg) ? u.reg : "", per:P.includes(u.per) ? u.per : P[P.length - 1], eps:u.eps || "NUEVA EPS", mi:u.mi !== "0", fi:["si","no"].includes(u.fi) ? u.fi : "", coos:u.coos !== "0"};
   opciones(document.getElementById("dep"), Object.entries(D.s.nombres_dep).sort((a, b) => a[1].localeCompare(b[1])), "Colombia");
   opciones(document.getElementById("per"), P.map(p => [p, p]));
   opciones(document.getElementById("eps"), Object.keys(D.q.datos).sort().map(e => [e, e]));
   if (!D.q.datos[st.eps]) st.eps = Object.keys(D.q.datos)[0];
   ["reg","per","eps"].forEach(id => { document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = e.target.value; todo(); }; });
   document.getElementById("mi").checked = st.mi; document.getElementById("mi").onchange = e => { st.mi = e.target.checked; todo(); };
+  document.getElementById("coos").checked = st.coos; document.getElementById("coos").onchange = e => { st.coos = e.target.checked; todo(); };
+  document.getElementById("fi").value = st.fi; document.getElementById("fi").onchange = e => { st.fi = e.target.value; todo(); };
   sync();
   document.getElementById("dep").onchange = e => { st.dep = e.target.value; st.mun = ""; sync(); todo(); };
   document.getElementById("mun").onchange = e => { st.mun = e.target.value; todo(); };

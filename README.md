@@ -85,6 +85,11 @@ extraído) y las reglas de clasificación de la ADRES, con su justificación, en
   2016–2018 Bogotá, Medellín, Cali y Barranquilla tuvieron una UPC-S de prueba piloto (igualación
   de prima pura) y por eso no aparecen en la lista de ciudades del subsidiado esos años.
 - La lista de municipios con prima por dispersión geográfica tiene 363 filas de 2014 a 2022.
+- En septiembre de 2026, unos 21,2 millones de afiliados del contributivo y el subsidiado (42,2 %)
+  estaban en EPS intervenidas por la Supersalud, contando a Coosalud (situación en disputa); sin ella,
+  17,9 millones (35,6 %).
+- La relación afiliados/población incluye los regímenes de excepción, que aparecen incompletos en
+  SISPRO antes de 2018. Contando solo contributivo y subsidiado se mantuvo cerca de 94 % entre 2013 y 2026.
 - El gasto no financiado con la UPC se presenta como una serie empalmada: recobros hasta 2019 y
   presupuestos máximos desde 2020. Antes de 2020 el no UPC del subsidiado no pasa por la ADRES.
 

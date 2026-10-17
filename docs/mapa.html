@@ -48,6 +48,7 @@
     <h2 data-i18n="ctl">Qué ver</h2>
     <label><span data-i18n="variable">Variable</span><select id="var"></select></label>
     <label id="lreg"><span data-i18n="regimen">Régimen</span><select id="reg"><option value="S" data-i18n="subs">Subsidiado</option><option value="C" data-i18n="contrib">Contributivo</option></select></label>
+    <label class="chk" id="lcoos" hidden><input type="checkbox" id="coos" checked> <span data-i18n="coos">Contar Coosalud como intervenida (situación en disputa)</span></label>
     <label><span data-i18n="depto">Departamento (acercar)</span><select id="dep"></select></label>
     <div id="anios">
       <span class="nota" data-i18n="anio">Año</span>
@@ -86,7 +87,7 @@ TXT.en = {ctl:"What to show", variable:"Variable", regimen:"Scheme", subs:"Subsi
   anio:"Year", cmp:"Compare with another year", anioB:"Second year", dif:"Show only the change between the two years", compartir:"Copy link to this view",
   finnac:"ADRES national finances that year", pconst:"Constant pesos (Sep 2026)", pcorr:"Current pesos",
   nfin:"Obligations of ADRES' administered resources, COP trillion. National figures: ADRES budget execution is not published by municipality. 2017 covers August–December; 2026, January–September.",
-  detalle:"Detail", ndet:"Click a municipality to see its trend, insurers and UPC zone."};
+  coos:"Count Coosalud as intervened (disputed)", detalle:"Detail", ndet:"Click a municipality to see its trend, insurers and UPC zone."};
 cabecera("mapa.html"); traducir();
 const ES = LANG === "es";
 let D = {}, A = null, B = null, years = [], st = {}, sel = null;
@@ -110,7 +111,7 @@ const VARS = [
  {id:"ps", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"% en el régimen subsidiado":"% in subsidized scheme", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
   f:(c,y)=>{const v=afil(c,y);return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, n:ES?"Subsidiado sobre contributivo más subsidiado.":"Subsidized over contributory plus subsidized."},
  {id:"cob", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Afiliados / población DANE":"Enrollees / DANE population", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
-  f:(c,y)=>{const k=fr(y),v=afil(c,y),p=(D.af.poblacion_dane[c]||[])[k];return v&&p?v[3]/p:null}, n:ES?"No es una cobertura exacta: compara el municipio de afiliación con la población proyectada por el DANE.":"Not an exact coverage rate: municipality of enrollment vs DANE projected population."},
+  f:(c,y)=>{const k=fr(y),v=afil(c,y),p=(D.af.poblacion_dane[c]||[])[k];return v&&p?v[3]/p:null}, n:ES?"No es una cobertura exacta: compara el municipio de afiliación con la población proyectada por el DANE. Incluye todos los regímenes; la excepción aparece incompleta en SISPRO antes de 2018, así que los años anteriores no son del todo comparables.":"Not an exact coverage rate: municipality of enrollment vs DANE projected population. Includes all schemes; the exception scheme is incomplete in SISPRO before 2018, so earlier years are not fully comparable."},
  {id:"var13", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Variación de afiliados desde dic. 2013":"Change in enrollees since Dec 2013", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
   f:(c,y)=>{const v=afil(c,y),v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[3]?v[3]/v0[3]-1:null}},
  {id:"lma", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"UPC liquidada en el subsidiado (millones)":"UPC settled, subsidized (COP million)", t:"cont", anual:"lma", fm:v=>fmt(v/1e6), dif:"rel",
@@ -122,6 +123,9 @@ const VARS = [
   f:(c,y)=>{const v=lmaV(c,y);return v&&v[0]?v[4]/v[0]:null}, n:ES?"Columna «Aportes Presupuesto General de la Nación – ADRES» sobre la UPC apropiada.":"National budget contributions over settled UPC."},
  {id:"lmaterr", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"% cofinanciado por departamento y municipio":"% co-funded by department and municipality", t:"cont", anual:"lma", fm:v=>pct(v,0), dif:"abs",
   f:(c,y)=>{const v=lmaV(c,y);return v&&v[0]?(v[2]+v[3])/v[0]:null}},
+ {id:"iv", g:"EPS", l:ES?"% de afiliados en EPS intervenidas":"% of enrollees in intervened insurers", t:"cont", anual:"iv", fm:v=>pct(v,0), dif:"abs", br:[0.2,0.4,0.6,0.8],
+  f:(c,y)=>{const k=D.iv.periodos.indexOf(y),v=(D.iv.datos[c]||[])[k];return v&&v[0]?(v[1]+(st.coos?v[2]:0))/v[0]:null},
+  n:ES?"Contributivo y subsidiado. Un mes cuenta si la intervención de la Supersalud estuvo vigente algún día de ese mes. Solo hay datos por EPS en dic. 2024 y de jul. 2025 a sep. 2026 (MinSalud).":"Contributory and subsidized. A month counts if the Supersalud intervention was in force any day of it. Insurer data only for Dec 2024 and Jul 2025–Sep 2026."},
  {id:"zona", g:"UPC", l:ES?"Zona de la UPC":"UPC zone", t:"zona", anual:"upc", reg:true, f:(c,y)=>zona(c,y,st.reg),
   n:ES?"Zona según la resolución anual de la UPC; ver la columna de verificación en upc_municipio_zona.csv.":"Zone per the annual UPC resolution."},
  {id:"upcz", g:"UPC", l:ES?"UPC anual de la zona (pesos)":"Annual zone UPC (COP)", t:"cont", anual:"upc", reg:true, fm:v=>"$"+fmt(v), dif:"rel",
@@ -132,7 +136,7 @@ const VARS = [
  {id:"rurs", g:ES?"Territorio":"Territory", l:ES?"Ruralidad (geografía SISPRO)":"Rurality (SISPRO)", t:"cat", f:c=>at(c)[4] || null},
 ];
 const V = () => VARS.find(v => v.id === st.v);
-function yearsFor(v) { if (v.anual === "af") return D.af.periodos.map(p => +p.slice(0,4)); if (v.anual === "lma") return D.lma.anios; if (v.anual === "upc") return D.upc.base.map(b => b.vigencia); return []; }
+function yearsFor(v) { if (v.anual === "iv") return D.iv.periodos; if (v.anual === "af") return D.af.periodos.map(p => +p.slice(0,4)); if (v.anual === "lma") return D.lma.anios; if (v.anual === "upc") return D.upc.base.map(b => b.vigencia); return []; }
 
 /* ---------------- mapas ---------------- */
 function nuevoMapa(id) {
@@ -159,13 +163,15 @@ function sincronizar(a, b) {
   const f = (x, y) => () => { if (sinc || !y || document.getElementById("boxB").hidden) return; sinc = true; y.jumpTo({center:x.getCenter(), zoom:x.getZoom()}); sinc = false; };
   a.on("move", f(a, b)); b.on("move", f(b, a));
 }
+function orden() { const ys = yearsFor(V()); return ys.indexOf(st.a) <= ys.indexOf(st.b) ? [st.a, st.b] : [st.b, st.a]; }
+const anioDe = y => +String(y).slice(0, 4);
 function valores(y) { const v = V(), o = {}; D.cods.forEach(c => o[c] = v.f(c, y)); return o; }
 function pintar() {
   const v = V(); if (!A) return;
   const ys = yearsFor(v), cmp = st.cmp && v.anual, dif = cmp && st.dif && v.t === "cont";
   document.getElementById("boxB").hidden = !(cmp && !dif);
   document.getElementById("maps").classList.toggle("dos", !!(cmp && !dif));
-  document.getElementById("ea").textContent = v.anual ? (dif ? `${Math.min(st.a, st.b)} → ${Math.max(st.a, st.b)}` : String(st.a)) : "";
+  document.getElementById("ea").textContent = v.anual ? (dif ? `${orden()[0]} → ${orden()[1]}` : String(st.a)) : "";
   document.getElementById("ea").hidden = !v.anual;
   document.getElementById("eb").textContent = String(st.b);
   let colA = {}, colB = {}, ley = "";
@@ -179,7 +185,7 @@ function pintar() {
     D.cods.forEach(c => colA[c] = m[va[c]] || null);
     ley = cats.map(c => `<span><i style="background:${m[c]}"></i>${c}</span>`).join("");
   } else if (dif) {
-    const y0 = Math.min(st.a, st.b), y1 = Math.max(st.a, st.b), a = valores(y0), b = valores(y1), d = {};
+    const [y0, y1] = orden(), a = valores(y0), b = valores(y1), d = {};
     D.cods.forEach(c => d[c] = (a[c] == null || b[c] == null) ? null : (v.dif === "rel" ? (a[c] ? b[c] / a[c] - 1 : null) : b[c] - a[c]));
     const dv = Object.values(d).filter(x => x != null && isFinite(x)), lo = Math.min(...dv), hi = Math.max(...dv);
     let br, pal;
@@ -192,9 +198,9 @@ function pintar() {
     st._dif = d;
   } else {
     const a = v.anual ? valores(st.a) : valores(null), b = cmp ? valores(st.b) : {};
-    const br = quantiles(Object.values(a).concat(Object.values(b)));
+    const br = v.br || quantiles(Object.values(a).concat(Object.values(b)));
     D.cods.forEach(c => { colA[c] = claseColor(a[c], br); if (cmp) colB[c] = claseColor(b[c], br); });
-    const lab = [`≤ ${v.fm(br[0])}`, `${v.fm(br[0])} – ${v.fm(br[1])}`, `${v.fm(br[1])} – ${v.fm(br[2])}`, `${v.fm(br[2])} – ${v.fm(br[3])}`, `> ${v.fm(br[3])}`];
+    const lab = [`≤ ${v.fm(br[0])}`, `${v.fm(br[0])} – ${v.fm(br[1])}`, `${v.fm(br[1])} – ${v.fm(br[2])}`, `${v.fm(br[2])} – ${v.fm(br[3])}`, v.br ? `> ${v.fm(br[3])}` : `> ${v.fm(br[3])}`];
     ley = RAMP.map((c, i) => `<span><i style="background:${c}"></i>${lab[i]}</span>`).join("");
   }
   ley += `<span><i style="background:#E9ECEF"></i>${ES ? "sin dato" : "no data"}</span>`;
@@ -210,7 +216,7 @@ function tip(c, y) {
   const fv = (yy) => { const x = v.f(c, yy); return v.t === "zona" ? ZN[x] : (v.t === "cat" ? (x || "–") : v.fm(x)); };
   if (st.cmp && st.dif && v.t === "cont" && v.anual) {
     const d = st._dif && st._dif[c];
-    const y0 = Math.min(st.a, st.b), y1 = Math.max(st.a, st.b);
+    const [y0, y1] = orden();
     h += `${v.l}<br>${y0}: <b>${fv(y0)}</b> → ${y1}: <b>${fv(y1)}</b><br>${ES ? "Cambio" : "Change"}: <b>${d == null ? "–" : (v.dif === "rel" ? pct(d, 1) : (v.fm(1).includes("%") ? fmt(d * 100, 1) + " pp" : v.fm(d)))}</b>`;
   } else h += `${v.l}${v.anual ? " (" + y + ")" : ""}: <b>${fv(y)}</b>`;
   return h;
@@ -229,6 +235,7 @@ function detalle() {
    <div class="kpis"><div class="kpi"><div class="v">${fmt(last[3])}</div><div class="l">${ES ? "afiliados" : "enrollees"} ${P[P.length - 1].slice(4)}/${P[P.length - 1].slice(0,4)}</div></div>
    <div class="kpi"><div class="v">${pct(last[1] / (last[0] + last[1]), 0)}</div><div class="l">% ${ES ? "subsidiado" : "subsidized"}</div></div></div>
    <div class="mini"><canvas id="gm"></canvas></div>
+   <p class="nota">${(() => { const k = D.iv.periodos.length - 1, v = (D.iv.datos[sel] || [])[k]; return v && v[0] ? `${ES ? "En EPS intervenidas" : "In intervened insurers"} (${D.iv.periodos[k]}): <b>${fmt(v[1] + (st.coos ? v[2] : 0))}</b> (${pct((v[1] + (st.coos ? v[2] : 0)) / v[0], 0)})` : ""; })()}</p>
    <p class="nota">${ES ? "Altitud" : "Altitude"}: ${fmt(a[5])} m · ${a[6] || "–"} · ${ES ? "Ruralidad 2018" : "Rurality 2018"}: ${a[3] || "–"} · SISPRO: ${a[4] || "–"}</p>
    <h2>EPS (${D.eps.periodo})</h2><table class="tbl">${e.map(x => `<tr><td>${x[0]}</td><td>${fmt(x[1] + x[2] + x[3])}</td></tr>`).join("") || "<tr><td>–</td></tr>"}</table>
    <h2>${ES ? "Subsidiado: LMA (millones de pesos)" : "Subsidized: LMA (COP million)"}</h2>
@@ -244,23 +251,27 @@ function detalle() {
 
 /* ---------------- finanzas nacionales ---------------- */
 function finanzas() {
-  const k = +document.getElementById("prec").value, rows = D.fin.datos.gasto_obligacion.anual, ys = st.cmp && V().anual ? [Math.min(st.a, st.b), Math.max(st.a, st.b)] : [st.a];
+  const k = +document.getElementById("prec").value, rows = D.fin.datos.gasto_obligacion.anual, ys = (st.cmp && V().anual ? orden() : [st.a]).map(anioDe);
   const cat = (y, f) => rows.filter(r => r[0] === String(y) && f(r[1])).reduce((s, r) => s + r[k], 0) / 1000;
   const L = [[ES ? "UPC contributivo" : "Contributory UPC", c => c === "UPC régimen contributivo"], [ES ? "UPC subsidiado" : "Subsidized UPC", c => c === "UPC régimen subsidiado"],
     [ES ? "No UPC (recobros / presupuestos máximos)" : "Non-UPC (claims / max. budgets)", c => c.startsWith("No UPC")], [ES ? "Saneamiento de deudas" : "Debt clean-up", c => c.startsWith("Saneamiento")],
     [ES ? "Incapacidades y licencias" : "Sick and parental leave", c => c === "Incapacidades y licencias"], [ES ? "Total obligaciones" : "Total obligations", c => c !== "Disponibilidad final"]];
   const ok = ys.every(y => y >= 2017);
+  const p0 = D.fin.periodos[0], p1 = D.fin.periodos[1], parcial = y => (y === +p0.slice(0,4) && p0.slice(5) !== "01") || (y === +p1.slice(0,4) && p1.slice(5) !== "12");
+  const lbl = y => parcial(y) ? y + "*" : y;
   document.getElementById("fin").innerHTML = !ok && ys.every(y => y < 2017) ? `<p class="nota">${ES ? "La ADRES empezó a operar en agosto de 2017; no hay ejecución comparable para este año." : "ADRES started in August 2017; no comparable execution for this year."}</p>` :
-    `<table class="tbl fin"><tr><th class="l"></th>${ys.map(y => `<th>${y}</th>`).join("")}${ys.length > 1 ? "<th>Δ</th>" : ""}</tr>` +
-    L.map(([n, f]) => { const v = ys.map(y => y >= 2017 ? cat(y, f) : null); return `<tr><td class="l">${n}</td>${v.map(x => `<td>${x == null ? "–" : fmt(x, 1)}</td>`).join("")}${ys.length > 1 ? `<td>${v[0] && v[1] != null ? pct(v[1] / v[0] - 1, 0) : "–"}</td>` : ""}</tr>`; }).join("") + "</table>";
+    `<table class="tbl fin"><tr><th class="l"></th>${ys.map(y => `<th>${lbl(y)}</th>`).join("")}${ys.length > 1 ? "<th>Δ</th>" : ""}</tr>` +
+    L.map(([n, f]) => { const v = ys.map(y => y >= 2017 ? cat(y, f) : null); return `<tr><td class="l">${n}</td>${v.map(x => `<td>${x == null ? "–" : fmt(x, 1)}</td>`).join("")}${ys.length > 1 ? `<td>${v[0] && v[1] != null && !ys.some(parcial) ? pct(v[1] / v[0] - 1, 0) : "–"}</td>` : ""}</tr>`; }).join("") + "</table>" +
+    (ys.some(parcial) ? `<p class="nota">* ${ES ? "Año incompleto; no se calcula la variación." : "Partial year; change not computed."}</p>` : "");
 }
 
 /* ---------------- estado y controles ---------------- */
-function guardar() { escribirURL({v:st.v, a:st.a, b:st.cmp ? st.b : "", cmp:st.cmp ? 1 : "", dif:st.dif ? 1 : "", reg:V().reg ? st.reg : "", dep:st.dep, mun:sel || ""}); }
+function guardar() { escribirURL({coos:st.coos ? "" : "0", v:st.v, a:st.a, b:st.cmp ? st.b : "", cmp:st.cmp ? 1 : "", dif:st.dif ? 1 : "", reg:V().reg ? st.reg : "", dep:st.dep, mun:sel || ""}); }
 function ajustarAnios() {
   const v = V(), ys = yearsFor(v);
   document.getElementById("anios").hidden = !v.anual;
   document.getElementById("lreg").hidden = !v.reg;
+  document.getElementById("lcoos").hidden = v.id !== "iv";
   if (!v.anual) return;
   if (!ys.includes(st.a)) st.a = ys[ys.length - 1];
   if (!ys.includes(st.b)) st.b = ys[0];
@@ -287,11 +298,12 @@ function play() {
 }
 
 (async function () {
-  const n = ["municipios_atributos.json", "afiliacion_municipio.json", "upc.json", "lma.json", "finanzas.json", "eps_municipio.json", "municipios.geojson"];
-  [D.at, D.af, D.upc, D.lma, D.fin, D.eps, D.geo] = await Promise.all(n.map(cargar));
+  const n = ["municipios_atributos.json", "afiliacion_municipio.json", "upc.json", "lma.json", "finanzas.json", "eps_municipio.json", "municipios.geojson", "intervenidas.json"];
+  [D.at, D.af, D.upc, D.lma, D.fin, D.eps, D.geo, D.iv] = await Promise.all(n.map(cargar));
   D.cods = D.geo.features.map(f => f.properties.cod);
   const u = leerURL();
-  st = {v: VARS.some(x => x.id === u.v) ? u.v : "total", a: +u.a || 2026, b: +u.b || 2013, cmp: !!u.cmp, dif: !!u.dif, reg: u.reg === "C" ? "C" : "S", dep: u.dep || ""};
+  const pa = x => x && x.includes("-") ? x : (+x || null);
+  st = {v: VARS.some(x => x.id === u.v) ? u.v : "total", a: pa(u.a) || 2026, b: pa(u.b) || 2013, coos: u.coos !== "0", cmp: !!u.cmp, dif: !!u.dif, reg: u.reg === "C" ? "C" : "S", dep: u.dep || ""};
   sel = u.mun || null;
   const sv = document.getElementById("var");
   const grupos = [...new Set(VARS.map(v => v.g))];
@@ -310,7 +322,8 @@ function play() {
   sv.onchange = () => { st.v = sv.value; ajustarAnios(); pintar(); guardar(); };
   document.getElementById("reg").onchange = e => { st.reg = e.target.value; pintar(); guardar(); };
   document.getElementById("a").oninput = e => { st.a = yearsFor(V())[+e.target.value]; document.getElementById("alb").textContent = st.a; pintar(); guardar(); };
-  document.getElementById("b").onchange = e => { st.b = +e.target.value; pintar(); guardar(); };
+  document.getElementById("b").onchange = e => { const x = e.target.value; st.b = x.includes("-") ? x : +x; pintar(); guardar(); };
+  document.getElementById("coos").checked = st.coos; document.getElementById("coos").onchange = e => { st.coos = e.target.checked; pintar(); detalle(); guardar(); };
   document.getElementById("cmp").onchange = e => { st.cmp = e.target.checked; ajustarAnios(); pintar(); guardar(); setTimeout(() => { A.resize(); B.resize(); if (st.cmp) B.jumpTo({center:A.getCenter(), zoom:A.getZoom()}); }, 50); };
   document.getElementById("dif").onchange = e => { st.dif = e.target.checked; pintar(); guardar(); setTimeout(() => { A.resize(); B.resize(); }, 50); };
   document.getElementById("dep").onchange = e => { st.dep = e.target.value; acercar(st.dep); guardar(); };

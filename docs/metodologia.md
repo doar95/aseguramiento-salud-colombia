@@ -194,6 +194,11 @@ septiembre de 2026.
 
 ## 11. Vacíos conocidos
 
+- Regímenes de excepción y especiales: en SISPRO aparecen incompletos antes de 2018 (unas 388.000
+  personas en diciembre de 2013 frente a unos 2 millones desde 2018). La relación afiliados/población
+  total no es comparable antes y después de ese año; con solo contributivo y subsidiado se mantuvo
+  cerca de 94 %. No se intenta corregir la serie: casi no hay información adicional sobre esos regímenes.
+
 - El extracto de SISPRO no tiene los meses de enero a octubre de 2010, enero de 2011 ni enero
   a marzo de 2012.
 - No hay EPS × municipio × grupo etario con historia. Para reconstruirlo hace falta el acceso a

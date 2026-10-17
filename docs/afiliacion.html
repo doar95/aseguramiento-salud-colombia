@@ -31,7 +31,7 @@
     <section class="card"><h3 data-i18n="g1">Afiliados por régimen</h3><div class="chartbox"><canvas id="g1"></canvas></div>
       <p class="nota" id="n1"></p></section>
     <section class="card"><h3 data-i18n="g2">Afiliados frente a la población del DANE y peso del subsidiado</h3><div class="chartbox"><canvas id="g2"></canvas></div>
-      <p class="nota" data-i18n="n2">La relación afiliados/población no es una cobertura exacta: el municipio es el de afiliación y la población es proyectada (DANE, actualización de julio de 2025).</p></section>
+      <p class="nota" data-i18n="n2">La relación afiliados/población no es una cobertura exacta: el municipio es el de afiliación y la población es proyectada (DANE, actualización de julio de 2025). Incluye todos los regímenes; la excepción aparece incompleta en SISPRO antes de 2018, por eso parte de la subida de esos años es de reporte, no de afiliación.</p></section>
     <section class="card"><h3 data-i18n="g3">Ranking</h3>
       <div class="ctrl"><label><span data-i18n="metrica">Métrica</span><select id="rk"></select></label></div>
       <div class="chartbox" style="height:520px"><canvas id="g3"></canvas></div><p class="nota" id="n3"></p></section>
@@ -52,7 +52,7 @@
 <script>
 TXT.en = {tit:"Enrollment: trends and distributions", intro:"Current enrollees by scheme and municipality of enrollment (SISPRO, BDUA cube). Choose a department or a municipality; charts update. The page link keeps the selection.",
   dep:"Department", mun:"Municipality", anio:"Year (cross-section charts)", compartir:"Copy link", vermapa:"Open in map", g1:"Enrollees by scheme",
-  g2:"Enrollees vs DANE population and subsidized share", n2:"Enrollees/population is not an exact coverage rate (municipality of enrollment vs projected population).",
+  g2:"Enrollees vs DANE population and subsidized share", n2:"Enrollees/population is not an exact coverage rate (municipality of enrollment vs projected population). Includes all schemes; the exception scheme is incomplete in SISPRO before 2018, so part of the rise in those years is reporting, not enrollment.",
   g3:"Ranking", metrica:"Metric", g4:"Scatter across municipalities", n4:"Each dot is a municipality; color is the 2018 rurality category (internal dataset). Log axes for enrollees and population.",
   g5:"Distribution of municipalities", variable:"Variable", g6:"Age and sex structure", regimen:"Scheme", todos:"All", contrib:"Contributory", subs:"Subsidized"};
 cabecera("afiliacion.html"); traducir(); piePagina();

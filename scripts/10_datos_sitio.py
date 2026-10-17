@@ -208,3 +208,46 @@ guardar("lma.json", {"anios": anios, "meses": {str(k): int(v) for k, v in meses.
                      "campos": ["upc_apropiada", "cajas_compensacion", "cofinanciacion_departamental",
                                 "cofinanciacion_municipal", "aportes_nacion_adres"],
                      "datos": lma, "fuente": "ADRES, Informe de Financiación LMA (Entidades territoriales → Financiamiento)"})
+
+# ---------------------------------------------------------------- EPS intervenidas por municipio y mes
+# Regla: un mes cuenta como intervenido si la medida estuvo vigente algún día de ese mes.
+# Coosalud se guarda aparte porque su situación está en disputa (ver eps_medidas_supersalud.csv).
+import calendar
+emm = pd.read_csv(P / "minsalud_eps_municipio_regimen_mensual.csv", dtype={"cod_municipio": str})
+emm = emm[["periodo", "cod_municipio", "eps", "contributivo", "subsidiado"]]
+pbm = pb.groupby(["cod_municipio", "nombre_corto_eps", "col"])["afiliados"].sum().unstack(fill_value=0).reset_index()
+pbm = pbm.rename(columns={"nombre_corto_eps": "eps"}).assign(periodo="2024-12")
+for c in ["contributivo", "subsidiado"]:
+    if c not in pbm:
+        pbm[c] = 0
+emm = pd.concat([pbm[emm.columns], emm], ignore_index=True)
+emm["cs"] = emm["contributivo"] + emm["subsidiado"]
+
+
+def intervenida(eps, per):
+    m = med[med["eps_minsalud"] == eps]
+    if m.empty:
+        return False
+    m = m.iloc[0]
+    y, mo = int(per[:4]), int(per[5:7])
+    ini, fin = f"{per}-01", f"{per}-{calendar.monthrange(y, mo)[1]:02d}"
+    return m["fecha_inicio"] <= fin and (not m["fecha_fin"] or m["fecha_fin"] >= ini)
+
+
+pairs = emm[["eps", "periodo"]].drop_duplicates()
+pairs["iv"] = [intervenida(e, p) for e, p in zip(pairs["eps"], pairs["periodo"])]
+emm = emm.merge(pairs, on=["eps", "periodo"])
+emm["coos"] = (emm["eps"] == "COOSALUD EPS") & emm["iv"]
+emm["iv_sin"] = emm["iv"] & ~emm["coos"]
+agg = emm.groupby(["cod_municipio", "periodo"]).apply(
+    lambda g: pd.Series({"t": g["cs"].sum(), "i": g.loc[g["iv_sin"], "cs"].sum(), "c": g.loc[g["coos"], "cs"].sum()}), include_groups=False).reset_index()
+pi = sorted(agg["periodo"].unique())
+iv_d = {}
+for cod, g in agg.groupby("cod_municipio"):
+    g = g.set_index("periodo").reindex(pi).fillna(0)
+    iv_d[cod] = [[int(a), int(b), int(c)] for a, b, c in zip(g["t"], g["i"], g["c"])]
+nac = agg.groupby("periodo")[["t", "i", "c"]].sum().reindex(pi)
+guardar("intervenidas.json", {"periodos": pi, "campos": ["afiliados_c_s", "en_intervenidas_sin_coosalud", "en_coosalud_intervenida"],
+                              "datos": iv_d, "nacional": nac.astype(int).values.tolist(),
+                              "nota": "Contributivo + subsidiado. Fuente: MinSalud; medidas en data/reference/eps_medidas_supersalud.csv."})
+print(nac.assign(pct=lambda x: (x.i + x.c) / x.t).round(3).to_string())
