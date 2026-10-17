@@ -39,6 +39,12 @@
 .play b{min-width:42px;text-align:right}
 .fin td{padding:3px 4px}
 .mini{position:relative;height:170px}
+.maps{position:relative}
+.leyf{position:absolute;left:8px;bottom:34px;z-index:3;background:color-mix(in srgb,var(--fondo) 92%,transparent);border:1px solid var(--borde);border-radius:6px;padding:4px 10px 6px;width:min(400px,calc(100% - 16px));box-shadow:0 1px 4px #0002;pointer-events:none}
+.leyf .escala{margin:2px 0}
+.leyf .leyenda{margin:2px 0}
+.maps.dos .leyf{width:min(400px,calc(50% - 20px))}
+@media (max-width:1149px){.leyf{display:none}}
 .botones{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 </style>
 </head>
@@ -69,6 +75,7 @@
   </aside>
 
   <section class="maps" id="maps">
+    <div class="leyf" id="leyf" aria-hidden="true"></div>
     <div class="mbox"><span class="etq" id="ea"></span><div class="m" id="mA" role="img" aria-label="Mapa municipal"></div></div>
     <div class="mbox" id="boxB" hidden><span class="etq" id="eb"></span><div class="m" id="mB" role="img" aria-label="Mapa municipal, segundo año"></div></div>
   </section>
@@ -186,6 +193,7 @@ function pintar() {
   document.getElementById("ea").hidden = !v.anual;
   document.getElementById("eb").textContent = String(st.b);
   let colA = {}, colB = {}, ley = "";
+  const tit = document.getElementById("var").selectedOptions[0]?.textContent + (v.anual ? ` · ${dif ? orden().join(" → ") : cmp ? `${st.a} ${ES ? "y" : "and"} ${st.b}` : st.a}` : "");
   if (v.t === "zona") {
     const cnt = {};
     const cz = y => { const o = {}; D.cods.forEach(c => { const z = v.f(c, y); o[c] = ZCOL[z]; if (y === st.a) cnt[z] = (cnt[z] || 0) + 1; }); return o; };
@@ -204,18 +212,20 @@ function pintar() {
     else { const mx = quantiles(dv.map(Math.abs), 10)[8] || 1; br = [-mx * .6, -mx * .2, mx * .2, mx * .6]; pal = DIV; }
     D.cods.forEach(c => colA[c] = claseColor(d[c], br, pal));
     const f2 = x => v.dif === "rel" ? pct(x, 0) : (v.fm(1).includes("%") ? fmt(x * 100, 0) + " pp" : v.fm(x));
-    ley = pal.map((c, i) => `<span><i style="background:${c}"></i>${["≤ " + f2(br[0]), f2(br[0]) + " – " + f2(br[1]), f2(br[1]) + " – " + f2(br[2]), f2(br[2]) + " – " + f2(br[3]), "> " + f2(br[3])][i]}</span>`).join("")
-      + (lo >= 0 || hi <= 0 ? `<span class="nota">${ES ? "Todos los municipios cambian en el mismo sentido; los colores comparan la magnitud." : "All municipalities change in the same direction; colors compare magnitude."}</span>` : "");
+    ley = escalaHTML(pal, ["≤ " + f2(br[0]), f2(br[0]) + " – " + f2(br[1]), f2(br[1]) + " – " + f2(br[2]), f2(br[2]) + " – " + f2(br[3]), "> " + f2(br[3])],
+      hi <= 0 ? (ES ? ["Bajó más", "Bajó menos"] : ["Fell most", "Fell least"]) : lo >= 0 ? (ES ? ["Subió menos", "Subió más"] : ["Rose least", "Rose most"]) : (ES ? ["Bajó", "Subió"] : ["Fell", "Rose"]), tit,
+      lo >= 0 || hi <= 0 ? (ES ? "Todos los municipios cambian en el mismo sentido; los colores comparan la magnitud." : "All municipalities change in the same direction; colors compare magnitude.") : "");
     st._dif = d;
   } else {
     const a = v.anual ? valores(st.a) : valores(null), b = cmp ? valores(st.b) : {};
     const br = v.br || quantiles(Object.values(a).concat(Object.values(b)));
     D.cods.forEach(c => { colA[c] = claseColor(a[c], br); if (cmp) colB[c] = claseColor(b[c], br); });
     const lab = [`≤ ${v.fm(br[0])}`, `${v.fm(br[0])} – ${v.fm(br[1])}`, `${v.fm(br[1])} – ${v.fm(br[2])}`, `${v.fm(br[2])} – ${v.fm(br[3])}`, v.br ? `> ${v.fm(br[3])}` : `> ${v.fm(br[3])}`];
-    ley = RAMP.map((c, i) => `<span><i style="background:${c}"></i>${lab[i]}</span>`).join("");
+    ley = escalaHTML(RAMP, lab, null, tit);
   }
-  ley += `<span><i style="background:#E9ECEF"></i>${ES ? "sin dato" : "no data"}</span>`;
+  if (!ley.includes("escala")) ley += `<span><i style="background:#E9ECEF"></i>${ES ? "sin dato" : "no data"}</span>`;
   document.getElementById("ley").innerHTML = ley;
+  document.getElementById("leyf").innerHTML = ley.includes("escala") ? ley : `<div class="leyenda">${ley}</div>`;
   const ap = (m, col) => { if (!m || !m.getSource || !m.getSource("m")) return; D.cods.forEach(c => m.setFeatureState({source:"m", id:c}, {col: col[c] || "#E9ECEF"})); m.setFilter("s", ["==", ["get","cod"], sel || ""]); };
   ap(A, colA); if (cmp && !dif) ap(B, colB);
   document.getElementById("nvar").textContent = v.n || "";

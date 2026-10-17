@@ -69,8 +69,15 @@ function opcBase(titulo, apilado, extra = {}) {
 }
 function grafica(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); return charts[id]; }
 const PAL = ["#004884", "#3366CC", "#6F99E3", "#069169", "#7BC8A4", "#FFAB00", "#F6C86B", "#8C6BB1", "#B2DF8A", "#4B4B4B", "#9E9E9E", "#9B59B6", "#C39BD3", "#2C3E50", "#BDBDBD", "#7F8C8D"];
-const RAMP = ["#FFFFCC", "#A1DAB4", "#41B6C4", "#2C7FB8", "#253494"];
+const RAMP = ["#2C7BB6", "#4FB3A9", "#B8DB6B", "#FDAE61", "#D7191C"];  /* de menor (azul) a mayor (rojo): el rojo indica "mayor", no "peor" */
 const DIV = ["#8C510A", "#D8B365", "#F5F5F5", "#5AB4AC", "#01665E"];
+function escalaHTML(pal, labs, ext, tit, nota) {
+  const es = LANG === "es";
+  return `<div class="escala">${tit ? `<div class="tit">${tit}</div>` : ""}<div class="barra">${pal.map(c => `<i style="background:${c}"></i>`).join("")}</div>
+    <div class="labs">${labs.map(l => `<span>${String(l).replace(/ (%|pp|M)/g, "\u00a0$1")}</span>`).join("")}</div>
+    <div class="ext"><span>← ${ext ? ext[0] : (es ? "Menor" : "Lower")}</span><span>${ext ? ext[1] : (es ? "Mayor" : "Higher")} →</span></div>
+    <div class="sd"><i></i>${es ? "Sin dato" : "No data"}</div>${nota ? `<p class="nota">${nota}</p>` : ""}</div>`;
+}
 function quantiles(vals, k = 5) {
   const v = vals.filter(x => x != null && isFinite(x)).sort((a, b) => a - b);
   if (!v.length) return [0, 0, 0, 0];
