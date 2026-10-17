@@ -156,7 +156,15 @@ Sala Especial de Seguimiento a la Sentencia T-760 de 2008, órdenes vigésima pr
 - **Altitud y clima municipal** (`data/raw/base_interna/Altitud_municipios_Colombia.xlsx`). El archivo indica como fuente a la Unidad de Analítica en Salud del IETS y al DNP, con base en el «Mapa de Clasificación del Clima en Colombia». Se cita así hasta contar con la referencia original.
 - **Clasificación de ruralidad 2018** (`data/raw/base_interna/Clasificacion_de_ruralidad_2018.xlsx`). El archivo no trae fuente: se trata como base interna. Usa las categorías de la Misión para la Transformación del Campo (DNP, 2014). Junto a ella se publica la categoría que trae la geografía del cubo BDUA de SISPRO.
 
-## 8. Marco legal para la reutilización
+## 8. Liquidación del subsidiado y medidas de la Supersalud
+
+**ICONTEC:** ADMINISTRADORA DE LOS RECURSOS DEL SISTEMA GENERAL DE SEGURIDAD SOCIAL EN SALUD (ADRES). Informe de Financiación LMA, 2020 a julio de 2026 [en línea]. Bogotá D.C.: ADRES, 2020-2026. [Consultado el 17 de octubre de 2026]. Disponible en: https://www.adres.gov.co/entidades-territoriales/financiamiento/informe-financiacion
+
+**APA:** Administradora de los Recursos del Sistema General de Seguridad Social en Salud. (2020-2026). *Informe de Financiación LMA* [Conjunto de datos]. https://www.adres.gov.co/entidades-territoriales/financiamiento/informe-financiacion
+
+Medidas de la Superintendencia Nacional de Salud: resoluciones y fuentes enlazadas fila por fila en `data/reference/eps_medidas_supersalud.csv` (consulta del 17 de octubre de 2026). Corte Constitucional, Sentencia SU-277 de 2025 (26 de junio de 2025).
+
+## 9. Marco legal para la reutilización
 
 - Ley 1712 de 2014 (Ley de Transparencia y del Derecho de Acceso a la Información Pública Nacional): la información pública puede reutilizarse citando la fuente.
 - Ley 1581 de 2012 (protección de datos personales): las tablas de este repositorio son agregadas y no contienen datos personales.

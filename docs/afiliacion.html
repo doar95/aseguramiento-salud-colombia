@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Afiliación en salud</title>
+<meta name="description" content="Afiliados al SGSSS por régimen: tendencias nacionales, departamentales y municipales, rankings, dispersión, distribuciones y estructura por edad.">
+<meta property="og:title" content="Afiliación en salud en Colombia: tendencias y distribuciones">
+<meta property="og:description" content="Nacional, departamental y municipal. Rankings, gráficas de dispersión y pirámides de edad con datos abiertos.">
+<meta property="og:image" content="https://doar95.github.io/aseguramiento-salud-colombia/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/comun.css">
+</head>
+<body>
+<main class="wrap">
+  <h1 class="pag" data-i18n="tit">Afiliación: tendencias y distribuciones</h1>
+  <p class="intro" data-i18n="intro">Afiliados vigentes por régimen según el municipio de afiliación (SISPRO, cubo BDUA). Elija un departamento o un municipio; las gráficas se ajustan. El enlace de la página guarda la selección.</p>
+  <div class="ctrl">
+    <label><span data-i18n="dep">Departamento</span><select id="dep"></select></label>
+    <label><span data-i18n="mun">Municipio</span><select id="mun"></select></label>
+    <label><span data-i18n="anio">Año (gráficas de corte)</span><select id="anio"></select></label>
+    <button class="btn" id="share" type="button" data-i18n="compartir">Copiar enlace</button>
+    <a class="btn" id="vermapa" href="mapa.html" data-i18n="vermapa">Ver en el mapa</a>
+  </div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <section class="card"><h3 data-i18n="g1">Afiliados por régimen</h3><div class="chartbox"><canvas id="g1"></canvas></div>
+      <p class="nota" id="n1"></p></section>
+    <section class="card"><h3 data-i18n="g2">Afiliados frente a la población del DANE y peso del subsidiado</h3><div class="chartbox"><canvas id="g2"></canvas></div>
+      <p class="nota" data-i18n="n2">La relación afiliados/población no es una cobertura exacta: el municipio es el de afiliación y la población es proyectada (DANE, actualización de julio de 2025).</p></section>
+    <section class="card"><h3 data-i18n="g3">Ranking</h3>
+      <div class="ctrl"><label><span data-i18n="metrica">Métrica</span><select id="rk"></select></label></div>
+      <div class="chartbox" style="height:520px"><canvas id="g3"></canvas></div><p class="nota" id="n3"></p></section>
+    <section class="card"><h3 data-i18n="g4">Dispersión entre municipios</h3>
+      <div class="ctrl"><label>X<select id="sx"></select></label><label>Y<select id="sy"></select></label></div>
+      <div class="chartbox" style="height:520px"><canvas id="g4"></canvas></div>
+      <p class="nota" data-i18n="n4">Cada punto es un municipio; el color es la categoría de ruralidad 2018 (base interna). Ejes en escala logarítmica para afiliados y población.</p></section>
+    <section class="card"><h3 data-i18n="g5">Distribución de municipios</h3>
+      <div class="ctrl"><label><span data-i18n="variable">Variable</span><select id="hv"></select></label></div>
+      <div class="chartbox"><canvas id="g5"></canvas></div><p class="nota" id="n5"></p></section>
+    <section class="card"><h3 data-i18n="g6">Estructura por edad y sexo</h3>
+      <div class="ctrl"><label><span data-i18n="regimen">Régimen</span><select id="pr"><option value="" data-i18n="todos">Todos</option><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option></select></label></div>
+      <div class="chartbox" style="height:420px"><canvas id="g6"></canvas></div><p class="nota" id="n6"></p></section>
+  </div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="assets/comun.js"></script>
+<script>
+TXT.en = {tit:"Enrollment: trends and distributions", intro:"Current enrollees by scheme and municipality of enrollment (SISPRO, BDUA cube). Choose a department or a municipality; charts update. The page link keeps the selection.",
+  dep:"Department", mun:"Municipality", anio:"Year (cross-section charts)", compartir:"Copy link", vermapa:"Open in map", g1:"Enrollees by scheme",
+  g2:"Enrollees vs DANE population and subsidized share", n2:"Enrollees/population is not an exact coverage rate (municipality of enrollment vs projected population).",
+  g3:"Ranking", metrica:"Metric", g4:"Scatter across municipalities", n4:"Each dot is a municipality; color is the 2018 rurality category (internal dataset). Log axes for enrollees and population.",
+  g5:"Distribution of municipalities", variable:"Variable", g6:"Age and sex structure", regimen:"Scheme", todos:"All", contrib:"Contributory", subs:"Subsidized"};
+cabecera("afiliacion.html"); traducir(); piePagina();
+const ES = LANG === "es";
+let D = {}, st = {};
+const RURC = {"Ciudades y aglomeraciones":"#004884","Intermedio":"#6F99E3","Rural":"#069169","Rural disperso":"#FFAB00"};
+
+const fr = y => D.af.periodos.findIndex(p => +p.slice(0,4) === y);
+const at = c => D.at.datos[c] || [];
+function pondProm(c) { const e = D.ed.datos[c]; if (!e) return null; const P = D.upc.ponderadores["2026"]; let n = 0, w = 0;
+  ["C","S"].forEach(r => { if (!e[r]) return; D.ed.grupos.forEach((g, i) => { n += e[r][i]; w += e[r][i] * (P[r][g] || 0); }); }); return n ? w / n : null; }
+const M = {
+  total:{l:ES?"Afiliados vigentes":"Current enrollees", f:(c,k)=>{const v=(D.af.datos[c]||[])[k];return v?v[3]:null}, fm:v=>fmt(v), log:true},
+  ps:{l:ES?"% en el subsidiado":"% subsidized", f:(c,k)=>{const v=(D.af.datos[c]||[])[k];return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, fm:v=>pct(v,0)},
+  cob:{l:ES?"Afiliados / población DANE":"Enrollees / DANE pop.", f:(c,k)=>{const v=(D.af.datos[c]||[])[k],p=(D.af.poblacion_dane[c]||[])[k];return v&&p?v[3]/p:null}, fm:v=>pct(v,0)},
+  var13:{l:ES?"Variación desde dic. 2013":"Change since Dec 2013", f:(c,k)=>{const v=(D.af.datos[c]||[])[k],v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[3]?v[3]/v0[3]-1:null}, fm:v=>pct(v,0)},
+  pob:{l:ES?"Población DANE":"DANE population", f:(c,k)=>(D.af.poblacion_dane[c]||[])[k]??null, fm:v=>fmt(v), log:true},
+  alt:{l:ES?"Altitud (m s. n. m.)":"Altitude (m)", f:c=>at(c)[5]??null, fm:v=>fmt(v)},
+  lmapc:{l:ES?"UPC liquidada por afiliado subsidiado (LMA)":"Settled UPC per subsidized enrollee (LMA)", f:(c,k)=>{const y=+D.af.periodos[k].slice(0,4),j=D.lma.anios.indexOf(y);if(j<0)return null;
+    const v=(D.lma.datos[c]||[])[j],a=(D.af.datos[c]||[])[k],m=D.lma.meses[String(y)]||12;return v&&a&&a[1]?v[0]*12/m/a[1]:null}, fm:v=>"$"+fmt(v)},
+  pond:{l:ES?"Ponderador etario promedio (ADRES, UPC 2026)":"Mean age weight (ADRES, UPC 2026)", f:c=>pondProm(c), fm:v=>fmt(v,3)},
+};
+function munsArea() { return Object.keys(D.af.datos).filter(c => D.at.datos[c] && (!st.dep || c.startsWith(st.dep)) && !c.endsWith("000")); }
+function serieArea() {
+  const P = D.dep.periodos, lab = P.map(p => p.slice(0,4) + "-" + p.slice(4));
+  if (st.mun) { const s = D.af.datos[st.mun] || []; return {lab:D.af.periodos.map(p => p.slice(0,4)), c:s.map(x=>x&&x[0]), s:s.map(x=>x&&x[1]), e:s.map(x=>x&&x[2]), t:s.map(x=>x&&x[3]), anual:true}; }
+  if (st.dep) { const d = D.dep.datos[st.dep]; return {lab, c:d.contributivo, s:d.subsidiado, e:d.excepcion, t:d.total}; }
+  return {lab:D.nac.periodo.map(p => p.slice(0,4) + "-" + p.slice(4)), c:D.nac.contributivo, s:D.nac.subsidiado, e:D.nac.excepcion, t:D.nac.total};
+}
+function nombreArea() { return st.mun ? `${at(st.mun)[1]} (${at(st.mun)[0]})` : st.dep ? D.dep.nombres[st.dep] : "Colombia"; }
+function kpis() {
+  const k = fr(st.anio), cods = st.mun ? [st.mun] : munsArea(); let c = 0, s = 0, e = 0, t = 0, p = 0;
+  if (!st.mun && !st.dep) { const i = D.nac.periodo.indexOf(D.af.periodos[k]); c = D.nac.contributivo[i]; s = D.nac.subsidiado[i]; e = D.nac.excepcion[i]; t = D.nac.total[i]; p = D.nac.poblacion_dane_anual[String(st.anio)]; }
+  else cods.forEach(x => { const v = (D.af.datos[x] || [])[k]; if (v) { c += v[0]; s += v[1]; e += v[2]; t += v[3]; } p += (D.af.poblacion_dane[x] || [])[k] || 0; });
+  const per = D.af.periodos[k];
+  document.getElementById("kpis").innerHTML = [[`${nombreArea()} · ${per.slice(4)}/${per.slice(0,4)}`, mill(t)], [tt("contrib","Contributivo"), mill(c)], [tt("subs","Subsidiado"), mill(s)],
+    [ES?"Excepción":"Exception", mill(e)], [ES?"% subsidiado":"% subsidized", pct(s/(c+s))], [ES?"Afiliados / pob. DANE":"Enrollees / pop.", pct(p?t/p:null)]]
+    .map(x => `<div class="kpi"><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");
+}
+function g1() {
+  const s = serieArea(), ds = [[tt("contrib","Contributivo"), s.c, "#3366CC"], [tt("subs","Subsidiado"), s.s, "#069169"], [ES?"Excepción":"Exception", s.e, "#FFAB00"]]
+    .map(([l, d, c]) => ({label:l, data:d.map(x => x == null ? null : x / 1e6), borderColor:c, backgroundColor:c, pointRadius:s.anual ? 2 : 0, borderWidth:2}));
+  grafica("g1", {type:"line", data:{labels:s.lab, datasets:ds}, options:opcBase(`${nombreArea()} · ${ES ? "millones" : "millions"}`, false)});
+  document.getElementById("n1").textContent = s.anual ? (ES ? "Municipio: diciembre de cada año (2026: agosto)." : "Municipality: December of each year (2026: August).")
+    : (ES ? "Serie mensual de SISPRO (faltan algunos meses de 2010 a 2012). La excepción está incompleta antes de 2018." : "Monthly SISPRO series (some 2010–2012 months missing). Exception scheme incomplete before 2018.");
+}
+function g2() {
+  const P = D.af.periodos, yrs = P.map(p => p.slice(0,4)), cods = st.mun ? [st.mun] : munsArea();
+  const cob = [], ps = [];
+  P.forEach((p, k) => { let t = 0, c = 0, s = 0, pb = 0;
+    if (!st.mun && !st.dep) { const i = D.nac.periodo.indexOf(p); t = D.nac.total[i]; c = D.nac.contributivo[i]; s = D.nac.subsidiado[i]; pb = D.nac.poblacion_dane_anual[p.slice(0,4)]; }
+    else cods.forEach(x => { const v = (D.af.datos[x] || [])[k]; if (v) { t += v[3]; c += v[0]; s += v[1]; } pb += (D.af.poblacion_dane[x] || [])[k] || 0; });
+    cob.push(pb ? t / pb * 100 : null); ps.push(c + s ? s / (c + s) * 100 : null); });
+  const o = opcBase("%", false); o.plugins.tooltip.callbacks.label = x => `${x.dataset.label}: ${fmt(x.parsed.y, 1)} %`;
+  grafica("g2", {type:"line", data:{labels:yrs, datasets:[
+    {label:ES?"Afiliados / población DANE":"Enrollees / DANE pop.", data:cob, borderColor:"#004884", backgroundColor:"#004884", pointRadius:2},
+    {label:ES?"% en el subsidiado":"% subsidized", data:ps, borderColor:"#069169", backgroundColor:"#069169", pointRadius:2}]}, options:o});
+}
+function g3() {
+  const m = M[st.rk], k = fr(st.anio); let rows;
+  if (!st.dep) {
+    rows = Object.keys(D.dep.nombres).map(d => { const cods = Object.keys(D.af.datos).filter(c => c.startsWith(d)); let c = 0, s = 0, t = 0, p = 0, t0 = 0, w = 0, nw = 0;
+      cods.forEach(x => { const v = (D.af.datos[x] || [])[k], v0 = (D.af.datos[x] || [])[0]; if (v) { c += v[0]; s += v[1]; t += v[3]; } if (v0) t0 += v0[3]; p += (D.af.poblacion_dane[x] || [])[k] || 0;
+        if (["alt","pond","lmapc"].includes(st.rk)) { const val = m.f(x, k), wt = v ? v[3] : 0; if (val != null && wt) { w += val * wt; nw += wt; } } });
+      const val = {total:t, ps:c+s?s/(c+s):null, cob:p?t/p:null, var13:t0?t/t0-1:null, pob:p}[st.rk] ?? (nw ? w / nw : null);
+      return [D.dep.nombres[d], val]; });
+    document.getElementById("n3").textContent = ES ? "Departamentos. Para altitud, ponderador y UPC por afiliado: promedio de sus municipios ponderado por afiliados." : "Departments. Altitude, weight and UPC per enrollee: enrollee-weighted mean of municipalities.";
+  } else {
+    rows = munsArea().map(c => [at(c)[1], m.f(c, k), c]);
+    document.getElementById("n3").textContent = (ES ? "Municipios de " : "Municipalities of ") + D.dep.nombres[st.dep] + (ES ? " (los 40 primeros)." : " (top 40).");
+  }
+  rows = rows.filter(r => r[1] != null).sort((a, b) => b[1] - a[1]).slice(0, 40);
+  const o = opcBase(`${m.l} · ${st.anio}`, false, {indexAxis:"y"});
+  o.scales.y.ticks.autoSkip = false; o.plugins.legend.display = false; o.plugins.tooltip.callbacks.label = x => m.fm(x.parsed.x); o.scales.x.ticks.callback = v => m.fm(v);
+  grafica("g3", {type:"bar", data:{labels:rows.map(r => r[0]), datasets:[{label:m.l, data:rows.map(r => r[1]),
+    backgroundColor:rows.map(r => r[2] && r[2] === st.mun ? "#FFAB00" : "#3366CC")}]}, options:o});
+}
+function g4() {
+  const mx = M[st.sx], my = M[st.sy], k = fr(st.anio), cods = st.dep ? munsArea() : Object.keys(D.af.datos).filter(c => D.at.datos[c] && !c.endsWith("000"));
+  const grupos = {};
+  cods.forEach(c => { const x = mx.f(c, k), y = my.f(c, k); if (x == null || y == null) return; if (mx.log && x <= 0 || my.log && y <= 0) return;
+    const r = at(c)[3] || "–"; (grupos[r] = grupos[r] || []).push({x, y, c}); });
+  const ds = Object.entries(grupos).map(([r, pts]) => ({label:r, data:pts, backgroundColor:(RURC[r] || "#9E9E9E") + "B0", pointRadius:pts.map(p => p.c === st.mun ? 7 : 2.5), pointHoverRadius:5}));
+  const o = opcBase(`${st.anio}`, false, {interaction:{mode:"nearest", intersect:true}});
+  o.scales.x = {type:mx.log ? "logarithmic" : "linear", title:{display:true, text:mx.l, color:colTexto()}, ticks:{color:colTexto(), font:{size:10}, callback:v => mx.fm(v)}, grid:{color:"#8882"}};
+  o.scales.y = {type:my.log ? "logarithmic" : "linear", title:{display:true, text:my.l, color:colTexto()}, ticks:{color:colTexto(), font:{size:10}, callback:v => my.fm(v)}, grid:{color:"#8882"}};
+  o.plugins.tooltip.callbacks.label = x => { const p = x.raw; return `${at(p.c)[1]} (${at(p.c)[0]}): ${mx.fm(p.x)} · ${my.fm(p.y)}`; };
+  o.onClick = (e, el) => { if (el.length) { const p = ds[el[0].datasetIndex].data[el[0].index]; st.mun = p.c; st.dep = p.c.slice(0,2); sync(); todo(); } };
+  grafica("g4", {type:"scatter", data:{datasets:ds}, options:o});
+}
+function g5() {
+  const m = M[st.hv], k = fr(st.anio), vals = munsArea().map(c => m.f(c, k)).filter(v => v != null && isFinite(v));
+  if (!vals.length) { grafica("g5", {type:"bar", data:{labels:[], datasets:[]}, options:opcBase("", false)}); return; }
+  const tr = m.log ? vals.map(v => Math.log10(Math.max(v, 1))) : vals;
+  const lo = Math.min(...tr), hi = Math.max(...tr), nb = 20, w = (hi - lo) / nb || 1, cnt = Array(nb).fill(0);
+  tr.forEach(v => cnt[Math.min(nb - 1, Math.floor((v - lo) / w))]++);
+  const lab = cnt.map((_, i) => { const a = lo + i * w; return m.fm(m.log ? Math.pow(10, a) : a); });
+  const o = opcBase(`${m.l} · ${st.anio}`, false); o.plugins.legend.display = false;
+  grafica("g5", {type:"bar", data:{labels:lab, datasets:[{label:ES ? "Municipios" : "Municipalities", data:cnt, backgroundColor:"#3366CC"}]}, options:o});
+  const sv = vals.slice().sort((a, b) => a - b), med = sv[Math.floor(sv.length / 2)];
+  document.getElementById("n5").textContent = `${vals.length} ${ES ? "municipios; mediana" : "municipalities; median"} ${m.fm(med)}${m.log ? (ES ? " (eje en escala logarítmica)" : " (log scale)") : ""}.`;
+}
+function g6() {
+  const r = st.pr;
+  if (st.mun) {
+    const e = D.ed.datos[st.mun] || {}, g = D.ed.grupos, v = g.map((_, i) => ["C","S"].filter(x => !r || x === r).reduce((s, x) => s + ((e[x] || [])[i] || 0), 0));
+    const o = opcBase(`${nombreArea()} · ADRES ${D.ed.corte}`, false); o.plugins.legend.display = false;
+    grafica("g6", {type:"bar", data:{labels:g, datasets:[{label:ES?"Afiliados activos":"Active enrollees", data:v, backgroundColor:"#3366CC"}]}, options:o});
+    document.getElementById("n6").textContent = ES ? "Municipio: grupos de edad de la UPC del corte de la BDUA de la ADRES (único corte con edad por municipio). H y M: hombres y mujeres." : "Municipality: UPC age groups from the ADRES BDUA snapshot (only snapshot with age by municipality).";
+    return;
+  }
+  const q = D.qe.quinquenios, F = Array(q.length).fill(0), Mm = Array(q.length).fill(0), dn = st.dep ? D.dep.nombres[st.dep] : null;
+  Object.values(D.qe.datos).forEach(porDep => Object.entries(porDep).forEach(([d, porReg]) => { if (dn && d !== dn) return;
+    Object.entries(porReg).forEach(([rg, v]) => { if (r && rg !== r) return; if (!["C","S"].includes(rg) && r) return; v[0].forEach((x, i) => F[i] += x); v[1].forEach((x, i) => Mm[i] += x); }); }));
+  const o = opcBase(`${nombreArea()} · MinSalud ${D.qe.periodo}`, true, {indexAxis:"y"});
+  o.scales.x.ticks.callback = v => fmt(Math.abs(v) / 1e3) + " mil"; o.plugins.tooltip.callbacks.label = x => `${x.dataset.label}: ${fmt(Math.abs(x.parsed.x))}`;
+  grafica("g6", {type:"bar", data:{labels:q.map(x => x.replace("De ", "").replace(" años", "")), datasets:[
+    {label:ES?"Mujeres":"Women", data:F.map(x => -x), backgroundColor:"#069169"}, {label:ES?"Hombres":"Men", data:Mm, backgroundColor:"#3366CC"}]}, options:o});
+  document.getElementById("n6").textContent = ES ? "Edad quinquenal y sexo del último mes de las cifras de MinSalud (por departamento; no hay edad por municipio en esa fuente)." : "Five-year age and sex, latest MinSalud month (by department).";
+}
+function todo() { kpis(); g1(); g2(); g3(); g4(); g5(); g6();
+  escribirURL({dep:st.dep, mun:st.mun, anio:st.anio, rk:st.rk, sx:st.sx, sy:st.sy, hv:st.hv, pr:st.pr});
+  document.getElementById("vermapa").href = `mapa.html?v=${["total","ps","cob","var13"].includes(st.rk) ? st.rk : "total"}&a=${st.anio}${st.dep ? "&dep=" + st.dep : ""}${st.mun ? "&mun=" + st.mun : ""}`; }
+function sync() {
+  document.getElementById("dep").value = st.dep;
+  opciones(document.getElementById("mun"), st.dep ? munsArea().map(c => [c, at(c)[1]]).sort((a, b) => a[1].localeCompare(b[1])) : [], ES ? "Todos" : "All");
+  document.getElementById("mun").value = st.mun || "";
+}
+(async function () {
+  [D.af, D.nac, D.dep, D.at, D.ed, D.qe, D.upc, D.lma] = await Promise.all(["afiliacion_municipio.json", "afiliacion_nacional.json", "departamentos.json",
+    "municipios_atributos.json", "edad_municipio.json", "eps_edad.json", "upc.json", "lma.json"].map(cargar));
+  const u = leerURL(), yrs = D.af.periodos.map(p => +p.slice(0,4));
+  st = {dep:u.dep || (u.mun ? u.mun.slice(0,2) : ""), mun:u.mun || "", anio:yrs.includes(+u.anio) ? +u.anio : yrs[yrs.length - 1], rk:M[u.rk] ? u.rk : "ps",
+        sx:M[u.sx] ? u.sx : "alt", sy:M[u.sy] ? u.sy : "ps", hv:M[u.hv] ? u.hv : "cob", pr:u.pr || ""};
+  opciones(document.getElementById("dep"), Object.entries(D.dep.nombres).sort((a, b) => a[1].localeCompare(b[1])), "Colombia");
+  opciones(document.getElementById("anio"), yrs.map(y => [y, y])); document.getElementById("anio").value = st.anio;
+  const mm = Object.entries(M).map(([k, v]) => [k, v.l]);
+  ["rk","sx","sy","hv"].forEach(id => { opciones(document.getElementById(id), mm); document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = e.target.value; todo(); }; });
+  document.getElementById("pr").value = st.pr; document.getElementById("pr").onchange = e => { st.pr = e.target.value; g6(); };
+  sync();
+  document.getElementById("dep").onchange = e => { st.dep = e.target.value; st.mun = ""; sync(); todo(); };
+  document.getElementById("mun").onchange = e => { st.mun = e.target.value; todo(); };
+  document.getElementById("anio").onchange = e => { st.anio = +e.target.value; todo(); };
+  document.getElementById("share").onclick = compartir;
+  todo();
+})();
+</script>
+</body>
+</html>

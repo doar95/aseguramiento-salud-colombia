@@ -97,6 +97,11 @@ select,input[type=range]{font:inherit;color:var(--texto);background:var(--fondo)
 [hidden]{display:none!important}
 html[lang="en"] [data-l="es"], html[lang="es"] [data-l="en"]{display:none!important}
 @media (max-width:1149px){ .panel{order:-1} .paper p{text-align:left} }
+.menu{display:flex;gap:2px;flex-wrap:wrap;padding:0 16px;border-bottom:2px solid var(--azul);background:var(--panel);overflow-x:auto}
+.menu a{padding:9px 12px;text-decoration:none;color:var(--texto);font-weight:500;font-size:14px;white-space:nowrap;border-radius:4px 4px 0 0}
+.menu a.on{background:var(--azul);color:#fff}
+.menu a:hover:not(.on){background:var(--azul-cl)}
+.btnmapa{display:inline-block;margin:6px 0;background:var(--azul);color:#fff!important;text-decoration:none;border-radius:4px;padding:5px 12px;font-weight:600;font-size:13px}
 @media print{.panel,.govbar{display:none}.grid{display:block}}
 </style>
 </head>
@@ -105,6 +110,9 @@ html[lang="en"] [data-l="es"], html[lang="es"] [data-l="en"]{display:none!import
   <b data-i18n="barra">Repositorio abierto · datos públicos del Estado colombiano</b>
   <span><button id="b-es" class="on" type="button">ES</button> <button id="b-en" type="button">EN</button></span>
 </div>
+<nav class="menu" aria-label="Secciones">
+  <a href="index.html" class="on" data-i18n="m_ini">Inicio</a><a href="mapa.html" data-i18n="m_mapa">Mapa</a><a href="afiliacion.html" data-i18n="m_afil">Afiliación</a><a href="eps.html">EPS</a><a href="finanzas.html" data-i18n="m_fin">Finanzas</a><a href="corte.html" data-i18n="m_corte">Corte Constitucional</a><a href="https://github.com/doar95/aseguramiento-salud-colombia">GitHub ↗</a>
+</nav>
 
 <header class="titulo">
   <span class="revista" data-i18n="tipo">Documento de trabajo · versión 1.0 · octubre de 2026</span>
@@ -240,6 +248,7 @@ html[lang="en"] [data-l="es"], html[lang="es"] [data-l="en"]{display:none!import
     </div>
     <div class="kpis" id="kpis"></div>
     <div id="mapa" role="img" aria-label="Mapa municipal de Colombia"></div>
+    <a class="btnmapa" id="abrirmapa" href="mapa.html" data-i18n="abrirmapa">Abrir el mapa en pantalla completa, con comparación entre años →</a>
     <div class="leyenda" id="leyenda"></div>
     <div class="play" id="play-wrap">
       <button id="play" type="button">▶</button>
@@ -301,6 +310,7 @@ html[lang="en"] [data-l="es"], html[lang="es"] [data-l="en"]{display:none!import
   <section data-tab-panel="corte" hidden>
     <p class="nota" data-i18n="n_corte">Seguimiento a las órdenes 21 y 22 de la Sentencia T-760 de 2008. Resúmenes de la parte resolutiva leída en el texto oficial de la relatoría.</p>
     <div class="linea" id="linea"></div>
+    <a class="btnmapa" href="corte.html" data-i18n="vercorte">Ver la línea de tiempo completa, con las resoluciones de la UPC →</a>
   </section>
 </aside>
 </div>
@@ -335,6 +345,7 @@ const T = {
   justif:"Justification of each category",
   n_sim:"<b>Illustrative exercise.</b> Applies the weights, base UPC and zone premium of the chosen year to the age distribution of the latest ADRES snapshot (the only one by municipality). It does not replace the LMA or compensation. It excludes the indigenous UPC, insurer-specific age premiums and days actually paid. No age data exist for other dates and none are estimated.",
   n_corte:"Follow-up of orders 21 and 22 of ruling T-760 of 2008. Summaries of the operative part read in the official text.",
+  m_ini:"Home", m_mapa:"Map", m_afil:"Enrollment", m_fin:"Finances", m_corte:"Constitutional Court", abrirmapa:"Open the full-screen map, with year comparison →", vercorte:"See the full timeline, with UPC resolutions →",
   pie:"Data and code repository. Code: MIT license. ADRES-derived data: CC BY-SA 4.0. This site is not an official publication of any government agency."
  }};
 document.querySelectorAll("[data-i18n]").forEach(e=>{T.es[e.dataset.i18n]=e.innerHTML});
@@ -580,7 +591,8 @@ function tArchivos(){const f=[["afiliados vigentes por municipio y mes (SISPRO)"
 /* ---------- ciclo ---------- */
 function refreshAll(){selText();kpis();paint();
   if(S.tab==="afil")gNac();if(S.tab==="terr")tTerr();if(S.tab==="upc"){gUPC();tUPC()}if(S.tab==="fin")gFin();if(S.tab==="sim")tSim();if(S.tab==="corte")linea();
-  const p=D.afiliacion_municipio.periodos[S.frame];document.getElementById("frame-lbl").textContent=p.slice(4)+"/"+p.slice(0,4);}
+  const p=D.afiliacion_municipio.periodos[S.frame];document.getElementById("frame-lbl").textContent=p.slice(4)+"/"+p.slice(0,4);
+  const vr=document.getElementById("var").value;document.getElementById("abrirmapa").href=S.tab==="upc"?`mapa.html?v=zona&a=${document.getElementById("upc-anio").value}&reg=${document.getElementById("upc-reg").value}`:`mapa.html?v=${vr}&a=${p.slice(0,4)}${S.dep?"&dep="+S.dep:""}${S.sel?"&mun="+S.sel:""}`;}
 let timer=null;
 function initPlay(){const r=document.getElementById("frame"),n=D.afiliacion_municipio.periodos.length;r.max=n-1;r.value=n-1;S.frame=n-1;
   r.oninput=()=>{S.frame=+r.value;refreshAll()};

@@ -4,6 +4,17 @@
 
 Sitio con el documento y el tablero: **https://doar95.github.io/aseguramiento-salud-colombia/**
 
+| Página | Qué muestra |
+|---|---|
+| [Inicio](https://doar95.github.io/aseguramiento-salud-colombia/) | Documento (métodos, resultados, limitaciones) y tablero resumido |
+| [Mapa](https://doar95.github.io/aseguramiento-salud-colombia/mapa.html) | Mapa municipal a pantalla completa, 2013–2026, comparación entre años y panel de finanzas del año |
+| [Afiliación](https://doar95.github.io/aseguramiento-salud-colombia/afiliacion.html) | Tendencias nacional, departamental y municipal; rankings; dispersión; distribuciones; pirámides |
+| [EPS](https://doar95.github.io/aseguramiento-salud-colombia/eps.html) | Afiliados por EPS, tendencias, concentración (HHI) y EPS bajo medida de la Supersalud |
+| [Finanzas](https://doar95.github.io/aseguramiento-salud-colombia/finanzas.html) | Ejecución de la ADRES por categoría y LMA del subsidiado por fuente y departamento |
+| [Corte Constitucional](https://doar95.github.io/aseguramiento-salud-colombia/corte.html) | Autos de seguimiento junto a las resoluciones anuales de la UPC |
+
+Cada página guarda en el enlace lo que se está viendo (variable, año, departamento, municipio), para compartirlo.
+
 Este repositorio reúne datos públicos del Sistema General de Seguridad Social en Salud (SGSSS),
 los limpia y los deja listos para descargar, con el código para reproducir cada paso. Está pensado
 para servidores públicos, investigadores y ciudadanos que no necesariamente conocen el sistema.
@@ -57,6 +68,8 @@ para servidores públicos, investigadores y ciudadanos que no necesariamente con
 | Finanzas | `adres_ejecucion_rubros_mensual.csv` | rubro × mes (ingresos y gastos) | ago. 2017 – sep. 2026 |
 | | `adres_ejecucion_categorias_mensual.csv` | categoría comparable × mes, corrientes y constantes | ago. 2017 – sep. 2026 |
 | | `ipc_dane_mensual.csv` | IPC | — |
+| | `adres_lma_financiacion_municipio_anual.csv` | LMA del subsidiado por municipio y fuente de financiación | 2020 – jul. 2026 |
+| EPS | `data/reference/eps_medidas_supersalud.csv` | EPS bajo medida de la Supersalud, con fechas y fuentes | 2022 – 2026 |
 | Corte | `data/reference/corte_constitucional_autos.csv` | autos sobre UPC y presupuestos máximos | 2023 – 2025 |
 
 Los insumos están en `data/raw/`, las 14 resoluciones de la UPC en `normativa/upc/` (PDF y texto
@@ -89,7 +102,8 @@ python scripts/07_adres_clasificacion.py
 python scripts/08_upc_zonas.py
 python scripts/04_adres_bdua_upc.py 2026-09      # corte de la BDUA de la ADRES
 python scripts/09_territorio.py
-python scripts/10_datos_sitio.py                 # JSON del tablero en docs/data/
+python scripts/12_adres_lma_financiacion.py      # LMA por municipio (ADRES)
+python scripts/10_datos_sitio.py                 # JSON del sitio en docs/data/
 ```
 
 La guía de descarga, con la ruta de cada archivo en las páginas de las entidades, está en

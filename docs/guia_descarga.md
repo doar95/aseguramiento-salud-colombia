@@ -27,6 +27,7 @@ Para bajar todo: botón verde *Code → Download ZIP*.
 | Ejecución presupuestal mensual | adres.gov.co → Nuestra entidad → Información financiera → Unidad de Recursos Administrados → Presupuesto | `data/raw/adres_ejecucion/adres_ejecucion_AAAA-MM.xls[x]` | manual |
 | Proyecciones de población municipal por área, sexo y edad 2018–2042 y retroproyecciones 2005–2017 | DANE → Estadísticas por tema → Demografía y población → [Proyecciones de población](https://www.dane.gov.co/index.php/estadisticas-por-tema/demografia-y-poblacion/proyecciones-de-poblacion) | `data/raw/dane/` (no se versionan: 131 MB y 56 MB) | manual |
 | DIVIPOLA y Marco Geoestadístico Nacional (MGN) | Geoportal del DANE | `data/raw/dane/` | manual |
+| Informe de Financiación LMA (subsidiado por municipio) | adres.gov.co → Entidades territoriales → Financiamiento → Informe de financiación LMA (un libro acumulado por mes) | `data/raw/adres_lma_financiacion/` | manual |
 | IPC (índices mensuales) | DANE → Precios y costos → Índice de precios al consumidor | `data/raw/dane/` | manual |
 | Autos de la Corte Constitucional | Relatoría de la Corte (enlaces en `data/reference/corte_constitucional_autos.csv`) | — | — |
 
@@ -52,6 +53,7 @@ python scripts/07_adres_clasificacion.py
 python scripts/08_upc_zonas.py
 python scripts/04_adres_bdua_upc.py 2026-09
 python scripts/09_territorio.py
+python scripts/12_adres_lma_financiacion.py
 python scripts/10_datos_sitio.py
 ```
 

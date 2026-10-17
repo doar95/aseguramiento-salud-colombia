@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finanzas de la ADRES</title>
+<meta name="description" content="Ejecución presupuestal de la ADRES 2017-2026 por categoría comparable, empalme de recobros y presupuestos máximos, y liquidación del régimen subsidiado (LMA) por fuente y departamento.">
+<meta property="og:title" content="Finanzas del aseguramiento en salud: ADRES y LMA">
+<meta property="og:description" content="Gastos e ingresos de la ADRES en pesos corrientes y constantes, y quién financia la UPC del subsidiado en cada departamento.">
+<meta property="og:image" content="https://doar95.github.io/aseguramiento-salud-colombia/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/comun.css">
+</head>
+<body>
+<main class="wrap">
+  <h1 class="pag" data-i18n="tit">Finanzas: ADRES y liquidación del subsidiado</h1>
+  <p class="intro" data-i18n="intro">Ejecución presupuestal mensual de la Unidad de Recursos Administrados de la ADRES (agosto de 2017 a septiembre de 2026), agrupada en categorías comparables, y el Informe de Financiación de la Liquidación Mensual de Afiliados (LMA) del régimen subsidiado por municipio (2020 a julio de 2026).</p>
+  <div class="ctrl">
+    <label><span data-i18n="serie">Serie</span><select id="serie"><option value="gasto_obligacion" data-i18n="s_go">Gastos – obligaciones</option><option value="gasto_compromiso" data-i18n="s_gc">Gastos – compromisos</option><option value="ingreso_recaudo" data-i18n="s_ir">Ingresos – recaudo</option></select></label>
+    <label><span data-i18n="precios">Precios</span><select id="prec"><option value="c" data-i18n="p_const">Constantes (septiembre de 2026)</option><option value="n" data-i18n="p_corr">Corrientes</option></select></label>
+    <button class="btn" id="share" type="button" data-i18n="compartir">Copiar enlace</button>
+  </div>
+  <div class="aviso" data-i18n="aviso">Billones de pesos. 2017 cubre agosto a diciembre (inicio de la ADRES) y 2026, enero a septiembre. Antes de 2020 los servicios no financiados con la UPC del subsidiado los pagaban los departamentos y no aparecen aquí.</div>
+  <div class="grid2">
+    <section class="card"><h3 data-i18n="g1">Ejecución por categoría</h3><div class="chartbox" style="height:440px"><canvas id="g1"></canvas></div></section>
+    <section class="card"><h3 data-i18n="g2">Gasto no UPC empalmado: recobros y presupuestos máximos</h3><div class="chartbox" style="height:440px"><canvas id="g2"></canvas></div>
+      <p class="nota" data-i18n="n2">Recobros hasta 2019; presupuestos máximos desde 2020 (Ley 1955 de 2019, art. 240). El saneamiento paga cuentas de años anteriores y va como línea aparte. La caída de 2022 coincide con la UPC «con nuevas inclusiones» (Resolución 2381 de 2021).</p></section>
+  </div>
+  <section class="card" style="margin-top:16px"><h3 data-i18n="t1">Tabla por año y categoría</h3><div class="scroll"><table class="tbl" id="t1"></table></div>
+    <p class="nota"><a id="dl1" href="#">adres_ejecucion_categorias_mensual.csv</a> · <a id="dl2" href="#">adres_clasificacion_rubros.csv</a></p></section>
+
+  <h2 class="pag" style="font-size:22px;margin-top:24px" data-i18n="lmat">Liquidación del régimen subsidiado (LMA): quién la financia</h2>
+  <p class="intro" data-i18n="lmai">La UPC del subsidiado que la ADRES liquida a los afiliados de cada municipio se financia con aportes de la Nación por medio de la ADRES, cofinanciación de departamentos y municipios (incluido el SGP) y cajas de compensación. Fuente: ADRES, Informe de Financiación LMA.</p>
+  <div class="ctrl"><label><span data-i18n="anio">Año</span><select id="la"></select></label></div>
+  <div class="grid2">
+    <section class="card"><h3 data-i18n="g3">Total nacional por fuente</h3><div class="chartbox" style="height:360px"><canvas id="g3"></canvas></div>
+      <p class="nota" data-i18n="n3">2026: enero a julio. Precios constantes con el IPC promedio de cada año.</p></section>
+    <section class="card"><h3 data-i18n="t2">Por departamento</h3><div class="scroll"><table class="tbl" id="t2"></table></div>
+      <p class="nota" data-i18n="n4">«Por afiliado»: LMA anualizada dividida por los afiliados del subsidiado en diciembre (SISPRO); es una aproximación. Incluye las gobernaciones (áreas no municipalizadas).</p></section>
+  </div>
+  <section class="card" style="margin-top:16px"><details><summary data-i18n="just">Justificación de cada categoría de la ADRES</summary><div id="just" class="nota"></div></details></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="assets/comun.js"></script>
+<script>
+TXT.en = {tit:"Finances: ADRES and subsidized settlement", intro:"Monthly budget execution of ADRES' administered resources (Aug 2017–Sep 2026) in comparable categories, and the LMA financing report of the subsidized scheme by municipality (2020–Jul 2026).",
+  serie:"Series", s_go:"Spending – obligations", s_gc:"Spending – commitments", s_ir:"Revenue – collected", precios:"Prices", p_const:"Constant (September 2026)", p_corr:"Current", compartir:"Copy link",
+  aviso:"COP trillion. 2017 covers Aug–Dec (ADRES start); 2026 Jan–Sep. Before 2020, subsidized non-UPC services were paid by departments and do not appear here.",
+  g1:"Execution by category", g2:"Linked non-UPC spending: claims and maximum budgets", t1:"Table by year and category", lmat:"Subsidized scheme settlement (LMA): who pays",
+  lmai:"The subsidized UPC settled by ADRES for each municipality is funded by national contributions through ADRES, department and municipal co-funding (incl. SGP) and family compensation funds. Source: ADRES LMA financing report.",
+  anio:"Year", g3:"National total by source", n3:"2026: January–July. Constant prices using each year's average CPI.", t2:"By department", just:"Justification of each ADRES category"};
+cabecera("finanzas.html"); traducir(); piePagina();
+const ES = LANG === "es";
+let D = {}, st = {};
+document.getElementById("dl1").href = REPO + "data/processed/adres_ejecucion_categorias_mensual.csv";
+document.getElementById("dl2").href = REPO + "data/reference/adres_clasificacion_rubros.csv";
+const col = () => st.prec === "c" ? 3 : 2;
+function g1() {
+  const rows = D.f.datos[st.serie].anual, c = col(), anios = [...new Set(rows.map(r => r[0]))].sort(), cats = [...new Set(rows.map(r => r[1]))];
+  const tot = Object.fromEntries(cats.map(x => [x, rows.filter(r => r[1] === x).reduce((s, r) => s + Math.abs(r[c]), 0)])); cats.sort((a, b) => tot[b] - tot[a]);
+  const ds = cats.filter(x => tot[x] > 0.5).map((x, i) => ({label:x, data:anios.map(a => { const r = rows.find(r => r[0] === a && r[1] === x); return r ? r[c] / 1000 : 0; }), backgroundColor:PAL[i % PAL.length]}));
+  const o = opcBase("", true); o.plugins.legend.position = "bottom"; o.plugins.legend.labels.font = {size:10};
+  grafica("g1", {type:"bar", data:{labels:anios, datasets:ds}, options:o});
+  document.getElementById("t1").innerHTML = `<tr><th class="l">${ES ? "Categoría" : "Category"}</th>${anios.map(a => `<th>${a}</th>`).join("")}</tr>` +
+    cats.filter(x => tot[x] > 0.05).map(x => `<tr><td class="l">${x}</td>${anios.map(a => { const r = rows.find(r => r[0] === a && r[1] === x); return `<td>${r ? fmt(r[c] / 1000, 2) : "–"}</td>`; }).join("")}</tr>`).join("") +
+    `<tr><td class="l"><b>Total</b></td>${anios.map(a => `<td><b>${fmt(rows.filter(r => r[0] === a && r[1] !== "Disponibilidad final").reduce((s, r) => s + r[c], 0) / 1000, 2)}</b></td>`).join("")}</tr>`;
+}
+function g2() {
+  const c = col(), s = D.f.datos.gasto_obligacion.subcategorias.filter(r => r[1].startsWith("No UPC") || r[1].startsWith("Saneamiento"));
+  const grp = r => r[1].startsWith("Saneamiento") ? (ES ? "Saneamiento de deudas (aparte)" : "Debt clean-up (separate)") : r[1] === "No UPC: recobros" ? (ES ? "Recobros" : "Claims")
+    : r[1] === "No UPC: presupuestos máximos" ? (r[2].startsWith("Ajuste") ? (ES ? "Presupuestos máximos: ajustes de años anteriores" : "Max. budgets: prior-year adjustments") : (ES ? "Presupuestos máximos" : "Maximum budgets")) : (ES ? "Otros no financiados" : "Other non-funded");
+  const gs = [...new Set(s.map(grp))], an = [...new Set(s.map(r => r[0]))].sort(), cc = ["#E3787F", "#069169", "#FFAB00", "#6F99E3"];
+  const ds = gs.map((g, i) => { const sane = /Saneamiento|Debt/.test(g); return {label:g, type:sane ? "line" : "bar", stack:sane ? "b" : "a",
+    data:an.map(a => s.filter(r => r[0] === a && grp(r) === g).reduce((x, r) => x + r[c + 1], 0) / 1000), backgroundColor:sane ? "#A80521" : cc[i % cc.length], borderColor:sane ? "#A80521" : cc[i % cc.length], pointRadius:3}; });
+  const o = opcBase("", true); o.plugins.legend.position = "bottom";
+  grafica("g2", {type:"bar", data:{labels:an, datasets:ds}, options:o});
+}
+function ipcAnual(y) { const v = D.f.ipc.filter(r => r[0].startsWith(y)).map(r => r[1]); return v.length ? v.reduce((a, b) => a + b) / v.length : null; }
+function g3() {
+  const base = D.f.ipc.find(r => r[0] === "2026-09")[1], an = D.l.anios, nm = ES ? ["Cajas de compensación", "Cofinanciación departamental", "Cofinanciación municipal", "Nación (ADRES)"] : ["Compensation funds", "Department co-funding", "Municipal co-funding", "Nation (ADRES)"];
+  const tot = an.map((_, k) => [1, 2, 3, 4].map(j => Object.values(D.l.datos).reduce((s, v) => s + ((v[k] || [])[j] || 0), 0)));
+  const ds = nm.map((n, j) => ({label:n, data:an.map((y, k) => tot[k][j] / 1e12 * (st.prec === "c" ? base / ipcAnual(String(y)) : 1)), backgroundColor:["#9E9E9E", "#FFAB00", "#069169", "#3366CC"][j]}));
+  const o = opcBase("", true); o.plugins.legend.position = "bottom";
+  grafica("g3", {type:"bar", data:{labels:an.map(y => D.l.meses[String(y)] < 12 ? y + "*" : String(y)), datasets:ds}, options:o});
+}
+function t2() {
+  const y = st.la, k = D.l.anios.indexOf(y), fac = 12 / (D.l.meses[String(y)] || 12);
+  const pi = D.dp.periodos.filter(p => p.startsWith(String(y))).pop();
+  const rows = Object.entries(D.dp.nombres).map(([d, n]) => { let a = 0, b = 0, c = 0, dd = 0, e = 0;
+    Object.entries(D.l.datos).forEach(([cod, v]) => { if (!cod.startsWith(d) || !v[k]) return; a += v[k][0]; b += v[k][1]; c += v[k][2]; dd += v[k][3]; e += v[k][4]; });
+    const sub = pi ? D.dp.datos[d].subsidiado[D.dp.periodos.indexOf(pi)] : null;
+    return [n, a, e / a, (c + dd) / a, b / a, sub ? a * fac / sub : null]; }).filter(r => r[1] > 0).sort((p, q) => q[1] - p[1]);
+  document.getElementById("t2").innerHTML = `<tr><th class="l">${ES ? "Departamento" : "Department"}</th><th>${ES ? "UPC liquidada (mil millones)" : "Settled UPC (COP bn)"}</th><th>% ${ES ? "Nación" : "Nation"}</th><th>% ${ES ? "territorial" : "territorial"}</th><th>% ${ES ? "cajas" : "CCF"}</th><th>${ES ? "Por afiliado al año" : "Per enrollee/yr"}</th></tr>` +
+    rows.map(r => `<tr><td class="l">${r[0]}</td><td>${fmt(r[1] / 1e9, 1)}</td><td>${pct(r[2], 0)}</td><td>${pct(r[3], 0)}</td><td>${pct(r[4], 1)}</td><td>${r[5] ? "$" + fmt(r[5]) : "–"}</td></tr>`).join("");
+}
+function todo() { g1(); g2(); g3(); t2(); escribirURL({serie:st.serie, prec:st.prec, la:st.la}); }
+(async function () {
+  [D.f, D.l, D.dp] = await Promise.all(["finanzas.json", "lma.json", "departamentos.json"].map(cargar));
+  const u = leerURL();
+  st = {serie:D.f.datos[u.serie] ? u.serie : "gasto_obligacion", prec:u.prec === "n" ? "n" : "c", la:D.l.anios.includes(+u.la) ? +u.la : 2025};
+  opciones(document.getElementById("la"), D.l.anios.map(y => [y, D.l.meses[String(y)] < 12 ? `${y} (${ES ? "ene.–jul." : "Jan–Jul"})` : y]));
+  ["serie","prec","la"].forEach(id => { document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = id === "la" ? +e.target.value : e.target.value; todo(); }; });
+  document.getElementById("just").innerHTML = D.f.justificacion.filter(j => j.justificacion).map(j => `<p><b>${j.categoria}</b>: ${j.justificacion}</p>`).join("");
+  document.getElementById("share").onclick = compartir;
+  todo();
+})();
+</script>
+</body>
+</html>

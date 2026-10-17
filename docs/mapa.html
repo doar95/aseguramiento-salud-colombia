@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa del aseguramiento en salud</title>
+<meta name="description" content="Mapa municipal de Colombia, 2013–2026: afiliados, régimen subsidiado, UPC y sus zonas, liquidación del subsidiado (LMA), altitud, clima y ruralidad. Comparación entre años.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mapa del aseguramiento en salud en Colombia, 2013–2026">
+<meta property="og:description" content="Afiliados por municipio, UPC por zona y recursos del subsidiado, año por año. Compare dos años lado a lado.">
+<meta property="og:image" content="https://doar95.github.io/aseguramiento-salud-colombia/assets/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="assets/comun.css">
+<style>
+.mapgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:10px 16px 20px;max-width:1800px;margin:0 auto}
+@media (min-width:1150px){.mapgrid{grid-template-columns:290px minmax(0,1fr) 330px}}
+.ctl,.det{background:var(--panel);border:1px solid var(--borde);border-radius:6px;padding:10px 12px;font-size:13px;min-width:0}
+@media (min-width:1150px){.ctl,.det{max-height:calc(100vh - 110px);overflow:auto;position:sticky;top:8px}}
+.ctl h2,.det h2{font-size:15px;margin:2px 0 6px;color:var(--azul-osc)}
+.ctl label{display:flex;flex-direction:column;gap:2px;color:var(--sub);margin:0 0 8px}
+.ctl label.chk{flex-direction:row;align-items:center;gap:6px;color:var(--texto)}
+.ctl select{width:100%}
+.maps{display:grid;gap:8px;grid-template-columns:minmax(0,1fr);min-width:0}
+.maps.dos{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:700px){.maps.dos{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1149px){.maps{order:-1}}
+.mbox{position:relative;border:1px solid var(--borde);border-radius:6px;overflow:hidden;background:var(--fondo)}
+.mbox .m{height:calc(100vh - 230px);min-height:420px}
+.maps.dos .mbox .m{height:calc(100vh - 230px)}
+@media (max-width:1149px){.mbox .m,.maps.dos .mbox .m{height:62vh;min-height:360px}}
+.etq{position:absolute;top:8px;left:8px;z-index:2;background:#004884;color:#fff;font-weight:700;font-size:18px;padding:2px 10px;border-radius:4px}
+.play{display:flex;gap:8px;align-items:center;margin:4px 0 10px}
+.play input{flex:1}
+.play b{min-width:42px;text-align:right}
+.fin td{padding:3px 4px}
+.mini{position:relative;height:170px}
+.botones{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="mapgrid">
+  <aside class="ctl" aria-label="Controles">
+    <h2 data-i18n="ctl">Qué ver</h2>
+    <label><span data-i18n="variable">Variable</span><select id="var"></select></label>
+    <label id="lreg"><span data-i18n="regimen">Régimen</span><select id="reg"><option value="S" data-i18n="subs">Subsidiado</option><option value="C" data-i18n="contrib">Contributivo</option></select></label>
+    <label><span data-i18n="depto">Departamento (acercar)</span><select id="dep"></select></label>
+    <div id="anios">
+      <span class="nota" data-i18n="anio">Año</span>
+      <div class="play"><button class="btn prim" id="play" type="button" aria-label="Reproducir">▶</button><input type="range" id="a" min="0" max="0" value="0" aria-label="Año"><b id="alb"></b></div>
+      <label class="chk"><input type="checkbox" id="cmp"> <span data-i18n="cmp">Comparar con otro año</span></label>
+      <div id="cmpbox" hidden>
+        <label><span data-i18n="anioB">Segundo año</span><select id="b"></select></label>
+        <label class="chk"><input type="checkbox" id="dif"> <span data-i18n="dif">Mostrar solo el cambio entre los dos años</span></label>
+      </div>
+    </div>
+    <p class="nota" id="nvar"></p>
+    <div class="leyenda" id="ley"></div>
+    <div class="botones"><button class="btn" id="share" type="button" data-i18n="compartir">Copiar enlace de esta vista</button></div>
+    <h2 style="margin-top:14px" data-i18n="finnac">Finanzas nacionales de la ADRES en el año</h2>
+    <label><select id="prec"><option value="3" data-i18n="pconst">Pesos constantes (sep. 2026)</option><option value="2" data-i18n="pcorr">Pesos corrientes</option></select></label>
+    <div id="fin"></div>
+    <p class="nota" data-i18n="nfin">Obligaciones de la Unidad de Recursos Administrados, en billones. Son cifras nacionales: la ejecución presupuestal de la ADRES no se publica por municipio. 2017 cubre agosto a diciembre y 2026, enero a septiembre.</p>
+  </aside>
+
+  <section class="maps" id="maps">
+    <div class="mbox"><span class="etq" id="ea"></span><div class="m" id="mA" role="img" aria-label="Mapa municipal"></div></div>
+    <div class="mbox" id="boxB" hidden><span class="etq" id="eb"></span><div class="m" id="mB" role="img" aria-label="Mapa municipal, segundo año"></div></div>
+  </section>
+
+  <aside class="det" id="det" aria-label="Detalle del municipio">
+    <h2 data-i18n="detalle">Detalle</h2>
+    <p class="nota" data-i18n="ndet">Haga clic en un municipio para ver su evolución, sus EPS y su zona de la UPC.</p>
+  </aside>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="assets/comun.js"></script>
+<script>
+TXT.en = {ctl:"What to show", variable:"Variable", regimen:"Scheme", subs:"Subsidized", contrib:"Contributory", depto:"Department (zoom)",
+  anio:"Year", cmp:"Compare with another year", anioB:"Second year", dif:"Show only the change between the two years", compartir:"Copy link to this view",
+  finnac:"ADRES national finances that year", pconst:"Constant pesos (Sep 2026)", pcorr:"Current pesos",
+  nfin:"Obligations of ADRES' administered resources, COP trillion. National figures: ADRES budget execution is not published by municipality. 2017 covers August–December; 2026, January–September.",
+  detalle:"Detail", ndet:"Click a municipality to see its trend, insurers and UPC zone."};
+cabecera("mapa.html"); traducir();
+const ES = LANG === "es";
+let D = {}, A = null, B = null, years = [], st = {}, sel = null;
+
+const ZCOL = {resto_pais:"#E9ECEF", dispersion:"#069169", ciudades:"#3366CC", ciudades_piloto:"#9B59B6", san_andres:"#FFAB00", guainia:"#A80521"};
+const ZN = ES ? {resto_pais:"Resto del país", dispersion:"Dispersión geográfica", ciudades:"Ciudades", ciudades_piloto:"Ciudades piloto (igualación)", san_andres:"San Andrés (zona alejada)", guainia:"Guainía"}
+              : {resto_pais:"Rest of country", dispersion:"Geographic dispersion", ciudades:"Cities", ciudades_piloto:"Pilot cities (equalization)", san_andres:"San Andrés (remote)", guainia:"Guainía"};
+const CATPAL = ["#3366CC","#069169","#FFAB00","#A80521","#9B59B6","#7BC8A4","#6F99E3","#4B4B4B"];
+
+/* ---------------- variables ---------------- */
+const fr = y => D.af.periodos.findIndex(p => +p.slice(0,4) === y);
+const afil = (c, y) => { const k = fr(y); return k < 0 ? null : (D.af.datos[c] || [])[k] || null; };
+const lmaV = (c, y) => { const k = D.lma.anios.indexOf(y); return k < 0 ? null : (D.lma.datos[c] || [])[k] || null; };
+const at = c => D.at.datos[c] || [];
+const zona = (c, y, r) => (((D.upc.zonas_municipio[String(y)] || {})[r]) || {})[c] || "resto_pais";
+function upcZona(c, y, r) { const b = D.upc.base.find(x => x.vigencia === y); if (!b) return null; const z = zona(c, y, r);
+  const p = D.upc.primas.find(x => x.vigencia === y && x.regimen === r && x.variante === "general" && x.zona === z); return p ? p.upc_anual : (r === "C" ? b.upc_c : b.upc_s); }
+const VARS = [
+ {id:"total", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Afiliados vigentes":"Current enrollees", t:"cont", anual:"af", fm:v=>fmt(v), dif:"rel",
+  f:(c,y)=>{const v=afil(c,y);return v?v[3]:null}, n:ES?"Afiliados vigentes por municipio de afiliación, diciembre de cada año (2026: agosto).":"Current enrollees by municipality of enrollment, December (2026: August)."},
+ {id:"ps", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"% en el régimen subsidiado":"% in subsidized scheme", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const v=afil(c,y);return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, n:ES?"Subsidiado sobre contributivo más subsidiado.":"Subsidized over contributory plus subsidized."},
+ {id:"cob", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Afiliados / población DANE":"Enrollees / DANE population", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const k=fr(y),v=afil(c,y),p=(D.af.poblacion_dane[c]||[])[k];return v&&p?v[3]/p:null}, n:ES?"No es una cobertura exacta: compara el municipio de afiliación con la población proyectada por el DANE.":"Not an exact coverage rate: municipality of enrollment vs DANE projected population."},
+ {id:"var13", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Variación de afiliados desde dic. 2013":"Change in enrollees since Dec 2013", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const v=afil(c,y),v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[3]?v[3]/v0[3]-1:null}},
+ {id:"lma", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"UPC liquidada en el subsidiado (millones)":"UPC settled, subsidized (COP million)", t:"cont", anual:"lma", fm:v=>fmt(v/1e6), dif:"rel",
+  f:(c,y)=>{const v=lmaV(c,y);return v?v[0]:null}, n:ES?"Informe de financiación de la LMA, acumulado del año (2026: enero a julio).":"LMA financing report, year to date (2026: January–July)."},
+ {id:"lmapc", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"UPC liquidada por afiliado subsidiado al año":"UPC settled per subsidized enrollee per year", t:"cont", anual:"lma", fm:v=>"$"+fmt(v), dif:"rel",
+  f:(c,y)=>{const v=lmaV(c,y),a=afil(c,y),m=D.lma.meses[String(y)]||12;return v&&a&&a[1]?v[0]*12/m/a[1]:null},
+  n:ES?"Aproximación: LMA anualizada dividida por los afiliados del subsidiado en diciembre (SISPRO). Las gobernaciones (código 000) no se muestran en el mapa.":"Approximation: annualized LMA over December subsidized enrollees (SISPRO)."},
+ {id:"lmanac", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"% financiado con aportes de la Nación (ADRES)":"% funded by national contributions", t:"cont", anual:"lma", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const v=lmaV(c,y);return v&&v[0]?v[4]/v[0]:null}, n:ES?"Columna «Aportes Presupuesto General de la Nación – ADRES» sobre la UPC apropiada.":"National budget contributions over settled UPC."},
+ {id:"lmaterr", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"% cofinanciado por departamento y municipio":"% co-funded by department and municipality", t:"cont", anual:"lma", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const v=lmaV(c,y);return v&&v[0]?(v[2]+v[3])/v[0]:null}},
+ {id:"zona", g:"UPC", l:ES?"Zona de la UPC":"UPC zone", t:"zona", anual:"upc", reg:true, f:(c,y)=>zona(c,y,st.reg),
+  n:ES?"Zona según la resolución anual de la UPC; ver la columna de verificación en upc_municipio_zona.csv.":"Zone per the annual UPC resolution."},
+ {id:"upcz", g:"UPC", l:ES?"UPC anual de la zona (pesos)":"Annual zone UPC (COP)", t:"cont", anual:"upc", reg:true, fm:v=>"$"+fmt(v), dif:"rel",
+  f:(c,y)=>upcZona(c,y,st.reg), n:ES?"UPC base más la prima de la zona del municipio (sin ajuste por edad).":"Base UPC plus the municipality's zone premium (not age-adjusted)."},
+ {id:"alt", g:ES?"Territorio":"Territory", l:ES?"Altitud (m s. n. m.)":"Altitude (m a.s.l.)", t:"cont", fm:v=>fmt(v), f:c=>at(c)[5] ?? null, n:ES?"Base aportada por los coautores (IETS y DNP).":"Dataset provided by the co-authors (IETS, DNP)."},
+ {id:"clima", g:ES?"Territorio":"Territory", l:ES?"Clima":"Climate", t:"cat", f:c=>at(c)[6] || null},
+ {id:"rur", g:ES?"Territorio":"Territory", l:ES?"Ruralidad 2018 (base interna)":"Rurality 2018 (internal)", t:"cat", f:c=>at(c)[3] || null},
+ {id:"rurs", g:ES?"Territorio":"Territory", l:ES?"Ruralidad (geografía SISPRO)":"Rurality (SISPRO)", t:"cat", f:c=>at(c)[4] || null},
+];
+const V = () => VARS.find(v => v.id === st.v);
+function yearsFor(v) { if (v.anual === "af") return D.af.periodos.map(p => +p.slice(0,4)); if (v.anual === "lma") return D.lma.anios; if (v.anual === "upc") return D.upc.base.map(b => b.vigencia); return []; }
+
+/* ---------------- mapas ---------------- */
+function nuevoMapa(id) {
+  const m = new maplibregl.Map({container:id, style:{version:8, sources:{}, layers:[{id:"bg", type:"background", paint:{"background-color":getComputedStyle(document.body).getPropertyValue("--fondo").trim()||"#fff"}}]},
+    center:[-73.5,4.3], zoom:4.3, minZoom:3.5, maxZoom:11, attributionControl:false, dragRotate:false});
+  m.addControl(new maplibregl.NavigationControl({showCompass:false}), "top-right");
+  m.addControl(new maplibregl.AttributionControl({customAttribution:"DANE – MGN 2024"}));
+  m.listo = new Promise(res => m.on("load", () => {
+    m.addSource("m", {type:"geojson", data:D.geo, promoteId:"cod"});
+    m.addLayer({id:"f", type:"fill", source:"m", paint:{"fill-color":["coalesce",["feature-state","col"],"#E9ECEF"], "fill-opacity":0.95}});
+    m.addLayer({id:"l", type:"line", source:"m", paint:{"line-color":"#ffffff", "line-width":0.25}});
+    m.addLayer({id:"s", type:"line", source:"m", filter:["==",["get","cod"],""], paint:{"line-color":"#FFAB00", "line-width":2.5}});
+    m.fitBounds([[-79.1,-4.3],[-66.8,12.6]], {padding:10, duration:0});
+    const pop = new maplibregl.Popup({closeButton:false, closeOnClick:false});
+    m.on("mousemove", "f", e => { const c = e.features[0].properties.cod; m.getCanvas().style.cursor = "pointer"; pop.setLngLat(e.lngLat).setHTML(tip(c, m === B ? st.b : st.a)).addTo(m); });
+    m.on("mouseleave", "f", () => { m.getCanvas().style.cursor = ""; pop.remove(); });
+    m.on("click", "f", e => { sel = e.features[0].properties.cod; st.mun = sel; guardar(); pintar(); detalle(); });
+    res();
+  }));
+  return m;
+}
+let sinc = false;
+function sincronizar(a, b) {
+  const f = (x, y) => () => { if (sinc || !y || document.getElementById("boxB").hidden) return; sinc = true; y.jumpTo({center:x.getCenter(), zoom:x.getZoom()}); sinc = false; };
+  a.on("move", f(a, b)); b.on("move", f(b, a));
+}
+function valores(y) { const v = V(), o = {}; D.cods.forEach(c => o[c] = v.f(c, y)); return o; }
+function pintar() {
+  const v = V(); if (!A) return;
+  const ys = yearsFor(v), cmp = st.cmp && v.anual, dif = cmp && st.dif && v.t === "cont";
+  document.getElementById("boxB").hidden = !(cmp && !dif);
+  document.getElementById("maps").classList.toggle("dos", !!(cmp && !dif));
+  document.getElementById("ea").textContent = v.anual ? (dif ? `${Math.min(st.a, st.b)} → ${Math.max(st.a, st.b)}` : String(st.a)) : "";
+  document.getElementById("ea").hidden = !v.anual;
+  document.getElementById("eb").textContent = String(st.b);
+  let colA = {}, colB = {}, ley = "";
+  if (v.t === "zona") {
+    const cnt = {};
+    const cz = y => { const o = {}; D.cods.forEach(c => { const z = v.f(c, y); o[c] = ZCOL[z]; if (y === st.a) cnt[z] = (cnt[z] || 0) + 1; }); return o; };
+    colA = cz(st.a); if (cmp) colB = cz(st.b);
+    ley = Object.keys(ZCOL).filter(z => cnt[z]).map(z => `<span><i style="background:${ZCOL[z]}"></i>${ZN[z]} (${cnt[z]})</span>`).join("");
+  } else if (v.t === "cat") {
+    const va = valores(null), cats = [...new Set(Object.values(va).filter(Boolean))].sort(), m = Object.fromEntries(cats.map((c, i) => [c, CATPAL[i % CATPAL.length]]));
+    D.cods.forEach(c => colA[c] = m[va[c]] || null);
+    ley = cats.map(c => `<span><i style="background:${m[c]}"></i>${c}</span>`).join("");
+  } else if (dif) {
+    const y0 = Math.min(st.a, st.b), y1 = Math.max(st.a, st.b), a = valores(y0), b = valores(y1), d = {};
+    D.cods.forEach(c => d[c] = (a[c] == null || b[c] == null) ? null : (v.dif === "rel" ? (a[c] ? b[c] / a[c] - 1 : null) : b[c] - a[c]));
+    const dv = Object.values(d).filter(x => x != null && isFinite(x)), lo = Math.min(...dv), hi = Math.max(...dv);
+    let br, pal;
+    if (lo >= 0 || hi <= 0) { br = quantiles(dv); pal = hi <= 0 ? ["#A80521", "#C9474F", "#E3787F", "#F0B3B8", "#F8DDE0"] : ["#E3F4EC", "#B5E1CB", "#7BC8A4", "#3FA77A", "#069169"]; }
+    else { const mx = quantiles(dv.map(Math.abs), 10)[8] || 1; br = [-mx * .6, -mx * .2, mx * .2, mx * .6]; pal = DIV; }
+    D.cods.forEach(c => colA[c] = claseColor(d[c], br, pal));
+    const f2 = x => v.dif === "rel" ? pct(x, 0) : (v.fm(1).includes("%") ? fmt(x * 100, 0) + " pp" : v.fm(x));
+    ley = pal.map((c, i) => `<span><i style="background:${c}"></i>${["≤ " + f2(br[0]), f2(br[0]) + " – " + f2(br[1]), f2(br[1]) + " – " + f2(br[2]), f2(br[2]) + " – " + f2(br[3]), "> " + f2(br[3])][i]}</span>`).join("")
+      + (lo >= 0 || hi <= 0 ? `<span class="nota">${ES ? "Todos los municipios cambian en el mismo sentido; los colores comparan la magnitud." : "All municipalities change in the same direction; colors compare magnitude."}</span>` : "");
+    st._dif = d;
+  } else {
+    const a = v.anual ? valores(st.a) : valores(null), b = cmp ? valores(st.b) : {};
+    const br = quantiles(Object.values(a).concat(Object.values(b)));
+    D.cods.forEach(c => { colA[c] = claseColor(a[c], br); if (cmp) colB[c] = claseColor(b[c], br); });
+    const lab = [`≤ ${v.fm(br[0])}`, `${v.fm(br[0])} – ${v.fm(br[1])}`, `${v.fm(br[1])} – ${v.fm(br[2])}`, `${v.fm(br[2])} – ${v.fm(br[3])}`, `> ${v.fm(br[3])}`];
+    ley = RAMP.map((c, i) => `<span><i style="background:${c}"></i>${lab[i]}</span>`).join("");
+  }
+  ley += `<span><i style="background:#E9ECEF"></i>${ES ? "sin dato" : "no data"}</span>`;
+  document.getElementById("ley").innerHTML = ley;
+  const ap = (m, col) => { if (!m || !m.getSource || !m.getSource("m")) return; D.cods.forEach(c => m.setFeatureState({source:"m", id:c}, {col: col[c] || "#E9ECEF"})); m.setFilter("s", ["==", ["get","cod"], sel || ""]); };
+  ap(A, colA); if (cmp && !dif) ap(B, colB);
+  document.getElementById("nvar").textContent = v.n || "";
+  finanzas();
+}
+function tip(c, y) {
+  const v = V(), a = at(c);
+  let h = `<b>${a[1] || c}</b> · ${a[0] || ""}<br><small>DANE ${c}</small><br>`;
+  const fv = (yy) => { const x = v.f(c, yy); return v.t === "zona" ? ZN[x] : (v.t === "cat" ? (x || "–") : v.fm(x)); };
+  if (st.cmp && st.dif && v.t === "cont" && v.anual) {
+    const d = st._dif && st._dif[c];
+    const y0 = Math.min(st.a, st.b), y1 = Math.max(st.a, st.b);
+    h += `${v.l}<br>${y0}: <b>${fv(y0)}</b> → ${y1}: <b>${fv(y1)}</b><br>${ES ? "Cambio" : "Change"}: <b>${d == null ? "–" : (v.dif === "rel" ? pct(d, 1) : (v.fm(1).includes("%") ? fmt(d * 100, 1) + " pp" : v.fm(d)))}</b>`;
+  } else h += `${v.l}${v.anual ? " (" + y + ")" : ""}: <b>${fv(y)}</b>`;
+  return h;
+}
+
+/* ---------------- detalle del municipio ---------------- */
+function detalle() {
+  const el = document.getElementById("det"); if (!sel) return;
+  const a = at(sel), P = D.af.periodos, yrs = P.map(p => +p.slice(0,4));
+  const s = D.af.datos[sel] || [];
+  const last = s[s.length - 1] || [];
+  const e = (D.eps.datos[sel] || []).slice(0, 6);
+  const zz = D.upc.base.map(b => b.vigencia).map(y => `<tr><td>${y}</td><td>${ZN[zona(sel, y, "C")]}</td><td>${ZN[zona(sel, y, "S")]}</td></tr>`).join("");
+  const lmaRows = D.lma.anios.map(y => { const v = lmaV(sel, y); return v ? `<tr><td>${y}${D.lma.meses[String(y)] < 12 ? "*" : ""}</td><td>${fmt(v[0] / 1e6)}</td><td>${pct(v[4] / v[0], 0)}</td><td>${pct((v[2] + v[3]) / v[0], 0)}</td></tr>` : ""; }).join("");
+  el.innerHTML = `<h2>${a[1] || sel}</h2><div class="nota">${a[0] || ""} · DANE ${sel} · ${a[2] || ""}</div>
+   <div class="kpis"><div class="kpi"><div class="v">${fmt(last[3])}</div><div class="l">${ES ? "afiliados" : "enrollees"} ${P[P.length - 1].slice(4)}/${P[P.length - 1].slice(0,4)}</div></div>
+   <div class="kpi"><div class="v">${pct(last[1] / (last[0] + last[1]), 0)}</div><div class="l">% ${ES ? "subsidiado" : "subsidized"}</div></div></div>
+   <div class="mini"><canvas id="gm"></canvas></div>
+   <p class="nota">${ES ? "Altitud" : "Altitude"}: ${fmt(a[5])} m · ${a[6] || "–"} · ${ES ? "Ruralidad 2018" : "Rurality 2018"}: ${a[3] || "–"} · SISPRO: ${a[4] || "–"}</p>
+   <h2>EPS (${D.eps.periodo})</h2><table class="tbl">${e.map(x => `<tr><td>${x[0]}</td><td>${fmt(x[1] + x[2] + x[3])}</td></tr>`).join("") || "<tr><td>–</td></tr>"}</table>
+   <h2>${ES ? "Subsidiado: LMA (millones de pesos)" : "Subsidized: LMA (COP million)"}</h2>
+   <table class="tbl"><tr><th>${ES ? "Año" : "Year"}</th><th>UPC</th><th>${ES ? "Nación" : "Nation"}</th><th>${ES ? "Territorio" : "Territory"}</th></tr>${lmaRows || "<tr><td colspan=4>–</td></tr>"}</table>
+   <p class="nota">* ${ES ? "año en curso, acumulado parcial. Fuente: ADRES, Informe de Financiación LMA." : "current year, partial. Source: ADRES LMA financing report."}</p>
+   <h2>${ES ? "Zona de la UPC" : "UPC zone"}</h2><div class="scroll" style="max-height:220px"><table class="tbl"><tr><th>${ES ? "Año" : "Year"}</th><th>C</th><th>S</th></tr>${zz}</table></div>
+   <div class="botones"><a class="btn" href="afiliacion.html?mun=${sel}">${ES ? "Ver en Afiliación" : "Open in Enrollment"}</a> <a class="btn" href="eps.html?dep=${sel.slice(0,2)}&mun=${sel}">${ES ? "Ver sus EPS" : "Open its insurers"}</a></div>`;
+  grafica("gm", {type:"line", data:{labels:yrs, datasets:[
+    {label:ES ? "Contributivo" : "Contributory", data:s.map(x => x && x[0]), borderColor:"#3366CC", backgroundColor:"#3366CC", pointRadius:2},
+    {label:ES ? "Subsidiado" : "Subsidized", data:s.map(x => x && x[1]), borderColor:"#069169", backgroundColor:"#069169", pointRadius:2}]},
+    options:opcBase("", false)});
+}
+
+/* ---------------- finanzas nacionales ---------------- */
+function finanzas() {
+  const k = +document.getElementById("prec").value, rows = D.fin.datos.gasto_obligacion.anual, ys = st.cmp && V().anual ? [Math.min(st.a, st.b), Math.max(st.a, st.b)] : [st.a];
+  const cat = (y, f) => rows.filter(r => r[0] === String(y) && f(r[1])).reduce((s, r) => s + r[k], 0) / 1000;
+  const L = [[ES ? "UPC contributivo" : "Contributory UPC", c => c === "UPC régimen contributivo"], [ES ? "UPC subsidiado" : "Subsidized UPC", c => c === "UPC régimen subsidiado"],
+    [ES ? "No UPC (recobros / presupuestos máximos)" : "Non-UPC (claims / max. budgets)", c => c.startsWith("No UPC")], [ES ? "Saneamiento de deudas" : "Debt clean-up", c => c.startsWith("Saneamiento")],
+    [ES ? "Incapacidades y licencias" : "Sick and parental leave", c => c === "Incapacidades y licencias"], [ES ? "Total obligaciones" : "Total obligations", c => c !== "Disponibilidad final"]];
+  const ok = ys.every(y => y >= 2017);
+  document.getElementById("fin").innerHTML = !ok && ys.every(y => y < 2017) ? `<p class="nota">${ES ? "La ADRES empezó a operar en agosto de 2017; no hay ejecución comparable para este año." : "ADRES started in August 2017; no comparable execution for this year."}</p>` :
+    `<table class="tbl fin"><tr><th class="l"></th>${ys.map(y => `<th>${y}</th>`).join("")}${ys.length > 1 ? "<th>Δ</th>" : ""}</tr>` +
+    L.map(([n, f]) => { const v = ys.map(y => y >= 2017 ? cat(y, f) : null); return `<tr><td class="l">${n}</td>${v.map(x => `<td>${x == null ? "–" : fmt(x, 1)}</td>`).join("")}${ys.length > 1 ? `<td>${v[0] && v[1] != null ? pct(v[1] / v[0] - 1, 0) : "–"}</td>` : ""}</tr>`; }).join("") + "</table>";
+}
+
+/* ---------------- estado y controles ---------------- */
+function guardar() { escribirURL({v:st.v, a:st.a, b:st.cmp ? st.b : "", cmp:st.cmp ? 1 : "", dif:st.dif ? 1 : "", reg:V().reg ? st.reg : "", dep:st.dep, mun:sel || ""}); }
+function ajustarAnios() {
+  const v = V(), ys = yearsFor(v);
+  document.getElementById("anios").hidden = !v.anual;
+  document.getElementById("lreg").hidden = !v.reg;
+  if (!v.anual) return;
+  if (!ys.includes(st.a)) st.a = ys[ys.length - 1];
+  if (!ys.includes(st.b)) st.b = ys[0];
+  const r = document.getElementById("a"); r.min = 0; r.max = ys.length - 1; r.value = ys.indexOf(st.a);
+  document.getElementById("alb").textContent = st.a;
+  opciones(document.getElementById("b"), ys.map(y => [y, y])); document.getElementById("b").value = st.b;
+  document.getElementById("cmpbox").hidden = !st.cmp;
+  document.getElementById("dif").parentElement.hidden = V().t !== "cont";
+}
+function acercar(dep) {
+  if (!dep) { [A, B].forEach(m => m && m.fitBounds([[-79.1,-4.3],[-66.8,12.6]], {padding:10})); return; }
+  let x0 = 180, y0 = 90, x1 = -180, y1 = -90;
+  D.geo.features.filter(f => f.properties.cod.startsWith(dep)).forEach(f => {
+    const walk = a => typeof a[0] === "number" ? (x0 = Math.min(x0, a[0]), x1 = Math.max(x1, a[0]), y0 = Math.min(y0, a[1]), y1 = Math.max(y1, a[1])) : a.forEach(walk);
+    walk(f.geometry.coordinates); });
+  if (x0 < x1) A.fitBounds([[x0, y0], [x1, y1]], {padding:30});
+}
+let timer = null;
+function play() {
+  const btn = document.getElementById("play");
+  if (timer) { clearInterval(timer); timer = null; btn.textContent = "▶"; return; }
+  const ys = yearsFor(V()); btn.textContent = "❚❚"; if (st.a === ys[ys.length - 1]) st.a = ys[0];
+  timer = setInterval(() => { ajustarAnios(); pintar(); guardar(); const i = ys.indexOf(st.a); if (i >= ys.length - 1) { clearInterval(timer); timer = null; btn.textContent = "▶"; return; } st.a = ys[i + 1]; }, 1000);
+}
+
+(async function () {
+  const n = ["municipios_atributos.json", "afiliacion_municipio.json", "upc.json", "lma.json", "finanzas.json", "eps_municipio.json", "municipios.geojson"];
+  [D.at, D.af, D.upc, D.lma, D.fin, D.eps, D.geo] = await Promise.all(n.map(cargar));
+  D.cods = D.geo.features.map(f => f.properties.cod);
+  const u = leerURL();
+  st = {v: VARS.some(x => x.id === u.v) ? u.v : "total", a: +u.a || 2026, b: +u.b || 2013, cmp: !!u.cmp, dif: !!u.dif, reg: u.reg === "C" ? "C" : "S", dep: u.dep || ""};
+  sel = u.mun || null;
+  const sv = document.getElementById("var");
+  const grupos = [...new Set(VARS.map(v => v.g))];
+  sv.innerHTML = grupos.map(g => `<optgroup label="${g}">` + VARS.filter(v => v.g === g).map(v => `<option value="${v.id}">${v.l}</option>`).join("") + "</optgroup>").join("");
+  sv.value = st.v;
+  const deps = {}; Object.entries(D.at.datos).forEach(([c, a]) => deps[c.slice(0,2)] = a[0]);
+  opciones(document.getElementById("dep"), Object.entries(deps).sort((a, b) => a[1].localeCompare(b[1])), "Colombia");
+  document.getElementById("dep").value = st.dep;
+  document.getElementById("reg").value = st.reg;
+  document.getElementById("cmp").checked = st.cmp; document.getElementById("dif").checked = st.dif;
+  ajustarAnios();
+  A = nuevoMapa("mA"); B = nuevoMapa("mB"); sincronizar(A, B);
+  await A.listo; await B.listo;
+  if (st.dep) acercar(st.dep);
+  pintar(); detalle();
+  sv.onchange = () => { st.v = sv.value; ajustarAnios(); pintar(); guardar(); };
+  document.getElementById("reg").onchange = e => { st.reg = e.target.value; pintar(); guardar(); };
+  document.getElementById("a").oninput = e => { st.a = yearsFor(V())[+e.target.value]; document.getElementById("alb").textContent = st.a; pintar(); guardar(); };
+  document.getElementById("b").onchange = e => { st.b = +e.target.value; pintar(); guardar(); };
+  document.getElementById("cmp").onchange = e => { st.cmp = e.target.checked; ajustarAnios(); pintar(); guardar(); setTimeout(() => { A.resize(); B.resize(); if (st.cmp) B.jumpTo({center:A.getCenter(), zoom:A.getZoom()}); }, 50); };
+  document.getElementById("dif").onchange = e => { st.dif = e.target.checked; pintar(); guardar(); setTimeout(() => { A.resize(); B.resize(); }, 50); };
+  document.getElementById("dep").onchange = e => { st.dep = e.target.value; acercar(st.dep); guardar(); };
+  document.getElementById("prec").onchange = finanzas;
+  document.getElementById("play").onclick = play;
+  document.getElementById("share").onclick = compartir;
+  setTimeout(() => { A.resize(); B.resize(); }, 100);
+})();
+</script>
+</body>
+</html>

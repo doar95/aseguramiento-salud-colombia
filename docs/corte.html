@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corte Constitucional y UPC</title>
+<meta name="description" content="Seguimiento de la Corte Constitucional a la suficiencia de la UPC y de los presupuestos máximos (Sentencia T-760 de 2008), junto a las resoluciones anuales de la UPC.">
+<meta property="og:title" content="La Corte Constitucional, la UPC y los presupuestos máximos">
+<meta property="og:description" content="Línea de tiempo verificada de autos de la Corte y resoluciones de la UPC, con enlaces a los textos oficiales.">
+<meta property="og:image" content="https://doar95.github.io/aseguramiento-salud-colombia/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/comun.css">
+<style>
+.lin{border-left:3px solid var(--azul);margin:6px 0 0 8px;padding:0 0 0 16px}
+.hito{position:relative;margin:0 0 16px;max-width:900px}
+.hito:before{content:"";position:absolute;left:-24px;top:6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--azul-osc);background:var(--c,#FFAB00)}
+.hito .f{font-size:12px;color:var(--sub)}
+.hito .t{font-weight:600;font-size:15px}
+.hito p{margin:4px 0;font-size:14px;font-family:"Source Serif 4",Georgia,serif;line-height:1.55}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.chips label{display:flex;gap:4px;align-items:center;border:1px solid var(--borde);border-radius:14px;padding:2px 10px;font-size:13px;cursor:pointer}
+.chips i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.contexto{font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.6;max-width:900px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1 class="pag" data-i18n="tit">Corte Constitucional: suficiencia de la UPC y presupuestos máximos</h1>
+  <div class="contexto" data-l="es">
+    <p>En la Sentencia T-760 de 2008, la Corte ordenó, entre otras cosas, unificar los planes de beneficios de los regímenes contributivo y subsidiado (órdenes vigésima primera y vigésima segunda). Desde entonces, una Sala Especial de Seguimiento revisa si el Gobierno cumple. Dentro de ese seguimiento evalúa si la UPC alcanza para financiar los servicios incluidos («suficiencia de la UPC») y si alcanzan los presupuestos máximos con los que, desde 2020, se pagan los servicios no financiados con la UPC.</p>
+    <p>La línea de tiempo pone juntos los autos de la Sala y las resoluciones anuales con las que el Ministerio de Salud fija la UPC. Cada auto enlaza a su texto en la relatoría de la Corte, y el resumen corresponde a su parte resolutiva.</p>
+  </div>
+  <div class="contexto" data-l="en" hidden>
+    <p>In ruling T-760 of 2008 the Court ordered, among other things, the unification of the benefit plans of the contributory and subsidized schemes (orders 21 and 22). A Special Follow-up Chamber has since reviewed compliance, including whether the UPC is sufficient and whether the "maximum budgets" that fund services outside the UPC since 2020 are sufficient. The timeline puts the Chamber's rulings next to the Ministry's annual UPC resolutions, with links to official texts.</p>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="lin" id="lin"></div>
+  <p class="nota" data-i18n="pend">Pendiente: una «Resolución o Auto 067 de 2025» mencionada al planear este trabajo no se localizó en la relatoría ni en el Ministerio; no se incluye hasta verificarla.</p>
+  <p class="nota"><a id="csv" href="#">corte_constitucional_autos.csv</a></p>
+</main>
+<script src="assets/comun.js"></script>
+<script>
+TXT.en = {tit:"Constitutional Court: UPC sufficiency and maximum budgets", pend:"Pending: a 'Resolution or Ruling 067 of 2025' mentioned while planning could not be located; not included until verified."};
+cabecera("corte.html"); traducir(); piePagina();
+const ES = LANG === "es";
+document.querySelectorAll("[data-l]").forEach(e => e.hidden = e.dataset.l !== LANG);
+document.getElementById("csv").href = REPO + "data/reference/corte_constitucional_autos.csv";
+const TIPOS = {upc:["#3366CC", ES ? "Autos: suficiencia de la UPC" : "Rulings: UPC sufficiency"], pm:["#A80521", ES ? "Autos: presupuestos máximos" : "Rulings: maximum budgets"],
+  res:["#FFAB00", ES ? "Resoluciones anuales de la UPC" : "Annual UPC resolutions"], otra:["#069169", ES ? "Otras decisiones relacionadas" : "Related decisions"]};
+const OTRAS = [
+  {fecha:"2025-04-23", t:"otra", titulo:ES ? "Auto 553 de 2025 (Sala Plena)" : "Ruling 553 of 2025 (Full Court)",
+   texto:ES ? "Rechaza la solicitud de nulidad del Ministerio de Salud contra el Auto 007 de 2025, por extemporánea y por falta de carga argumentativa; el Auto 007 sigue vigente. Fuente: prensa especializada; el texto oficial no se consultó en esta versión." : "Rejects the Ministry's annulment request against Ruling 007 of 2025. Source: specialized press; official text not consulted in this version.",
+   url:"https://consultorsalud.com/corte-nulidad-auto-007-suficiencia-de-la-upc/"},
+  {fecha:"2025-06-26", t:"otra", titulo:ES ? "Sentencia SU-277 de 2025 (EPS Sanitas)" : "Ruling SU-277 of 2025 (EPS Sanitas)",
+   texto:ES ? "Deja sin efectos las resoluciones de la Supersalud que ordenaron y prorrogaron la toma de posesión de EPS Sanitas (2024160000003002-6, 2024100000003060-6 y 2025320030001947-6) y remite el expediente a la Sala Especial de Seguimiento." : "Voids the Supersalud resolutions that ordered and extended the takeover of EPS Sanitas.",
+   url:"https://normograma.supersalud.gov.co/compilacion/docs/su-277_2025.htm"}];
+let filtro = {upc:true, pm:true, res:true, otra:true}, H = [];
+function pintar() {
+  document.getElementById("lin").innerHTML = H.filter(h => filtro[h.t]).sort((a, b) => a.fecha.localeCompare(b.fecha)).map(h =>
+    `<div class="hito" style="--c:${TIPOS[h.t][0]}"><div class="f">${h.fecha}${h.quien ? " · " + h.quien : ""}</div>
+     <div class="t"><a href="${h.url}" target="_blank" rel="noopener">${h.titulo}</a> <span class="tag">${TIPOS[h.t][1]}</span></div><p>${h.texto}</p></div>`).join("");
+}
+(async function () {
+  const [corte, upc] = await Promise.all([cargar("corte.json"), cargar("upc.json")]);
+  H = corte.map(a => ({fecha:a.fecha, t:a.componente.startsWith("Presupuestos") ? "pm" : "upc", titulo:a.providencia, texto:a.decision_resumen, url:a.url_relatoria, quien:(ES ? "Magistrado sustanciador: " : "Justice: ") + a.magistrado_sustanciador}))
+    .concat(upc.base.map(b => ({fecha:b.fecha, t:"res", titulo:`${b.resolucion} — UPC ${b.vigencia}`, url:b.url,
+      texto:`UPC-C: $${fmt(b.upc_c, 2)} · UPC-S: $${fmt(b.upc_s, 2)} · S/C ${fmt(b.razon_s_c, 4)}`}))).concat(OTRAS);
+  document.getElementById("chips").innerHTML = Object.entries(TIPOS).map(([k, [c, l]]) => `<label><input type="checkbox" data-k="${k}" checked> <i style="background:${c}"></i>${l}</label>`).join("");
+  document.querySelectorAll("#chips input").forEach(i => i.onchange = () => { filtro[i.dataset.k] = i.checked; pintar(); });
+  pintar();
+})();
+</script>
+</body>
+</html>

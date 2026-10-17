@@ -168,7 +168,31 @@ web, y tres atributos:
 el texto oficial de la relatoría. Un «Auto/Resolución 067 de 2025» mencionado en la planeación no
 se localizó y no se incluye.
 
-## 9. Vacíos conocidos
+## 9. Liquidación del subsidiado por municipio (`scripts/12_adres_lma_financiacion.py`)
+
+Fuente: ADRES, «Informe de Financiación LMA» (Entidades territoriales → Financiamiento), un libro
+acumulado por mes. Se usa el de diciembre de cada año (2020–2025) y el último de 2026 (enero a julio).
+De la hoja «FinalTotal» se toman, por municipio: UPC apropiada (A), cajas de compensación (B),
+cofinanciación departamental (C), cofinanciación municipal (D) y aportes de la Nación por la ADRES
+(A-B-C-D); la identidad se cumple con diferencias de redondeo de 2 pesos. Las filas con código
+terminado en 000 son las gobernaciones (áreas no municipalizadas). Total nacional de la UPC
+apropiada: 24,58 billones en 2020 y 44,63 en 2025, cerca de las obligaciones de «UPC régimen
+subsidiado» de la ejecución de la ADRES (24,35 y 43,43). La «UPC por afiliado» del sitio divide la LMA
+anualizada entre los afiliados del subsidiado de diciembre (SISPRO): es una aproximación.
+
+## 10. EPS bajo medida de la Supersalud (`data/reference/eps_medidas_supersalud.csv`)
+
+Tabla revisada a mano. Para cada EPS: códigos de habilitación (todos los de la EPS se afectan
+juntos), medida, fecha de inicio, fecha de fin o estado, acto administrativo y enlaces. Se priorizó
+la resolución de la Supersalud o la decisión judicial; cuando no se encontró, la noticia que la cita,
+y así se indica. Un mes cuenta como intervenido si la medida estuvo vigente algún día de ese mes.
+Casos especiales: Sanitas (la SU-277 de 2025 dejó sin efectos la medida; se usa la fecha de la
+sentencia), Savia Salud (suspensión provisional judicial en abril de 2026; la entrega no está
+confirmada) y Coosalud (suspensión provisional en abril de 2026, pero reportada intervenida en
+agosto de 2026; se trata como intervenida). Solo incluye EPS con afiliados entre diciembre de 2024 y
+septiembre de 2026.
+
+## 11. Vacíos conocidos
 
 - El extracto de SISPRO no tiene los meses de enero a octubre de 2010, enero de 2011 ni enero
   a marzo de 2012.
@@ -179,7 +203,7 @@ se localizó y no se incluye.
 - La ADRES publica en `datos.gov.co` muchas "vistas" filtradas por municipio. No son fuentes
   distintas: son subconjuntos de los dos conjuntos nacionales que se usan aquí.
 
-## 10. Uso de inteligencia artificial
+## 12. Uso de inteligencia artificial
 
 La búsqueda de fuentes, la descarga, el OCR, la transcripción de parámetros y los scripts los
 hizo Claude (Anthropic) a pedido de David Aguilar y Camila Gómez, que definieron el alcance y aportaron las bases territoriales. Los totales se validaron cruzando fuentes

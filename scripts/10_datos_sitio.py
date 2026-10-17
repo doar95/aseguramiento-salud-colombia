@@ -144,3 +144,67 @@ meta = {"generado": pd.Timestamp.now(tz="America/Bogota").strftime("%Y-%m-%d"),
         "sispro_ultimo_periodo": per[-1], "minsalud_ultimo_periodo": ult, "adres_bdua_corte": corte,
         "adres_ejecucion": [f["periodo"].min(), f["periodo"].max()]}
 guardar("meta.json", meta)
+
+
+# ================================================================ páginas adicionales (v1.1)
+# ---------------------------------------------------------------- departamentos: serie mensual SISPRO
+s["dep"] = s["cod_municipio"].str[:2]
+dm = s.groupby(["dep", "periodo"])[["contributivo", "subsidiado", "excepcion", "total"]].sum().reset_index()
+deps = {c[:2]: a[0] for c, a in mun.items()}
+pobdep = pob.assign(dep=pob["cod_municipio"].str[:2]).groupby(["dep", "anio"])["total"].sum()
+guardar("departamentos.json", {
+    "periodos": per, "nombres": deps,
+    "datos": {d: {k: g.set_index("periodo").reindex(per)[k].fillna(0).astype(int).tolist()
+                  for k in ["contributivo", "subsidiado", "excepcion", "total"]} for d, g in dm.groupby("dep")},
+    "poblacion_dane": {d: {str(a): int(v) for (dd, a), v in pobdep.items() if dd == d} for d in deps}})
+
+# ---------------------------------------------------------------- EPS: serie mensual por departamento
+em = pd.read_csv(P / "minsalud_eps_municipio_regimen_mensual.csv", dtype={"cod_municipio": str})
+em["dep"] = em["cod_municipio"].str[:2]
+em = em.groupby(["periodo", "eps", "dep"])[["contributivo", "subsidiado", "excepcion_especiales"]].sum().reset_index()
+pb = pd.read_csv(RAIZ / "data" / "raw" / "minsalud_tablero_powerbi" / "eps_municipio_regimen_cod_eps.csv", dtype=str)
+cat = pd.read_csv(RAIZ / "data" / "raw" / "minsalud_tablero_powerbi" / "catalogo_eps.csv", dtype=str)
+pb = pb[pb["fecha_corte"] == "2024-12-01"].merge(cat[["cod_eps", "nombre_corto_eps"]], on="cod_eps", how="left")
+pb["afiliados"] = pb["afiliados"].astype(int)
+pb["dep"] = pb["cod_municipio"].str[:2]
+pb["col"] = pb["regimen"].map({"CONTRIBUTIVO": "contributivo", "SUBSIDIADO": "subsidiado"}).fillna("excepcion_especiales")
+pbw = pb.pivot_table(index=["nombre_corto_eps", "dep"], columns="col", values="afiliados", aggfunc="sum", fill_value=0).reset_index()
+pbw = pbw.rename(columns={"nombre_corto_eps": "eps"}).assign(periodo="2024-12")
+for c in ["contributivo", "subsidiado", "excepcion_especiales"]:
+    if c not in pbw:
+        pbw[c] = 0
+em = pd.concat([pbw[em.columns], em], ignore_index=True)
+pers = sorted(em["periodo"].unique())
+eps_ser = {}
+for (e, d), g in em.groupby(["eps", "dep"]):
+    g = g.set_index("periodo").reindex(pers).fillna(0)
+    eps_ser.setdefault(e, {})[d] = [g["contributivo"].astype(int).tolist(), g["subsidiado"].astype(int).tolist(),
+                                    g["excepcion_especiales"].astype(int).tolist()]
+med = pd.read_csv(REF / "eps_medidas_supersalud.csv").fillna("")
+guardar("eps_series.json", {"periodos": pers, "datos": eps_ser, "nombres_dep": deps,
+                            "nota": "2024-12: tablero Power BI de MinSalud (por código, unido al catálogo); 2025-07 en adelante: Cifras de aseguramiento (MinSalud).",
+                            "medidas": med.to_dict(orient="records")})
+
+# ---------------------------------------------------------------- EPS: edad (quinquenio) y sexo, último corte
+q = pd.read_csv(P / "minsalud_eps_depto_regimen_quinquenio_sexo.csv")
+q = q[q["periodo"] == q["periodo"].max()]
+qs = sorted(q["quinquenio_dane"].unique(), key=lambda x: int("".join(ch for ch in x.split(" a ")[0] if ch.isdigit()) or 0))
+pir = {}
+for (e, dn, r), g in q.groupby(["eps", "departamento", "regimen"]):
+    g = g.set_index("quinquenio_dane").reindex(qs).fillna(0)
+    pir.setdefault(e, {}).setdefault(dn, {})[r[0]] = [g["femenino"].astype(int).tolist(), g["masculino"].astype(int).tolist()]
+guardar("eps_edad.json", {"periodo": q["periodo"].iloc[0], "quinquenios": qs, "datos": pir})
+
+# ---------------------------------------------------------------- LMA por municipio
+lm = pd.read_csv(P / "adres_lma_financiacion_municipio_anual.csv", dtype={"cod_municipio": str})
+anios = sorted(lm["anio"].unique().tolist())
+lma = {}
+for r in lm.itertuples():
+    v = lma.setdefault(r.cod_municipio, [None] * len(anios))
+    v[anios.index(r.anio)] = [r.upc_apropiada, r.cajas_compensacion, r.cofinanciacion_departamental,
+                              r.cofinanciacion_municipal, r.aportes_nacion_adres]
+meses = lm.groupby("anio")["meses"].first().to_dict()
+guardar("lma.json", {"anios": anios, "meses": {str(k): int(v) for k, v in meses.items()},
+                     "campos": ["upc_apropiada", "cajas_compensacion", "cofinanciacion_departamental",
+                                "cofinanciacion_municipal", "aportes_nacion_adres"],
+                     "datos": lma, "fuente": "ADRES, Informe de Financiación LMA (Entidades territoriales → Financiamiento)"})
