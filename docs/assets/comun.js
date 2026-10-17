@@ -68,9 +68,9 @@ function opcBase(titulo, apilado, extra = {}) {
   }, extra);
 }
 function grafica(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart(document.getElementById(id), cfg); return charts[id]; }
-const PAL = ["#004884", "#3366CC", "#6F99E3", "#069169", "#7BC8A4", "#FFAB00", "#F6C86B", "#A80521", "#E3787F", "#4B4B4B", "#9E9E9E", "#9B59B6", "#C39BD3", "#2C3E50", "#BDBDBD", "#7F8C8D"];
-const RAMP = ["#E6EFFD", "#B3CBF2", "#6F99E3", "#3366CC", "#004884"];
-const DIV = ["#A80521", "#E3787F", "#F2F2F2", "#7BC8A4", "#069169"];
+const PAL = ["#004884", "#3366CC", "#6F99E3", "#069169", "#7BC8A4", "#FFAB00", "#F6C86B", "#8C6BB1", "#B2DF8A", "#4B4B4B", "#9E9E9E", "#9B59B6", "#C39BD3", "#2C3E50", "#BDBDBD", "#7F8C8D"];
+const RAMP = ["#FFFFCC", "#A1DAB4", "#41B6C4", "#2C7FB8", "#253494"];
+const DIV = ["#8C510A", "#D8B365", "#F5F5F5", "#5AB4AC", "#01665E"];
 function quantiles(vals, k = 5) {
   const v = vals.filter(x => x != null && isFinite(x)).sort((a, b) => a - b);
   if (!v.length) return [0, 0, 0, 0];
@@ -88,4 +88,24 @@ function piePagina() {
     : "Claude (Anthropic), David Aguilar and Camila Gómez. Open data from MinSalud, ADRES, SISPRO, DANE, Supersalud and the Constitutional Court. Code: MIT; ADRES-derived data: CC BY-SA 4.0. Not an official publication of any agency.") +
     ` · <a href="https://github.com/doar95/aseguramiento-salud-colombia">GitHub</a>`;
   document.body.append(f);
+}
+
+/* Tabla con búsqueda y orden por columna. cols: [{t, num, fm, cls}], filas: arrays (valores crudos), extra: {onRow(fila), marca(fila)} */
+function tablaOrdenable(cont, cols, filas, extra = {}) {
+  const st = cont._st || (cont._st = {q: "", k: extra.k ?? 1, dir: -1});
+  cont.innerHTML = `<input type="search" class="buscar" placeholder="${LANG === "es" ? "Buscar…" : "Search…"}" value="${st.q.replace(/"/g, "&quot;")}" style="font:inherit;padding:4px 8px;border:1px solid var(--borde);border-radius:4px;margin:0 0 6px;width:min(320px,100%);background:var(--fondo);color:var(--texto)">
+    <div class="scroll"><table class="tbl"><thead><tr>${cols.map((c, i) => `<th class="${c.num ? "" : "l"}" data-i="${i}" style="cursor:pointer">${c.t}${st.k === i ? (st.dir < 0 ? " ▼" : " ▲") : ""}</th>`).join("")}</tr></thead><tbody></tbody></table></div>
+    <p class="nota" style="margin:2px 0"></p>`;
+  const norm = x => String(x).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const pinta = () => {
+    const q = norm(st.q), f = filas.filter(r => !q || norm(r[0]).includes(q) || (extra.buscarEn && norm(r[extra.buscarEn]).includes(q)));
+    f.sort((a, b) => { const x = a[st.k], y = b[st.k]; if (x == null) return 1; if (y == null) return -1; return (typeof x === "number" ? x - y : String(x).localeCompare(String(y))) * st.dir; });
+    const tb = cont.querySelector("tbody"), lim = 400;
+    tb.innerHTML = f.slice(0, lim).map((r, i) => `<tr data-r="${filas.indexOf(r)}" style="${extra.onRow ? "cursor:pointer;" : ""}${extra.marca && extra.marca(r) ? "background:var(--azul-cl)" : ""}">${cols.map((c, j) => `<td class="${c.num ? "" : "l"}">${c.fm ? c.fm(r[j], r) : (r[j] ?? "–")}</td>`).join("")}</tr>`).join("");
+    cont.querySelector("p.nota").textContent = f.length > lim ? (LANG === "es" ? `Se muestran ${lim} de ${f.length} filas; use la búsqueda.` : `Showing ${lim} of ${f.length} rows; use search.`) : `${f.length} ${LANG === "es" ? "filas" : "rows"}`;
+    if (extra.onRow) tb.querySelectorAll("tr").forEach(tr => tr.onclick = () => extra.onRow(filas[+tr.dataset.r]));
+  };
+  cont.querySelector("input").oninput = e => { st.q = e.target.value; pinta(); };
+  cont.querySelectorAll("th").forEach(th => th.onclick = () => { const i = +th.dataset.i; st.dir = st.k === i ? -st.dir : (cols[i].num ? -1 : 1); st.k = i; tablaOrdenable(cont, cols, filas, extra); });
+  pinta();
 }

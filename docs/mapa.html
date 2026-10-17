@@ -47,7 +47,7 @@
   <aside class="ctl" aria-label="Controles">
     <h2 data-i18n="ctl">Qué ver</h2>
     <label><span data-i18n="variable">Variable</span><select id="var"></select></label>
-    <label id="lreg"><span data-i18n="regimen">Régimen</span><select id="reg"><option value="S" data-i18n="subs">Subsidiado</option><option value="C" data-i18n="contrib">Contributivo</option></select></label>
+    <label id="lreg"><span data-i18n="regimen">Régimen</span><select id="reg"><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option></select></label>
     <label class="chk" id="lcoos" hidden><input type="checkbox" id="coos" checked> <span data-i18n="coos">Contar Coosalud como intervenida (situación en disputa)</span></label>
     <label><span data-i18n="depto">Departamento (acercar)</span><select id="dep"></select></label>
     <div id="anios">
@@ -92,10 +92,10 @@ cabecera("mapa.html"); traducir();
 const ES = LANG === "es";
 let D = {}, A = null, B = null, years = [], st = {}, sel = null;
 
-const ZCOL = {resto_pais:"#E9ECEF", dispersion:"#069169", ciudades:"#3366CC", ciudades_piloto:"#9B59B6", san_andres:"#FFAB00", guainia:"#A80521"};
+const ZCOL = {resto_pais:"#E9ECEF", dispersion:"#069169", ciudades:"#3366CC", ciudades_piloto:"#9B59B6", san_andres:"#FFAB00", guainia:"#A6761D"};
 const ZN = ES ? {resto_pais:"Resto del país", dispersion:"Dispersión geográfica", ciudades:"Ciudades", ciudades_piloto:"Ciudades piloto (igualación)", san_andres:"San Andrés (zona alejada)", guainia:"Guainía"}
               : {resto_pais:"Rest of country", dispersion:"Geographic dispersion", ciudades:"Cities", ciudades_piloto:"Pilot cities (equalization)", san_andres:"San Andrés (remote)", guainia:"Guainía"};
-const CATPAL = ["#3366CC","#069169","#FFAB00","#A80521","#9B59B6","#7BC8A4","#6F99E3","#4B4B4B"];
+const CATPAL = ["#3366CC","#069169","#FFAB00","#A6761D","#9B59B6","#7BC8A4","#6F99E3","#4B4B4B"];
 
 /* ---------------- variables ---------------- */
 const fr = y => D.af.periodos.findIndex(p => +p.slice(0,4) === y);
@@ -108,12 +108,23 @@ function upcZona(c, y, r) { const b = D.upc.base.find(x => x.vigencia === y); if
 const VARS = [
  {id:"total", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Afiliados vigentes":"Current enrollees", t:"cont", anual:"af", fm:v=>fmt(v), dif:"rel",
   f:(c,y)=>{const v=afil(c,y);return v?v[3]:null}, n:ES?"Afiliados vigentes por municipio de afiliación, diciembre de cada año (2026: agosto).":"Current enrollees by municipality of enrollment, December (2026: August)."},
- {id:"ps", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"% en el régimen subsidiado":"% in subsidized scheme", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
-  f:(c,y)=>{const v=afil(c,y);return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, n:ES?"Subsidiado sobre contributivo más subsidiado.":"Subsidized over contributory plus subsidized."},
+ {id:"ps", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Participación del régimen subsidiado":"Subsidized scheme share", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const v=afil(c,y);return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, n:ES?"Afiliados al subsidiado ÷ (contributivo + subsidiado). No incluye los regímenes de excepción. El complemento es la participación del contributivo.":"Subsidized ÷ (contributory + subsidized). Excludes exception schemes. The complement is the contributory share."},
  {id:"cob", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Afiliados / población DANE":"Enrollees / DANE population", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
   f:(c,y)=>{const k=fr(y),v=afil(c,y),p=(D.af.poblacion_dane[c]||[])[k];return v&&p?v[3]/p:null}, n:ES?"No es una cobertura exacta: compara el municipio de afiliación con la población proyectada por el DANE. Incluye todos los regímenes; la excepción aparece incompleta en SISPRO antes de 2018, así que los años anteriores no son del todo comparables.":"Not an exact coverage rate: municipality of enrollment vs DANE projected population. Includes all schemes; the exception scheme is incomplete in SISPRO before 2018, so earlier years are not fully comparable."},
  {id:"var13", g:ES?"Afiliación (SISPRO)":"Enrollment (SISPRO)", l:ES?"Variación de afiliados desde dic. 2013":"Change in enrollees since Dec 2013", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
   f:(c,y)=>{const v=afil(c,y),v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[3]?v[3]/v0[3]-1:null}},
+ {id:"cpob", g:ES?"Contributivo":"Contributory", l:ES?"Afiliados al contributivo por cada 100 habitantes":"Contributory enrollees per 100 inhabitants", t:"cont", anual:"af", fm:v=>fmt(v,1), dif:"abs",
+  f:(c,y)=>{const k=fr(y),v=afil(c,y),p=(D.af.poblacion_dane[c]||[])[k];return v&&p?100*v[0]/p:null},
+  n:ES?"Contributivo según el municipio de afiliación, frente a la población DANE. Se relaciona con el empleo formal, pero no lo mide directamente.":"Contributory enrollees (municipality of enrollment) per 100 DANE inhabitants. Related to, but not a measure of, formal employment."},
+ {id:"cvar", g:ES?"Contributivo":"Contributory", l:ES?"Variación del contributivo desde dic. 2013":"Change in contributory since Dec 2013", t:"cont", anual:"af", fm:v=>pct(v,0), dif:"abs",
+  f:(c,y)=>{const v=afil(c,y),v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[0]?v[0]/v0[0]-1:null}},
+ {id:"pondc", g:ES?"Contributivo":"Contributory", l:ES?"Ponderador de edad promedio del contributivo":"Mean age weight, contributory", t:"cont", fm:v=>fmt(v,3),
+  f:c=>{const e=(D.ed.datos[c]||{}).C;if(!e)return null;const P=D.upc.ponderadores[String(D.upc.base[D.upc.base.length-1].vigencia)].C;let n=0,w=0;D.ed.grupos.forEach((g,i)=>{n+=e[i];w+=e[i]*(P[g]||0)});return n?w/n:null},
+  n:ES?"Estructura de edad del contributivo (corte de la ADRES) por los ponderadores de la UPC vigente. Mayor valor: población afiliada más costosa por edad. Un solo corte; no hay serie.":"Contributory age structure (ADRES snapshot) times current UPC weights. Single snapshot."},
+ {id:"prot", g:ES?"Contributivo":"Contributory", l:ES?"En protección laboral por cada 1.000 afiliados del contributivo":"Under labor protection per 1,000 contributory enrollees", t:"cont", fm:v=>fmt(v,1),
+  f:c=>{const v=D.prot.datos[c];return v&&v[1]>=200?1000*v[0]/v[1]:null},
+  n:ES?"Personas que perdieron el empleo y conservan temporalmente la afiliación (estado «Protección laboral» de la BDUA, corte de la ADRES). Indica pérdida reciente de empleo formal. Se omiten municipios con menos de 200 afiliados al contributivo.":"Enrollees who lost their job and keep coverage temporarily (BDUA 'labor protection' status, ADRES snapshot). Municipalities with fewer than 200 contributory enrollees omitted."},
  {id:"lma", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"UPC liquidada en el subsidiado (millones)":"UPC settled, subsidized (COP million)", t:"cont", anual:"lma", fm:v=>fmt(v/1e6), dif:"rel",
   f:(c,y)=>{const v=lmaV(c,y);return v?v[0]:null}, n:ES?"Informe de financiación de la LMA, acumulado del año (2026: enero a julio).":"LMA financing report, year to date (2026: January–July)."},
  {id:"lmapc", g:ES?"Subsidiado: LMA (ADRES)":"Subsidized: LMA (ADRES)", l:ES?"UPC liquidada por afiliado subsidiado al año":"UPC settled per subsidized enrollee per year", t:"cont", anual:"lma", fm:v=>"$"+fmt(v), dif:"rel",
@@ -189,7 +200,7 @@ function pintar() {
     D.cods.forEach(c => d[c] = (a[c] == null || b[c] == null) ? null : (v.dif === "rel" ? (a[c] ? b[c] / a[c] - 1 : null) : b[c] - a[c]));
     const dv = Object.values(d).filter(x => x != null && isFinite(x)), lo = Math.min(...dv), hi = Math.max(...dv);
     let br, pal;
-    if (lo >= 0 || hi <= 0) { br = quantiles(dv); pal = hi <= 0 ? ["#A80521", "#C9474F", "#E3787F", "#F0B3B8", "#F8DDE0"] : ["#E3F4EC", "#B5E1CB", "#7BC8A4", "#3FA77A", "#069169"]; }
+    if (lo >= 0 || hi <= 0) { br = quantiles(dv); pal = hi <= 0 ? ["#8C510A", "#BF812D", "#DFC27D", "#EBD8AE", "#F6EEDC"] : ["#E0F3F1", "#B2DFDB", "#5AB4AC", "#2A8C82", "#01665E"]; }
     else { const mx = quantiles(dv.map(Math.abs), 10)[8] || 1; br = [-mx * .6, -mx * .2, mx * .2, mx * .6]; pal = DIV; }
     D.cods.forEach(c => colA[c] = claseColor(d[c], br, pal));
     const f2 = x => v.dif === "rel" ? pct(x, 0) : (v.fm(1).includes("%") ? fmt(x * 100, 0) + " pp" : v.fm(x));
@@ -233,9 +244,11 @@ function detalle() {
   const lmaRows = D.lma.anios.map(y => { const v = lmaV(sel, y); return v ? `<tr><td>${y}${D.lma.meses[String(y)] < 12 ? "*" : ""}</td><td>${fmt(v[0] / 1e6)}</td><td>${pct(v[4] / v[0], 0)}</td><td>${pct((v[2] + v[3]) / v[0], 0)}</td></tr>` : ""; }).join("");
   el.innerHTML = `<h2>${a[1] || sel}</h2><div class="nota">${a[0] || ""} · DANE ${sel} · ${a[2] || ""}</div>
    <div class="kpis"><div class="kpi"><div class="v">${fmt(last[3])}</div><div class="l">${ES ? "afiliados" : "enrollees"} ${P[P.length - 1].slice(4)}/${P[P.length - 1].slice(0,4)}</div></div>
-   <div class="kpi"><div class="v">${pct(last[1] / (last[0] + last[1]), 0)}</div><div class="l">% ${ES ? "subsidiado" : "subsidized"}</div></div></div>
+   <div class="kpi"><div class="v">${pct(last[0] / (last[0] + last[1]), 0)}</div><div class="l">${ES ? "contributivo (de C + S)" : "contributory (of C + S)"}</div></div>
+   <div class="kpi"><div class="v">${pct(last[1] / (last[0] + last[1]), 0)}</div><div class="l">${ES ? "subsidiado (de C + S)" : "subsidized (of C + S)"}</div></div></div>
    <div class="mini"><canvas id="gm"></canvas></div>
    <p class="nota">${(() => { const k = D.iv.periodos.length - 1, v = (D.iv.datos[sel] || [])[k]; return v && v[0] ? `${ES ? "En EPS intervenidas" : "In intervened insurers"} (${D.iv.periodos[k]}): <b>${fmt(v[1] + (st.coos ? v[2] : 0))}</b> (${pct((v[1] + (st.coos ? v[2] : 0)) / v[0], 0)})` : ""; })()}</p>
+   <p class="nota">${(() => { const v = D.prot.datos[sel]; return v && v[1] ? `${ES ? "Protección laboral (corte ADRES)" : "Labor protection (ADRES)"}: ${fmt(v[0])} ${ES ? "de" : "of"} ${fmt(v[1])} ${ES ? "afiliados al contributivo" : "contributory enrollees"}` : ""; })()}</p>
    <p class="nota">${ES ? "Altitud" : "Altitude"}: ${fmt(a[5])} m · ${a[6] || "–"} · ${ES ? "Ruralidad 2018" : "Rurality 2018"}: ${a[3] || "–"} · SISPRO: ${a[4] || "–"}</p>
    <h2>EPS (${D.eps.periodo})</h2><table class="tbl">${e.map(x => `<tr><td>${x[0]}</td><td>${fmt(x[1] + x[2] + x[3])}</td></tr>`).join("") || "<tr><td>–</td></tr>"}</table>
    <h2>${ES ? "Subsidiado: LMA (millones de pesos)" : "Subsidized: LMA (COP million)"}</h2>
@@ -252,16 +265,17 @@ function detalle() {
 /* ---------------- finanzas nacionales ---------------- */
 function finanzas() {
   const k = +document.getElementById("prec").value, rows = D.fin.datos.gasto_obligacion.anual, ys = (st.cmp && V().anual ? orden() : [st.a]).map(anioDe);
-  const cat = (y, f) => rows.filter(r => r[0] === String(y) && f(r[1])).reduce((s, r) => s + r[k], 0) / 1000;
+  const cat = (y, f, serie) => (serie ? D.fin.datos[serie].anual : rows).filter(r => r[0] === String(y) && f(r[1])).reduce((s, r) => s + r[k], 0) / 1000;
   const L = [[ES ? "UPC contributivo" : "Contributory UPC", c => c === "UPC régimen contributivo"], [ES ? "UPC subsidiado" : "Subsidized UPC", c => c === "UPC régimen subsidiado"],
     [ES ? "No UPC (recobros / presupuestos máximos)" : "Non-UPC (claims / max. budgets)", c => c.startsWith("No UPC")], [ES ? "Saneamiento de deudas" : "Debt clean-up", c => c.startsWith("Saneamiento")],
-    [ES ? "Incapacidades y licencias" : "Sick and parental leave", c => c === "Incapacidades y licencias"], [ES ? "Total obligaciones" : "Total obligations", c => c !== "Disponibilidad final"]];
+    [ES ? "Incapacidades y licencias" : "Sick and parental leave", c => c === "Incapacidades y licencias"], [ES ? "Total obligaciones" : "Total obligations", c => c !== "Disponibilidad final"],
+    [ES ? "Ingreso: cotizaciones del contributivo" : "Revenue: contributory contributions", c => c === "Cotizaciones régimen contributivo", "ingreso_recaudo"]];
   const ok = ys.every(y => y >= 2017);
   const p0 = D.fin.periodos[0], p1 = D.fin.periodos[1], parcial = y => (y === +p0.slice(0,4) && p0.slice(5) !== "01") || (y === +p1.slice(0,4) && p1.slice(5) !== "12");
   const lbl = y => parcial(y) ? y + "*" : y;
   document.getElementById("fin").innerHTML = !ok && ys.every(y => y < 2017) ? `<p class="nota">${ES ? "La ADRES empezó a operar en agosto de 2017; no hay ejecución comparable para este año." : "ADRES started in August 2017; no comparable execution for this year."}</p>` :
     `<table class="tbl fin"><tr><th class="l"></th>${ys.map(y => `<th>${lbl(y)}</th>`).join("")}${ys.length > 1 ? "<th>Δ</th>" : ""}</tr>` +
-    L.map(([n, f]) => { const v = ys.map(y => y >= 2017 ? cat(y, f) : null); return `<tr><td class="l">${n}</td>${v.map(x => `<td>${x == null ? "–" : fmt(x, 1)}</td>`).join("")}${ys.length > 1 ? `<td>${v[0] && v[1] != null && !ys.some(parcial) ? pct(v[1] / v[0] - 1, 0) : "–"}</td>` : ""}</tr>`; }).join("") + "</table>" +
+    L.map(([n, f, serie]) => { const v = ys.map(y => y >= 2017 ? cat(y, f, serie) : null); return `<tr><td class="l">${n}</td>${v.map(x => `<td>${x == null ? "–" : fmt(x, 1)}</td>`).join("")}${ys.length > 1 ? `<td>${v[0] && v[1] != null && !ys.some(parcial) ? pct(v[1] / v[0] - 1, 0) : "–"}</td>` : ""}</tr>`; }).join("") + "</table>" +
     (ys.some(parcial) ? `<p class="nota">* ${ES ? "Año incompleto; no se calcula la variación." : "Partial year; change not computed."}</p>` : "");
 }
 
@@ -298,12 +312,12 @@ function play() {
 }
 
 (async function () {
-  const n = ["municipios_atributos.json", "afiliacion_municipio.json", "upc.json", "lma.json", "finanzas.json", "eps_municipio.json", "municipios.geojson", "intervenidas.json"];
-  [D.at, D.af, D.upc, D.lma, D.fin, D.eps, D.geo, D.iv] = await Promise.all(n.map(cargar));
+  const n = ["municipios_atributos.json", "afiliacion_municipio.json", "upc.json", "lma.json", "finanzas.json", "eps_municipio.json", "municipios.geojson", "intervenidas.json", "edad_municipio.json", "proteccion_laboral.json"];
+  [D.at, D.af, D.upc, D.lma, D.fin, D.eps, D.geo, D.iv, D.ed, D.prot] = await Promise.all(n.map(cargar));
   D.cods = D.geo.features.map(f => f.properties.cod);
   const u = leerURL();
   const pa = x => x && x.includes("-") ? x : (+x || null);
-  st = {v: VARS.some(x => x.id === u.v) ? u.v : "total", a: pa(u.a) || 2026, b: pa(u.b) || 2013, coos: u.coos !== "0", cmp: !!u.cmp, dif: !!u.dif, reg: u.reg === "C" ? "C" : "S", dep: u.dep || ""};
+  st = {v: VARS.some(x => x.id === u.v) ? u.v : "total", a: pa(u.a) || 2026, b: pa(u.b) || 2013, coos: u.coos !== "0", cmp: !!u.cmp, dif: !!u.dif, reg: u.reg === "S" ? "S" : "C", dep: u.dep || ""};
   sel = u.mun || null;
   const sv = document.getElementById("var");
   const grupos = [...new Set(VARS.map(v => v.g))];

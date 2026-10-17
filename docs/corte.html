@@ -48,7 +48,7 @@ cabecera("corte.html"); traducir(); piePagina();
 const ES = LANG === "es";
 document.querySelectorAll("[data-l]").forEach(e => e.hidden = e.dataset.l !== LANG);
 document.getElementById("csv").href = REPO + "data/reference/corte_constitucional_autos.csv";
-const TIPOS = {upc:["#3366CC", ES ? "Autos: suficiencia de la UPC" : "Rulings: UPC sufficiency"], pm:["#A80521", ES ? "Autos: presupuestos máximos" : "Rulings: maximum budgets"],
+const TIPOS = {upc:["#3366CC", ES ? "Autos: suficiencia de la UPC" : "Rulings: UPC sufficiency"], pm:["#6A3D9A", ES ? "Autos: presupuestos máximos" : "Rulings: maximum budgets"],
   res:["#FFAB00", ES ? "Resoluciones anuales de la UPC" : "Annual UPC resolutions"], otra:["#069169", ES ? "Otras decisiones relacionadas" : "Related decisions"]};
 const OTRAS = [
   {fecha:"2025-04-23", t:"otra", titulo:ES ? "Auto 553 de 2025 (Sala Plena)" : "Ruling 553 of 2025 (Full Court)",

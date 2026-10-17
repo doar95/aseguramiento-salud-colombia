@@ -1,6 +1,6 @@
 # Aseguramiento en salud en Colombia, 2013–2026
 
-**Afiliación por municipio · UPC y sus zonas · finanzas de la ADRES · seguimiento de la Corte Constitucional**
+**Afiliación por municipio · EPS · UPC y sus zonas · finanzas de la ADRES**
 
 Sitio con el documento y el tablero: **https://doar95.github.io/aseguramiento-salud-colombia/**
 
@@ -19,7 +19,7 @@ Este repositorio reúne datos públicos del Sistema General de Seguridad Social 
 los limpia y los deja listos para descargar, con el código para reproducir cada paso. Está pensado
 para servidores públicos, investigadores y ciudadanos que no necesariamente conocen el sistema.
 
-> Versión 1.0 · octubre de 2026 · Proyecto independiente, sin revisión por pares.
+> Versión 1.1 · octubre de 2026 · Proyecto independiente, sin revisión por pares.
 > Autores: Claude (Anthropic), David Aguilar y Camila Gómez.
 > El mérito es de las entidades que publican datos abiertos: Ministerio de Salud y Protección
 > Social, ADRES, SISPRO, DANE, Corte Constitucional y DNP.
@@ -145,8 +145,7 @@ Las referencias completas, en formato ICONTEC (NTC 5613) y APA, están en
   Ver [docs/fuentes.md](docs/fuentes.md).
 
 **Cómo citar:** Claude (Anthropic), Aguilar, D. y Gómez, C. (2026). *Aseguramiento en salud en
-Colombia, 2013–2026: afiliación por municipio, UPC y sus zonas, finanzas de la ADRES y seguimiento
-judicial* (versión 1.0) [Repositorio de datos y código]. GitHub.
+Colombia, 2013–2026: afiliación por municipio, EPS, UPC y sus zonas, y finanzas de la ADRES* (versión 1.1) [Repositorio de datos y código]. GitHub.
 https://github.com/doar95/aseguramiento-salud-colombia
 
 Claude figura como autor para dejar trazabilidad de su participación en la búsqueda, descarga,

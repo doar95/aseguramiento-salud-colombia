@@ -30,11 +30,20 @@
   <div class="grid2">
     <section class="card"><h3 data-i18n="g1">Afiliados por régimen</h3><div class="chartbox"><canvas id="g1"></canvas></div>
       <p class="nota" id="n1"></p></section>
-    <section class="card"><h3 data-i18n="g2">Afiliados frente a la población del DANE y peso del subsidiado</h3><div class="chartbox"><canvas id="g2"></canvas></div>
+    <section class="card"><h3 data-i18n="g2">Afiliados frente a la población del DANE y participación del subsidiado</h3><div class="chartbox"><canvas id="g2"></canvas></div>
       <p class="nota" data-i18n="n2">La relación afiliados/población no es una cobertura exacta: el municipio es el de afiliación y la población es proyectada (DANE, actualización de julio de 2025). Incluye todos los regímenes; la excepción aparece incompleta en SISPRO antes de 2018, por eso parte de la subida de esos años es de reporte, no de afiliación.</p></section>
+    <section class="card"><h3 data-i18n="g7">Contributivo: cambio frente al mismo mes del año anterior</h3><div class="chartbox"><canvas id="g7"></canvas></div>
+      <p class="nota" data-i18n="n7">Variación porcentual de los afiliados al contributivo frente a 12 meses antes. Se relaciona con el empleo formal (por ejemplo, la caída de 2020), pero no lo mide directamente. Municipio: variación entre diciembres.</p></section>
+    <section class="card"><h3 data-i18n="g8">Contributivo: protección laboral y edad</h3><div class="kpis" id="k8"></div>
+      <p class="nota" data-i18n="n8">Protección laboral: afiliados que perdieron el empleo y conservan temporalmente la afiliación (corte de la ADRES). Ponderador de edad: estructura de edad del contributivo por los ponderadores de la UPC 2026; un valor más alto indica una población afiliada mayor y más costosa.</p></section>
     <section class="card"><h3 data-i18n="g3">Ranking</h3>
-      <div class="ctrl"><label><span data-i18n="metrica">Métrica</span><select id="rk"></select></label></div>
-      <div class="chartbox" style="height:520px"><canvas id="g3"></canvas></div><p class="nota" id="n3"></p></section>
+      <div class="ctrl"><label><span data-i18n="metrica">Métrica</span><select id="rk"></select></label>
+        <label><span data-i18n="nivel">Nivel</span><select id="niv"><option value="dep" data-i18n="n_dep">Departamentos</option><option value="mun" data-i18n="n_mun">Municipios</option></select></label>
+        <label id="lord"><span data-i18n="orden">Orden</span><select id="ord"><option value="desc" data-i18n="mayores">Mayores</option><option value="asc" data-i18n="menores">Menores</option></select></label>
+        <label id="ln"><span data-i18n="cuantos">Cuántos</span><select id="n"><option>10</option><option selected>20</option><option>30</option><option>40</option></select></label>
+        <label id="lmin"><span data-i18n="minimo">Tamaño mínimo</span><select id="min"><option value="0" data-i18n="todos">Todos</option><option value="1000">≥ 1.000</option><option value="5000">≥ 5.000</option><option value="20000">≥ 20.000</option><option value="100000">≥ 100.000</option></select></label></div>
+      <div class="chartbox" style="height:520px"><canvas id="g3"></canvas></div><p class="nota" id="n3"></p>
+      <p class="nota" data-i18n="n3b">En municipios pequeños los porcentajes pueden ser extremos; use el tamaño mínimo para compararlos con más justicia.</p></section>
     <section class="card"><h3 data-i18n="g4">Dispersión entre municipios</h3>
       <div class="ctrl"><label>X<select id="sx"></select></label><label>Y<select id="sy"></select></label></div>
       <div class="chartbox" style="height:520px"><canvas id="g4"></canvas></div>
@@ -43,14 +52,17 @@
       <div class="ctrl"><label><span data-i18n="variable">Variable</span><select id="hv"></select></label></div>
       <div class="chartbox"><canvas id="g5"></canvas></div><p class="nota" id="n5"></p></section>
     <section class="card"><h3 data-i18n="g6">Estructura por edad y sexo</h3>
-      <div class="ctrl"><label><span data-i18n="regimen">Régimen</span><select id="pr"><option value="" data-i18n="todos">Todos</option><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option></select></label></div>
+      <div class="ctrl"><label><span data-i18n="regimen">Régimen</span><select id="pr"><option value="" data-i18n="todos">Todos</option><option value="C" data-i18n="contrib">Contributivo</option><option value="S" data-i18n="subs">Subsidiado</option><option value="CS" data-i18n="cvs">Contributivo frente a subsidiado (%)</option></select></label></div>
       <div class="chartbox" style="height:420px"><canvas id="g6"></canvas></div><p class="nota" id="n6"></p></section>
   </div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="assets/comun.js"></script>
 <script>
-TXT.en = {tit:"Enrollment: trends and distributions", intro:"Current enrollees by scheme and municipality of enrollment (SISPRO, BDUA cube). Choose a department or a municipality; charts update. The page link keeps the selection.",
+TXT.en = {nivel:"Level", n_dep:"Departments", n_mun:"Municipalities", orden:"Order", mayores:"Highest", menores:"Lowest", cuantos:"How many", minimo:"Minimum size",
+  n3b:"Small municipalities can show extreme percentages; use the minimum size for fairer comparisons.", cvs:"Contributory vs subsidized (%)",
+  g7:"Contributory: change vs same month a year earlier", n7:"Year-on-year % change in contributory enrollees. Related to formal employment (e.g. the 2020 drop) but not a direct measure.",
+  g8:"Contributory: labor protection and age", n8:"Labor protection: enrollees who lost their job and keep coverage temporarily (ADRES snapshot). Age weight: contributory age structure times 2026 UPC weights.", tit:"Enrollment: trends and distributions", intro:"Current enrollees by scheme and municipality of enrollment (SISPRO, BDUA cube). Choose a department or a municipality; charts update. The page link keeps the selection.",
   dep:"Department", mun:"Municipality", anio:"Year (cross-section charts)", compartir:"Copy link", vermapa:"Open in map", g1:"Enrollees by scheme",
   g2:"Enrollees vs DANE population and subsidized share", n2:"Enrollees/population is not an exact coverage rate (municipality of enrollment vs projected population). Includes all schemes; the exception scheme is incomplete in SISPRO before 2018, so part of the rise in those years is reporting, not enrollment.",
   g3:"Ranking", metrica:"Metric", g4:"Scatter across municipalities", n4:"Each dot is a municipality; color is the 2018 rurality category (internal dataset). Log axes for enrollees and population.",
@@ -66,14 +78,18 @@ function pondProm(c) { const e = D.ed.datos[c]; if (!e) return null; const P = D
   ["C","S"].forEach(r => { if (!e[r]) return; D.ed.grupos.forEach((g, i) => { n += e[r][i]; w += e[r][i] * (P[r][g] || 0); }); }); return n ? w / n : null; }
 const M = {
   total:{l:ES?"Afiliados vigentes":"Current enrollees", f:(c,k)=>{const v=(D.af.datos[c]||[])[k];return v?v[3]:null}, fm:v=>fmt(v), log:true},
-  ps:{l:ES?"% en el subsidiado":"% subsidized", f:(c,k)=>{const v=(D.af.datos[c]||[])[k];return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, fm:v=>pct(v,0)},
+  ps:{l:ES?"Participación del subsidiado (% de C + S)":"Subsidized share (% of C + S)", f:(c,k)=>{const v=(D.af.datos[c]||[])[k];return v&&(v[0]+v[1])?v[1]/(v[0]+v[1]):null}, fm:v=>pct(v,0)},
   cob:{l:ES?"Afiliados / población DANE":"Enrollees / DANE pop.", f:(c,k)=>{const v=(D.af.datos[c]||[])[k],p=(D.af.poblacion_dane[c]||[])[k];return v&&p?v[3]/p:null}, fm:v=>pct(v,0)},
   var13:{l:ES?"Variación desde dic. 2013":"Change since Dec 2013", f:(c,k)=>{const v=(D.af.datos[c]||[])[k],v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[3]?v[3]/v0[3]-1:null}, fm:v=>pct(v,0)},
   pob:{l:ES?"Población DANE":"DANE population", f:(c,k)=>(D.af.poblacion_dane[c]||[])[k]??null, fm:v=>fmt(v), log:true},
   alt:{l:ES?"Altitud (m s. n. m.)":"Altitude (m)", f:c=>at(c)[5]??null, fm:v=>fmt(v)},
   lmapc:{l:ES?"UPC liquidada por afiliado subsidiado (LMA)":"Settled UPC per subsidized enrollee (LMA)", f:(c,k)=>{const y=+D.af.periodos[k].slice(0,4),j=D.lma.anios.indexOf(y);if(j<0)return null;
     const v=(D.lma.datos[c]||[])[j],a=(D.af.datos[c]||[])[k],m=D.lma.meses[String(y)]||12;return v&&a&&a[1]?v[0]*12/m/a[1]:null}, fm:v=>"$"+fmt(v)},
-  pond:{l:ES?"Ponderador etario promedio (ADRES, UPC 2026)":"Mean age weight (ADRES, UPC 2026)", f:c=>pondProm(c), fm:v=>fmt(v,3)},
+  pond:{l:ES?"Ponderador de edad promedio, C y S (ADRES, UPC 2026)":"Mean age weight, C and S (ADRES, UPC 2026)", f:c=>pondProm(c), fm:v=>fmt(v,3)},
+  cpob:{l:ES?"Contributivo por cada 100 habitantes":"Contributory per 100 inhabitants", f:(c,k)=>{const v=(D.af.datos[c]||[])[k],p=(D.af.poblacion_dane[c]||[])[k];return v&&p?100*v[0]/p:null}, fm:v=>fmt(v,1)},
+  cvar:{l:ES?"Variación del contributivo desde dic. 2013":"Change in contributory since Dec 2013", f:(c,k)=>{const v=(D.af.datos[c]||[])[k],v0=(D.af.datos[c]||[])[0];return v&&v0&&v0[0]?v[0]/v0[0]-1:null}, fm:v=>pct(v,0)},
+  pondc:{l:ES?"Ponderador de edad promedio del contributivo":"Mean age weight, contributory", f:c=>{const e=(D.ed.datos[c]||{}).C;if(!e)return null;const P=D.upc.ponderadores["2026"].C;let n=0,w=0;D.ed.grupos.forEach((g,i)=>{n+=e[i];w+=e[i]*(P[g]||0)});return n?w/n:null}, fm:v=>fmt(v,3)},
+  prot:{l:ES?"Protección laboral por 1.000 afiliados al contributivo":"Labor protection per 1,000 contributory", f:c=>{const v=D.prot.datos[c];return v&&v[1]>=200?1000*v[0]/v[1]:null}, fm:v=>fmt(v,1)},
 };
 function munsArea() { return Object.keys(D.af.datos).filter(c => D.at.datos[c] && (!st.dep || c.startsWith(st.dep)) && !c.endsWith("000")); }
 function serieArea() {
@@ -89,7 +105,7 @@ function kpis() {
   else cods.forEach(x => { const v = (D.af.datos[x] || [])[k]; if (v) { c += v[0]; s += v[1]; e += v[2]; t += v[3]; } p += (D.af.poblacion_dane[x] || [])[k] || 0; });
   const per = D.af.periodos[k];
   document.getElementById("kpis").innerHTML = [[`${nombreArea()} · ${per.slice(4)}/${per.slice(0,4)}`, mill(t)], [tt("contrib","Contributivo"), mill(c)], [tt("subs","Subsidiado"), mill(s)],
-    [ES?"Excepción":"Exception", mill(e)], [ES?"% subsidiado":"% subsidized", pct(s/(c+s))], [ES?"Afiliados / pob. DANE":"Enrollees / pop.", pct(p?t/p:null)]]
+    [ES?"Excepción":"Exception", mill(e)], [ES?"Participación del contributivo (de C + S)":"Contributory share (of C + S)", pct(c/(c+s))], [ES?"Participación del subsidiado (de C + S)":"Subsidized share (of C + S)", pct(s/(c+s))], [ES?"Afiliados / pob. DANE":"Enrollees / pop.", pct(p?t/p:null)]]
     .map(x => `<div class="kpi"><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");
 }
 function g1() {
@@ -109,26 +125,31 @@ function g2() {
   const o = opcBase("%", false); o.plugins.tooltip.callbacks.label = x => `${x.dataset.label}: ${fmt(x.parsed.y, 1)} %`;
   grafica("g2", {type:"line", data:{labels:yrs, datasets:[
     {label:ES?"Afiliados / población DANE":"Enrollees / DANE pop.", data:cob, borderColor:"#004884", backgroundColor:"#004884", pointRadius:2},
-    {label:ES?"% en el subsidiado":"% subsidized", data:ps, borderColor:"#069169", backgroundColor:"#069169", pointRadius:2}]}, options:o});
+    {label:ES?"Participación del subsidiado (% de C + S)":"Subsidized share (% of C + S)", data:ps, borderColor:"#069169", backgroundColor:"#069169", pointRadius:2}]}, options:o});
 }
 function g3() {
   const m = M[st.rk], k = fr(st.anio); let rows;
-  if (!st.dep) {
-    rows = Object.keys(D.dep.nombres).map(d => { const cods = Object.keys(D.af.datos).filter(c => c.startsWith(d)); let c = 0, s = 0, t = 0, p = 0, t0 = 0, w = 0, nw = 0;
-      cods.forEach(x => { const v = (D.af.datos[x] || [])[k], v0 = (D.af.datos[x] || [])[0]; if (v) { c += v[0]; s += v[1]; t += v[3]; } if (v0) t0 += v0[3]; p += (D.af.poblacion_dane[x] || [])[k] || 0;
-        if (["alt","pond","lmapc"].includes(st.rk)) { const val = m.f(x, k), wt = v ? v[3] : 0; if (val != null && wt) { w += val * wt; nw += wt; } } });
-      const val = {total:t, ps:c+s?s/(c+s):null, cob:p?t/p:null, var13:t0?t/t0-1:null, pob:p}[st.rk] ?? (nw ? w / nw : null);
-      return [D.dep.nombres[d], val]; });
-    document.getElementById("n3").textContent = ES ? "Departamentos. Para altitud, ponderador y UPC por afiliado: promedio de sus municipios ponderado por afiliados." : "Departments. Altitude, weight and UPC per enrollee: enrollee-weighted mean of municipalities.";
+  const depAgg = ["total","ps","cob","var13","pob","cpob","cvar"];
+  if (st.niv === "dep") {
+    rows = Object.keys(D.dep.nombres).map(d => { const cods = Object.keys(D.af.datos).filter(c => c.startsWith(d)); let c = 0, s = 0, t = 0, p = 0, t0 = 0, c0 = 0, w = 0, nw = 0;
+      cods.forEach(x => { const v = (D.af.datos[x] || [])[k], v0 = (D.af.datos[x] || [])[0]; if (v) { c += v[0]; s += v[1]; t += v[3]; } if (v0) { t0 += v0[3]; c0 += v0[0]; } p += (D.af.poblacion_dane[x] || [])[k] || 0;
+        if (!depAgg.includes(st.rk)) { const val = m.f(x, k), wt = v ? v[3] : 0; if (val != null && wt) { w += val * wt; nw += wt; } } });
+      const val = depAgg.includes(st.rk) ? {total:t, ps:c+s?s/(c+s):null, cob:p?t/p:null, var13:t0?t/t0-1:null, pob:p, cpob:p?100*c/p:null, cvar:c0?c/c0-1:null}[st.rk] : (nw ? w / nw : null);
+      return [D.dep.nombres[d], val, null, d]; });
+    document.getElementById("n3").textContent = ES ? "Departamentos. Para altitud, ponderadores, protección laboral y UPC por afiliado: promedio de sus municipios ponderado por afiliados." : "Departments. Other metrics: enrollee-weighted mean of municipalities.";
   } else {
-    rows = munsArea().map(c => [at(c)[1], m.f(c, k), c]);
-    document.getElementById("n3").textContent = (ES ? "Municipios de " : "Municipalities of ") + D.dep.nombres[st.dep] + (ES ? " (los 40 primeros)." : " (top 40).");
+    rows = munsArea().filter(c => { const v = (D.af.datos[c] || [])[k]; return v && v[3] >= st.min; }).map(c => [`${at(c)[1]} (${at(c)[0].slice(0, 12)})`, m.f(c, k), c, c.slice(0,2)]);
+    document.getElementById("n3").textContent = (st.dep ? (ES ? "Municipios de " : "Municipalities of ") + D.dep.nombres[st.dep] : (ES ? "Municipios de todo el país" : "All municipalities")) +
+      (st.min ? (ES ? `, solo con ${fmt(st.min)} afiliados o más` : `, only with ${fmt(st.min)}+ enrollees`) : "") + (ES ? ". Color: departamento. Haga clic en una barra para seleccionar el municipio." : ". Color: department. Click a bar to select.");
   }
-  rows = rows.filter(r => r[1] != null).sort((a, b) => b[1] - a[1]).slice(0, 40);
+  rows = rows.filter(r => r[1] != null && isFinite(r[1])).sort((a, b) => st.ord === "asc" ? a[1] - b[1] : b[1] - a[1]).slice(0, st.niv === "dep" ? 40 : st.n);
+  const depCol = d => PAL[(+d * 7) % PAL.length];
   const o = opcBase(`${m.l} · ${st.anio}`, false, {indexAxis:"y"});
   o.scales.y.ticks.autoSkip = false; o.plugins.legend.display = false; o.plugins.tooltip.callbacks.label = x => m.fm(x.parsed.x); o.scales.x.ticks.callback = v => m.fm(v);
+  o.onClick = (e, el) => { if (!el.length) return; const r = rows[el[0].index]; if (r[2]) { st.mun = r[2]; st.dep = r[3]; } else { st.dep = r[3]; st.mun = ""; } sync(); todo(); };
+  document.getElementById("g3").parentElement.style.height = Math.max(260, rows.length * 17 + 80) + "px";
   grafica("g3", {type:"bar", data:{labels:rows.map(r => r[0]), datasets:[{label:m.l, data:rows.map(r => r[1]),
-    backgroundColor:rows.map(r => r[2] && r[2] === st.mun ? "#FFAB00" : "#3366CC")}]}, options:o});
+    backgroundColor:rows.map(r => (r[2] && r[2] === st.mun) || (!r[2] && r[3] === st.dep) ? "#FFAB00" : (st.niv === "mun" ? depCol(r[3]) : "#2C7FB8"))}]}, options:o});
 }
 function g4() {
   const mx = M[st.sx], my = M[st.sy], k = fr(st.anio), cods = st.dep ? munsArea() : Object.keys(D.af.datos).filter(c => D.at.datos[c] && !c.endsWith("000"));
@@ -157,6 +178,18 @@ function g5() {
 }
 function g6() {
   const r = st.pr;
+  if (r === "CS") {
+    const q = D.qe.quinquenios, dn = st.dep ? D.dep.nombres[st.dep] : null, C = Array(q.length).fill(0), S = Array(q.length).fill(0);
+    Object.values(D.qe.datos).forEach(porDep => Object.entries(porDep).forEach(([d, porReg]) => { if (dn && d !== dn) return;
+      ["C","S"].forEach(rg => { const v = porReg[rg]; if (!v) return; const arr = rg === "C" ? C : S; v[0].forEach((x, i) => arr[i] += x + v[1][i]); }); }));
+    const tc = C.reduce((a, b) => a + b, 0), ts = S.reduce((a, b) => a + b, 0);
+    const o = opcBase(`${st.dep ? D.dep.nombres[st.dep] : "Colombia"} · MinSalud ${D.qe.periodo} · % ${ES ? "de cada régimen" : "of each scheme"}`, true, {indexAxis:"y"});
+    o.scales.x.ticks.callback = v => fmt(Math.abs(v), 0) + " %"; o.plugins.tooltip.callbacks.label = x => `${x.dataset.label}: ${fmt(Math.abs(x.parsed.x), 1)} %`;
+    grafica("g6", {type:"bar", data:{labels:q.map(x => x.replace("De ", "").replace(" años", "")), datasets:[
+      {label:ES ? "Contributivo" : "Contributory", data:C.map(x => -100 * x / tc), backgroundColor:"#2C7FB8"}, {label:ES ? "Subsidiado" : "Subsidized", data:S.map(x => 100 * x / ts), backgroundColor:"#41B6C4"}]}, options:o});
+    document.getElementById("n6").textContent = ES ? "Distribución por edad de cada régimen (cada uno suma 100 %), mujeres y hombres juntos. Departamental o nacional." : "Age distribution of each scheme (each sums to 100%).";
+    return;
+  }
   if (st.mun) {
     const e = D.ed.datos[st.mun] || {}, g = D.ed.grupos, v = g.map((_, i) => ["C","S"].filter(x => !r || x === r).reduce((s, x) => s + ((e[x] || [])[i] || 0), 0));
     const o = opcBase(`${nombreArea()} · ADRES ${D.ed.corte}`, false); o.plugins.legend.display = false;
@@ -173,8 +206,28 @@ function g6() {
     {label:ES?"Mujeres":"Women", data:F.map(x => -x), backgroundColor:"#069169"}, {label:ES?"Hombres":"Men", data:Mm, backgroundColor:"#3366CC"}]}, options:o});
   document.getElementById("n6").textContent = ES ? "Edad quinquenal y sexo del último mes de las cifras de MinSalud (por departamento; no hay edad por municipio en esa fuente)." : "Five-year age and sex, latest MinSalud month (by department).";
 }
-function todo() { kpis(); g1(); g2(); g3(); g4(); g5(); g6();
-  escribirURL({dep:st.dep, mun:st.mun, anio:st.anio, rk:st.rk, sx:st.sx, sy:st.sy, hv:st.hv, pr:st.pr});
+function g7() {
+  let lab, c;
+  if (st.mun) { const sr = D.af.datos[st.mun] || []; lab = D.af.periodos.map(p => p.slice(0,4)); c = sr.map(x => x && x[0]); 
+    const y = c.map((v, i) => i && c[i - 1] ? 100 * (v / c[i - 1] - 1) : null);
+    grafica("g7", {type:"bar", data:{labels:lab, datasets:[{label:"%", data:y, backgroundColor:y.map(v => v < 0 ? "#D8B365" : "#5AB4AC")}]}, options:Object.assign(opcBase(nombreArea(), false), {plugins:{legend:{display:false}}})}); return; }
+  const P = st.dep ? D.dep.periodos : D.nac.periodo, ser = st.dep ? D.dep.datos[st.dep].contributivo : D.nac.contributivo, idx = Object.fromEntries(P.map((p, i) => [p, i]));
+  const pts = P.map((p, i) => { const prev = (+p.slice(0,4) - 1) + p.slice(4), j = idx[prev]; return j != null && ser[j] ? 100 * (ser[i] / ser[j] - 1) : null; });
+  const o = opcBase(nombreArea() + " · %", false); o.plugins.legend.display = false;
+  grafica("g7", {type:"bar", data:{labels:P.map(p => p.slice(0,4) + "-" + p.slice(4)), datasets:[{label:"%", data:pts, backgroundColor:pts.map(v => v < 0 ? "#D8B365" : "#5AB4AC")}]}, options:o});
+}
+function k8() {
+  const cods = st.mun ? [st.mun] : munsArea(); let pr = 0, ct = 0, w = 0, n = 0; const P = D.upc.ponderadores["2026"].C;
+  cods.forEach(c => { const v = D.prot.datos[c]; if (v) { pr += v[0]; ct += v[1]; } const e = (D.ed.datos[c] || {}).C; if (e) D.ed.grupos.forEach((g, i) => { n += e[i]; w += e[i] * (P[g] || 0); }); });
+  if (!st.mun && !st.dep) { pr = 0; ct = 0; Object.values(D.prot.datos).forEach(v => { pr += v[0]; ct += v[1]; }); }
+  document.getElementById("k8").innerHTML = [[ES ? `En protección laboral (${D.prot.corte})` : `Under labor protection (${D.prot.corte})`, fmt(pr)],
+    [ES ? "Por cada 1.000 afiliados al contributivo" : "Per 1,000 contributory enrollees", fmt(ct ? 1000 * pr / ct : null, 1)],
+    [ES ? "Ponderador de edad promedio del contributivo" : "Mean contributory age weight", fmt(n ? w / n : null, 3)]]
+    .map(x => `<div class="kpi"><div class="v">${x[1]}</div><div class="l">${x[0]}</div></div>`).join("");
+}
+function todo() { kpis(); g1(); g2(); g3(); g4(); g5(); g6(); g7(); k8();
+  escribirURL({dep:st.dep, mun:st.mun, anio:st.anio, rk:st.rk, sx:st.sx, sy:st.sy, hv:st.hv, pr:st.pr, niv:st.niv, ord:st.ord, n:st.n, min:st.min});
+  ["lord","ln","lmin"].forEach(id => document.getElementById(id).hidden = st.niv !== "mun");
   document.getElementById("vermapa").href = `mapa.html?v=${["total","ps","cob","var13"].includes(st.rk) ? st.rk : "total"}&a=${st.anio}${st.dep ? "&dep=" + st.dep : ""}${st.mun ? "&mun=" + st.mun : ""}`; }
 function sync() {
   document.getElementById("dep").value = st.dep;
@@ -182,18 +235,19 @@ function sync() {
   document.getElementById("mun").value = st.mun || "";
 }
 (async function () {
-  [D.af, D.nac, D.dep, D.at, D.ed, D.qe, D.upc, D.lma] = await Promise.all(["afiliacion_municipio.json", "afiliacion_nacional.json", "departamentos.json",
-    "municipios_atributos.json", "edad_municipio.json", "eps_edad.json", "upc.json", "lma.json"].map(cargar));
+  [D.af, D.nac, D.dep, D.at, D.ed, D.qe, D.upc, D.lma, D.prot] = await Promise.all(["afiliacion_municipio.json", "afiliacion_nacional.json", "departamentos.json",
+    "municipios_atributos.json", "edad_municipio.json", "eps_edad.json", "upc.json", "lma.json", "proteccion_laboral.json"].map(cargar));
   const u = leerURL(), yrs = D.af.periodos.map(p => +p.slice(0,4));
-  st = {dep:u.dep || (u.mun ? u.mun.slice(0,2) : ""), mun:u.mun || "", anio:yrs.includes(+u.anio) ? +u.anio : yrs[yrs.length - 1], rk:M[u.rk] ? u.rk : "ps",
+  st = {dep:u.dep || (u.mun ? u.mun.slice(0,2) : ""), mun:u.mun || "", anio:yrs.includes(+u.anio) ? +u.anio : yrs[yrs.length - 1], rk:M[u.rk] ? u.rk : "total", niv:u.niv === "mun" ? "mun" : "dep", ord:u.ord === "asc" ? "asc" : "desc", n:[10,20,30,40].includes(+u.n) ? +u.n : 20, min:+u.min || 0,
         sx:M[u.sx] ? u.sx : "alt", sy:M[u.sy] ? u.sy : "ps", hv:M[u.hv] ? u.hv : "cob", pr:u.pr || ""};
   opciones(document.getElementById("dep"), Object.entries(D.dep.nombres).sort((a, b) => a[1].localeCompare(b[1])), "Colombia");
   opciones(document.getElementById("anio"), yrs.map(y => [y, y])); document.getElementById("anio").value = st.anio;
   const mm = Object.entries(M).map(([k, v]) => [k, v.l]);
   ["rk","sx","sy","hv"].forEach(id => { opciones(document.getElementById(id), mm); document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = e.target.value; todo(); }; });
   document.getElementById("pr").value = st.pr; document.getElementById("pr").onchange = e => { st.pr = e.target.value; g6(); };
+  [["niv","niv",x=>x],["ord","ord",x=>x],["n","n",x=>+x],["min","min",x=>+x]].forEach(([id,k,cv]) => { document.getElementById(id).value = String(st[k]); document.getElementById(id).onchange = e => { st[k] = cv(e.target.value); todo(); }; });
   sync();
-  document.getElementById("dep").onchange = e => { st.dep = e.target.value; st.mun = ""; sync(); todo(); };
+  document.getElementById("dep").onchange = e => { st.dep = e.target.value; st.mun = ""; if (st.dep) { st.niv = "mun"; document.getElementById("niv").value = "mun"; } sync(); todo(); };
   document.getElementById("mun").onchange = e => { st.mun = e.target.value; todo(); };
   document.getElementById("anio").onchange = e => { st.anio = +e.target.value; todo(); };
   document.getElementById("share").onclick = compartir;

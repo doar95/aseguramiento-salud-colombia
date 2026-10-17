@@ -16,8 +16,8 @@
 </head>
 <body>
 <main class="wrap">
-  <h1 class="pag" data-i18n="tit">Finanzas: ADRES y liquidación del subsidiado</h1>
-  <p class="intro" data-i18n="intro">Ejecución presupuestal mensual de la Unidad de Recursos Administrados de la ADRES (agosto de 2017 a septiembre de 2026), agrupada en categorías comparables, y el Informe de Financiación de la Liquidación Mensual de Afiliados (LMA) del régimen subsidiado por municipio (2020 a julio de 2026).</p>
+  <h1 class="pag" data-i18n="tit">Finanzas: ADRES, contributivo y subsidiado</h1>
+  <p class="intro" data-i18n="intro">Ejecución presupuestal mensual de la Unidad de Recursos Administrados de la ADRES (agosto de 2017 a septiembre de 2026), agrupada en categorías comparables; el balance de cotizaciones del contributivo, y el Informe de Financiación de la Liquidación Mensual de Afiliados (LMA) del régimen subsidiado por municipio (2020 a julio de 2026).</p>
   <div class="ctrl">
     <label><span data-i18n="serie">Serie</span><select id="serie"><option value="gasto_obligacion" data-i18n="s_go">Gastos – obligaciones</option><option value="gasto_compromiso" data-i18n="s_gc">Gastos – compromisos</option><option value="ingreso_recaudo" data-i18n="s_ir">Ingresos – recaudo</option></select></label>
     <label><span data-i18n="precios">Precios</span><select id="prec"><option value="c" data-i18n="p_const">Constantes (septiembre de 2026)</option><option value="n" data-i18n="p_corr">Corrientes</option></select></label>
@@ -32,13 +32,23 @@
   <section class="card" style="margin-top:16px"><h3 data-i18n="t1">Tabla por año y categoría</h3><div class="scroll"><table class="tbl" id="t1"></table></div>
     <p class="nota"><a id="dl1" href="#">adres_ejecucion_categorias_mensual.csv</a> · <a id="dl2" href="#">adres_clasificacion_rubros.csv</a></p></section>
 
+  <h2 class="pag" style="font-size:22px;margin-top:24px" data-i18n="ct">Régimen contributivo: cotizaciones frente a lo que se reconoce</h2>
+  <p class="intro" data-i18n="cti">Compara, con la ejecución de la ADRES, lo que se recauda por cotizaciones del régimen contributivo con lo que se reconoce a las EPS del contributivo: la UPC (compensación), la promoción y prevención per cápita y las incapacidades y licencias. Es una comparación contable de rubros, no un cálculo actuarial; ambos lados incluyen lo registrado sin situación de fondos hasta 2022.</p>
+  <div class="grid2">
+    <section class="card"><h3 data-i18n="g9">Cotizaciones y gasto reconocido del contributivo</h3><div class="chartbox" style="height:360px"><canvas id="g9"></canvas></div>
+      <p class="nota" data-i18n="n9">2017: agosto a diciembre; 2026: enero a septiembre. La diferencia la cubren otras fuentes del sistema (principalmente aportes de la Nación).</p></section>
+    <section class="card"><h3 data-i18n="t9">Tabla</h3><div class="scroll"><table class="tbl" id="t9"></table></div></section>
+  </div>
+
   <h2 class="pag" style="font-size:22px;margin-top:24px" data-i18n="lmat">Liquidación del régimen subsidiado (LMA): quién la financia</h2>
   <p class="intro" data-i18n="lmai">La UPC del subsidiado que la ADRES liquida a los afiliados de cada municipio se financia con aportes de la Nación por medio de la ADRES, cofinanciación de departamentos y municipios (incluido el SGP) y cajas de compensación. Fuente: ADRES, Informe de Financiación LMA.</p>
   <div class="ctrl"><label><span data-i18n="anio">Año</span><select id="la"></select></label></div>
   <div class="grid2">
     <section class="card"><h3 data-i18n="g3">Total nacional por fuente</h3><div class="chartbox" style="height:360px"><canvas id="g3"></canvas></div>
       <p class="nota" data-i18n="n3">2026: enero a julio. Precios constantes con el IPC promedio de cada año.</p></section>
-    <section class="card"><h3 data-i18n="t2">Por departamento</h3><div class="scroll"><table class="tbl" id="t2"></table></div>
+    <section class="card"><h3 data-i18n="t2">Por departamento o municipio</h3>
+      <div class="ctrl"><label><span data-i18n="nivel">Nivel</span><select id="niv"><option value="dep" data-i18n="n_dep">Departamentos</option><option value="mun" data-i18n="n_mun">Municipios</option></select></label></div>
+      <div id="t2"></div>
       <p class="nota" data-i18n="n4">«Por afiliado»: LMA anualizada dividida por los afiliados del subsidiado en diciembre (SISPRO); es una aproximación. Incluye las gobernaciones (áreas no municipalizadas).</p></section>
   </div>
   <section class="card" style="margin-top:16px"><details><summary data-i18n="just">Justificación de cada categoría de la ADRES</summary><div id="just" class="nota"></div></details></section>
@@ -46,7 +56,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="assets/comun.js"></script>
 <script>
-TXT.en = {tit:"Finances: ADRES and subsidized settlement", intro:"Monthly budget execution of ADRES' administered resources (Aug 2017–Sep 2026) in comparable categories, and the LMA financing report of the subsidized scheme by municipality (2020–Jul 2026).",
+TXT.en = {ct:"Contributory scheme: contributions vs recognized spending", cti:"Compares contributions collected with what ADRES recognizes to contributory insurers (UPC, per-capita prevention, sick and parental leave). An accounting comparison of budget lines, not an actuarial calculation.",
+  g9:"Contributions and recognized contributory spending", n9:"2017: Aug–Dec; 2026: Jan–Sep. The gap is covered by other system sources (mainly national contributions).", t9:"Table", nivel:"Level", n_dep:"Departments", n_mun:"Municipalities", tit:"Finances: ADRES, contributory and subsidized", intro:"Monthly budget execution of ADRES' administered resources (Aug 2017–Sep 2026) in comparable categories, and the LMA financing report of the subsidized scheme by municipality (2020–Jul 2026).",
   serie:"Series", s_go:"Spending – obligations", s_gc:"Spending – commitments", s_ir:"Revenue – collected", precios:"Prices", p_const:"Constant (September 2026)", p_corr:"Current", compartir:"Copy link",
   aviso:"COP trillion. 2017 covers Aug–Dec (ADRES start); 2026 Jan–Sep. Before 2020, subsidized non-UPC services were paid by departments and do not appear here.",
   g1:"Execution by category", g2:"Linked non-UPC spending: claims and maximum budgets", t1:"Table by year and category", lmat:"Subsidized scheme settlement (LMA): who pays",
@@ -72,9 +83,9 @@ function g2() {
   const c = col(), s = D.f.datos.gasto_obligacion.subcategorias.filter(r => r[1].startsWith("No UPC") || r[1].startsWith("Saneamiento"));
   const grp = r => r[1].startsWith("Saneamiento") ? (ES ? "Saneamiento de deudas (aparte)" : "Debt clean-up (separate)") : r[1] === "No UPC: recobros" ? (ES ? "Recobros" : "Claims")
     : r[1] === "No UPC: presupuestos máximos" ? (r[2].startsWith("Ajuste") ? (ES ? "Presupuestos máximos: ajustes de años anteriores" : "Max. budgets: prior-year adjustments") : (ES ? "Presupuestos máximos" : "Maximum budgets")) : (ES ? "Otros no financiados" : "Other non-funded");
-  const gs = [...new Set(s.map(grp))], an = [...new Set(s.map(r => r[0]))].sort(), cc = ["#E3787F", "#069169", "#FFAB00", "#6F99E3"];
+  const gs = [...new Set(s.map(grp))], an = [...new Set(s.map(r => r[0]))].sort(), cc = ["#D8B365", "#069169", "#FFAB00", "#6F99E3"];
   const ds = gs.map((g, i) => { const sane = /Saneamiento|Debt/.test(g); return {label:g, type:sane ? "line" : "bar", stack:sane ? "b" : "a",
-    data:an.map(a => s.filter(r => r[0] === a && grp(r) === g).reduce((x, r) => x + r[c + 1], 0) / 1000), backgroundColor:sane ? "#A80521" : cc[i % cc.length], borderColor:sane ? "#A80521" : cc[i % cc.length], pointRadius:3}; });
+    data:an.map(a => s.filter(r => r[0] === a && grp(r) === g).reduce((x, r) => x + r[c + 1], 0) / 1000), backgroundColor:sane ? "#6A3D9A" : cc[i % cc.length], borderColor:sane ? "#6A3D9A" : cc[i % cc.length], pointRadius:3}; });
   const o = opcBase("", true); o.plugins.legend.position = "bottom";
   grafica("g2", {type:"bar", data:{labels:an, datasets:ds}, options:o});
 }
@@ -87,22 +98,42 @@ function g3() {
   grafica("g3", {type:"bar", data:{labels:an.map(y => D.l.meses[String(y)] < 12 ? y + "*" : String(y)), datasets:ds}, options:o});
 }
 function t2() {
-  const y = st.la, k = D.l.anios.indexOf(y), fac = 12 / (D.l.meses[String(y)] || 12);
-  const pi = D.dp.periodos.filter(p => p.startsWith(String(y))).pop();
-  const rows = Object.entries(D.dp.nombres).map(([d, n]) => { let a = 0, b = 0, c = 0, dd = 0, e = 0;
+  const y = st.la, k = D.l.anios.indexOf(y), fac = 12 / (D.l.meses[String(y)] || 12), mun = st.niv === "mun";
+  const pi = D.dp.periodos.filter(p => p.startsWith(String(y))).pop(), pf = D.af.periodos.find(p => p.startsWith(String(y)));
+  let rows;
+  if (!mun) rows = Object.entries(D.dp.nombres).map(([d, n]) => { let a = 0, b = 0, c = 0, dd = 0, e = 0;
     Object.entries(D.l.datos).forEach(([cod, v]) => { if (!cod.startsWith(d) || !v[k]) return; a += v[k][0]; b += v[k][1]; c += v[k][2]; dd += v[k][3]; e += v[k][4]; });
     const sub = pi ? D.dp.datos[d].subsidiado[D.dp.periodos.indexOf(pi)] : null;
-    return [n, a, e / a, (c + dd) / a, b / a, sub ? a * fac / sub : null]; }).filter(r => r[1] > 0).sort((p, q) => q[1] - p[1]);
-  document.getElementById("t2").innerHTML = `<tr><th class="l">${ES ? "Departamento" : "Department"}</th><th>${ES ? "UPC liquidada (mil millones)" : "Settled UPC (COP bn)"}</th><th>% ${ES ? "Nación" : "Nation"}</th><th>% ${ES ? "territorial" : "territorial"}</th><th>% ${ES ? "cajas" : "CCF"}</th><th>${ES ? "Por afiliado al año" : "Per enrollee/yr"}</th></tr>` +
-    rows.map(r => `<tr><td class="l">${r[0]}</td><td>${fmt(r[1] / 1e9, 1)}</td><td>${pct(r[2], 0)}</td><td>${pct(r[3], 0)}</td><td>${pct(r[4], 1)}</td><td>${r[5] ? "$" + fmt(r[5]) : "–"}</td></tr>`).join("");
+    return a > 0 ? [n, a, e / a, (c + dd) / a, b / a, sub ? a * fac / sub : null] : null; }).filter(Boolean);
+  else rows = Object.entries(D.l.datos).filter(([c, v]) => v[k] && v[k][0] > 0).map(([c, v]) => { const x = v[k], at = D.at.datos[c], j = D.af.periodos.indexOf(pf);
+    const sub = j >= 0 ? ((D.af.datos[c] || [])[j] || [])[1] : null;
+    return [at ? `${at[1]} (${at[0]})` : (ES ? `Gobernación / área no municipalizada ${c}` : `Department area ${c}`), x[0], x[4] / x[0], (x[2] + x[3]) / x[0], x[1] / x[0], sub && !c.endsWith("000") ? x[0] * fac / sub : null]; });
+  const cols = [{t:mun ? (ES ? "Municipio" : "Municipality") : (ES ? "Departamento" : "Department")}, {t:ES ? "UPC liquidada (millones)" : "Settled UPC (COP m)", num:1, fm:v => fmt(v / 1e6)},
+    {t:"% " + (ES ? "Nación" : "Nation"), num:1, fm:v => pct(v, 0)}, {t:"% " + (ES ? "territorial" : "territorial"), num:1, fm:v => pct(v, 0)}, {t:"% " + (ES ? "cajas" : "CCF"), num:1, fm:v => pct(v, 1)},
+    {t:ES ? "Por afiliado al año" : "Per enrollee/yr", num:1, fm:v => v ? "$" + fmt(v) : "–"}];
+  tablaOrdenable(document.getElementById("t2"), cols, rows, {k:1});
 }
-function todo() { g1(); g2(); g3(); t2(); escribirURL({serie:st.serie, prec:st.prec, la:st.la}); }
+function contrib() {
+  const c = col() + 1, si = D.f.datos.ingreso_recaudo.subcategorias, sg = D.f.datos.gasto_obligacion.subcategorias, an = [...new Set(sg.map(r => r[0]))].sort();
+  const sum = (arr, y, f) => arr.filter(r => r[0] === y && f(r)).reduce((x, r) => x + r[c], 0) / 1000;
+  const cot = an.map(y => sum(si, y, r => r[1] === "Cotizaciones régimen contributivo"));
+  const upc = an.map(y => sum(sg, y, r => r[1] === "UPC régimen contributivo"));
+  const inc = an.map(y => sum(sg, y, r => r[1] === "Incapacidades y licencias" && !r[2].startsWith("Prestaciones")));
+  const o = opcBase("", true); o.plugins.legend.position = "bottom";
+  grafica("g9", {type:"bar", data:{labels:an, datasets:[
+    {label:ES ? "UPC y P y P del contributivo" : "Contributory UPC and P&P", data:upc, backgroundColor:"#2C7FB8", stack:"g"},
+    {label:ES ? "Incapacidades y licencias" : "Sick and parental leave", data:inc, backgroundColor:"#A1DAB4", stack:"g"},
+    {label:ES ? "Cotizaciones recaudadas" : "Contributions collected", data:cot, type:"line", borderColor:"#E08E00", backgroundColor:"#E08E00", pointRadius:3, stack:"c"}]}, options:o});
+  document.getElementById("t9").innerHTML = `<tr><th class="l">${ES ? "Año" : "Year"}</th><th>${ES ? "Cotizaciones" : "Contributions"}</th><th>${ES ? "UPC y P y P" : "UPC and P&P"}</th><th>${ES ? "Incapacidades y licencias" : "Leave"}</th><th>${ES ? "Cotizaciones / gasto" : "Contributions / spending"}</th></tr>` +
+    an.map((y, i) => `<tr><td class="l">${y}</td><td>${fmt(cot[i], 2)}</td><td>${fmt(upc[i], 2)}</td><td>${fmt(inc[i], 2)}</td><td>${pct(cot[i] / (upc[i] + inc[i]), 0)}</td></tr>`).join("");
+}
+function todo() { g1(); g2(); g3(); t2(); contrib(); escribirURL({serie:st.serie, prec:st.prec, la:st.la, niv:st.niv === "mun" ? "mun" : ""}); }
 (async function () {
-  [D.f, D.l, D.dp] = await Promise.all(["finanzas.json", "lma.json", "departamentos.json"].map(cargar));
+  [D.f, D.l, D.dp, D.at, D.af] = await Promise.all(["finanzas.json", "lma.json", "departamentos.json", "municipios_atributos.json", "afiliacion_municipio.json"].map(cargar));
   const u = leerURL();
-  st = {serie:D.f.datos[u.serie] ? u.serie : "gasto_obligacion", prec:u.prec === "n" ? "n" : "c", la:D.l.anios.includes(+u.la) ? +u.la : 2025};
+  st = {serie:D.f.datos[u.serie] ? u.serie : "gasto_obligacion", prec:u.prec === "n" ? "n" : "c", la:D.l.anios.includes(+u.la) ? +u.la : 2025, niv:u.niv === "mun" ? "mun" : "dep"};
   opciones(document.getElementById("la"), D.l.anios.map(y => [y, D.l.meses[String(y)] < 12 ? `${y} (${ES ? "ene.–jul." : "Jan–Jul"})` : y]));
-  ["serie","prec","la"].forEach(id => { document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = id === "la" ? +e.target.value : e.target.value; todo(); }; });
+  ["serie","prec","la","niv"].forEach(id => { document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = id === "la" ? +e.target.value : e.target.value; todo(); }; });
   document.getElementById("just").innerHTML = D.f.justificacion.filter(j => j.justificacion).map(j => `<p><b>${j.categoria}</b>: ${j.justificacion}</p>`).join("");
   document.getElementById("share").onclick = compartir;
   todo();

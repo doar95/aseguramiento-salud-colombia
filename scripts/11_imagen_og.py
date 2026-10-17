@@ -21,18 +21,18 @@ AZ, AZO, AM = "#3366CC", "#004884", "#FFAB00"
 fig = plt.figure(figsize=(12, 6.3), dpi=100)
 fig.patch.set_facecolor("#FFFFFF")
 ax = fig.add_axes([0.56, 0.02, 0.43, 0.96])
-g.plot(column="s", cmap="Blues", vmin=0.2, vmax=1, ax=ax, linewidth=0.05, edgecolor="#ffffff",
+g.plot(column="s", cmap="YlGnBu", vmin=0.2, vmax=1, ax=ax, linewidth=0.05, edgecolor="#ffffff",
        missing_kwds={"color": "#dddddd"})
 ax.set_axis_off()
 fig.text(0.04, 0.86, "Aseguramiento en salud", fontsize=34, fontweight="bold", color=AZO, family="DejaVu Serif")
 fig.text(0.04, 0.78, "en Colombia, 2013–2026", fontsize=34, fontweight="bold", color=AZO, family="DejaVu Serif")
-fig.text(0.04, 0.70, "Afiliación por municipio · UPC y zonas · Finanzas ADRES · Corte Constitucional",
+fig.text(0.04, 0.70, "Afiliación por municipio · EPS · UPC y zonas · Finanzas ADRES",
          fontsize=13, color="#4B4B4B")
 t = nac["total"][-1]; p = nac["periodo"][-1]
 fig.text(0.04, 0.52, f"{t/1e6:,.1f} millones".replace(".", ","), fontsize=40, fontweight="bold", color=AZ)
 fig.text(0.04, 0.46, f"afiliados vigentes ({p[4:]}/{p[:4]}, SISPRO)", fontsize=14, color="#4B4B4B")
-fig.text(0.04, 0.33, "Mapa: proporción de afiliados en el régimen subsidiado", fontsize=12, color="#4B4B4B")
-fig.text(0.04, 0.10, "Datos abiertos de MinSalud, ADRES, SISPRO, DANE y Corte Constitucional", fontsize=12, color="#4B4B4B")
+fig.text(0.04, 0.33, "Mapa: participación del régimen subsidiado por municipio", fontsize=12, color="#4B4B4B")
+fig.text(0.04, 0.10, "Datos abiertos de MinSalud, ADRES, SISPRO, DANE y Supersalud", fontsize=12, color="#4B4B4B")
 fig.text(0.04, 0.05, "Claude (Anthropic), David Aguilar y Camila Gómez", fontsize=12, color=AZO, fontweight="bold")
 fig.add_artist(plt.Rectangle((0, 0.975), 1, 0.025, transform=fig.transFigure, color=AZO))
 fig.add_artist(plt.Rectangle((0.04, 0.62), 0.12, 0.008, transform=fig.transFigure, color=AM))

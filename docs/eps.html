@@ -34,9 +34,10 @@
     <section class="card"><h3 data-i18n="g2">Tendencia de las EPS más grandes</h3><div class="chartbox" style="height:380px"><canvas id="g2"></canvas></div>
       <p class="nota" data-i18n="n2">Hay un salto entre diciembre de 2024 y julio de 2025: no hay meses intermedios publicados con EPS en las fuentes usadas.</p>
       <h3 style="margin-top:12px" data-i18n="g3">Porcentaje de afiliados en EPS intervenidas</h3><div class="chartbox" style="height:200px"><canvas id="g3"></canvas></div></section>
-    <section class="card"><h3 data-i18n="g4">Concentración por departamento</h3>
-      <p class="nota" data-i18n="n4">Índice de Herfindahl-Hirschman (HHI): suma de las participaciones al cuadrado, de 0 a 10.000. Más de 2.500 suele leerse como mercado muy concentrado. Haga clic en un departamento para seleccionarlo.</p>
-      <div class="scroll"><table class="tbl" id="t4"></table></div></section>
+    <section class="card"><h3 data-i18n="g4">Concentración del mercado de EPS</h3>
+      <p class="nota" data-i18n="n4">Índice de Herfindahl-Hirschman (HHI): suma de las participaciones al cuadrado, de 0 a 10.000. Más de 2.500 suele leerse como mercado muy concentrado. Elija el nivel y haga clic en una fila para seleccionarla.</p>
+      <div class="ctrl"><label><span data-i18n="nivel">Nivel</span><select id="niv4"><option value="dep" data-i18n="n_dep">Departamentos</option><option value="mun" data-i18n="n_mun">Municipios</option></select></label></div>
+      <p class="nota" id="n4b"></p><div id="t4"></div></section>
     <section class="card"><h3 data-i18n="g5">Edad y sexo de los afiliados de una EPS</h3>
       <div class="ctrl"><label>EPS<select id="eps"></select></label></div>
       <div class="chartbox" style="height:420px"><canvas id="g5"></canvas></div><p class="nota" id="n5"></p></section>
@@ -49,11 +50,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="assets/comun.js"></script>
 <script>
-TXT.en = {tit:"Insurers (EPS): enrollment, trends and interventions", intro:"Enrollees by insurer from the Ministry of Health. The insurer series is short: December 2024 and July 2025–September 2026. SISPRO has a long series but without insurers.",
+TXT.en = {nivel:"Level", n_dep:"Departments", n_mun:"Municipalities", tit:"Insurers (EPS): enrollment, trends and interventions", intro:"Enrollees by insurer from the Ministry of Health. The insurer series is short: December 2024 and July 2025–September 2026. SISPRO has a long series but without insurers.",
   dep:"Department", mun:"Municipality (latest month)", reg:"Scheme", ambos:"Contributory and subsidized", contrib:"Contributory", subs:"Subsidized", per:"Month",
   marcar:"Highlight intervened insurers", fil:"Show", f_todas:"All insurers", f_si:"Intervened only", f_no:"Not intervened only", coos:"Count Coosalud as intervened (disputed)", compartir:"Copy link", g1:"Enrollees by insurer", g2:"Trend of the largest insurers",
   n2:"There is a gap between December 2024 and July 2025: no intermediate months with insurers were published in the sources used.",
-  g3:"Share of enrollees in intervened insurers", g4:"Concentration by department", n4:"Herfindahl-Hirschman Index (sum of squared shares, 0–10,000). Above 2,500 is usually read as highly concentrated. Click a department to select it.",
+  g3:"Share of enrollees in intervened insurers", g4:"Insurer market concentration", n4:"Herfindahl-Hirschman Index (sum of squared shares, 0–10,000). Above 2,500 is usually read as highly concentrated. Click a department to select it.",
   g5:"Age and sex of an insurer's enrollees", g6:"Insurers intervened by the National Health Superintendency",
   n6:"Hand-checked against the Supersalud resolution, the court ruling, or the news article citing it when the resolution was not found. A month counts as intervened if the measure was in force on any day of it."};
 cabecera("eps.html"); traducir(); piePagina();
@@ -91,13 +92,13 @@ function g1(k) {
   const f = filtrar(filas(k), per).filter(r => sumaReg(r[1]) > 0).sort((a, b) => sumaReg(b[1]) - sumaReg(a[1]));
   const iv = f.map(r => st.mi && interv(r[0], per));
   const ds = [];
-  if (st.reg !== "S") ds.push({label:tt("contrib","Contributivo"), data:f.map(r => r[1][0]), backgroundColor:iv.map(x => x ? "#A80521" : "#3366CC")});
-  if (st.reg !== "C") ds.push({label:tt("subs","Subsidiado"), data:f.map(r => r[1][1]), backgroundColor:iv.map(x => x ? "#E3787F" : "#069169")});
+  if (st.reg !== "S") ds.push({label:tt("contrib","Contributivo"), data:f.map(r => r[1][0]), backgroundColor:iv.map(x => x ? "#E08E00" : "#3366CC")});
+  if (st.reg !== "C") ds.push({label:tt("subs","Subsidiado"), data:f.map(r => r[1][1]), backgroundColor:iv.map(x => x ? "#FFC94D" : "#069169")});
   const o = opcBase(`${area()} · ${per}`, true, {indexAxis:"y"}); o.scales.y.ticks.autoSkip = false;
   o.plugins.tooltip.callbacks.label = x => `${x.dataset.label}: ${fmt(x.parsed.x)}`;
   o.plugins.tooltip.callbacks.afterBody = it => { const e = f[it[0].dataIndex][0], m = medida(e); return m && interv(e, per) ? (ES ? "Intervenida desde " : "Intervened since ") + m.fecha_inicio : ""; };
   grafica("g1", {type:"bar", data:{labels:f.map(r => r[0]), datasets:ds}, options:o});
-  document.getElementById("n1").innerHTML = (st.mi ? `<span class="tag roja">${ES ? "rojo" : "red"}</span> ${ES ? "= EPS intervenida en ese mes. " : "= insurer intervened that month. "}` : "") +
+  document.getElementById("n1").innerHTML = (st.mi ? `<span class="tag roja">${ES ? "ámbar" : "amber"}</span> ${ES ? "= EPS intervenida en ese mes. " : "= insurer intervened that month. "}` : "") +
     (st.mun ? (ES ? "Municipio: solo el último mes publicado por MinSalud." : "Municipality: latest month only.") : "");
 }
 function g2() {
@@ -111,17 +112,23 @@ function g2() {
   const sh = P.map((p, k) => { let t = 0, i = 0; listaEPS().forEach(e => { const v = sumaReg(valores(e, st.dep, k)); t += v; if (interv(e, p)) i += v; }); return t ? 100 * i / t : null; });
   const o3 = opcBase("%", false); o3.plugins.legend.display = false; o3.scales.y.min = 0;
   o3.plugins.tooltip.callbacks.label = x => fmt(x.parsed.y, 1) + " %";
-  grafica("g3", {type:"line", data:{labels:P, datasets:[{label:"%", data:sh, borderColor:"#A80521", backgroundColor:"#A80521", pointRadius:2, spanGaps:true}]}, options:o3});
+  grafica("g3", {type:"line", data:{labels:P, datasets:[{label:"%", data:sh, borderColor:"#B37400", backgroundColor:"#B37400", pointRadius:2, spanGaps:true}]}, options:o3});
 }
 function t4(k) {
-  const per = D.s.periodos[k];
-  const rows = Object.entries(D.s.nombres_dep).map(([d, n]) => { const f = listaEPS().map(e => [e, sumaReg(valores(e, d, k))]).filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]);
-    const t = f.reduce((s, r) => s + r[1], 0); if (!t) return null;
-    const iv = f.filter(r => interv(r[0], per)).reduce((s, r) => s + r[1], 0);
-    return [d, n, t, f.length, f[0][0], f[0][1] / t, f.reduce((s, r) => s + Math.pow(100 * r[1] / t, 2), 0), iv / t]; }).filter(Boolean).sort((a, b) => b[6] - a[6]);
-  document.getElementById("t4").innerHTML = `<tr><th class="l">${ES ? "Departamento" : "Department"}</th><th>${ES ? "Afiliados" : "Enrollees"}</th><th>EPS</th><th class="l">${ES ? "Mayor" : "Largest"}</th><th>%</th><th>HHI</th><th>${ES ? "% en EPS intervenidas" : "% in intervened"}</th></tr>` +
-    rows.map(r => `<tr style="cursor:pointer;${r[0] === st.dep ? "background:var(--azul-cl)" : ""}" data-d="${r[0]}"><td class="l">${r[1]}</td><td>${fmt(r[2])}</td><td>${r[3]}</td><td class="l">${r[4]}</td><td>${pct(r[5], 0)}</td><td>${fmt(r[6])}</td><td>${pct(r[7], 0)}</td></tr>`).join("");
-  document.querySelectorAll("#t4 tr[data-d]").forEach(tr => tr.onclick = () => { st.dep = tr.dataset.d; st.mun = ""; sync(); todo(); window.scrollTo({top:0, behavior:"smooth"}); });
+  const per = D.s.periodos[k], mun = st.niv4 === "mun";
+  let rows;
+  if (!mun) rows = Object.entries(D.s.nombres_dep).map(([d, n]) => { const f = listaEPS().map(e => [e, sumaReg(valores(e, d, k))]).filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]);
+    const t = f.reduce((s, r) => s + r[1], 0); if (!t) return null; const iv = f.filter(r => interv(r[0], per)).reduce((s, r) => s + r[1], 0);
+    return [n, t, f.length, f[0][0], f[0][1] / t, f.reduce((s, r) => s + Math.pow(100 * r[1] / t, 2), 0), iv / t, d]; }).filter(Boolean);
+  else rows = Object.entries(D.mu.datos).filter(([c]) => D.at.datos[c] && (!st.dep || c.startsWith(st.dep))).map(([c, l]) => {
+    const f = l.filter(r => !EXCL.includes(r[0])).map(r => [r[0], sumaReg([r[1], r[2], r[3]])]).filter(r => r[1] > 0).sort((a, b) => b[1] - a[1]);
+    const t = f.reduce((s, r) => s + r[1], 0); if (!t) return null; const iv = f.filter(r => interv(r[0], D.mu.periodo)).reduce((s, r) => s + r[1], 0);
+    return [`${D.at.datos[c][1]} (${D.at.datos[c][0]})`, t, f.length, f[0][0], f[0][1] / t, f.reduce((s, r) => s + Math.pow(100 * r[1] / t, 2), 0), iv / t, c]; }).filter(Boolean);
+  const cols = [{t:mun ? (ES ? "Municipio" : "Municipality") : (ES ? "Departamento" : "Department")}, {t:ES ? "Afiliados" : "Enrollees", num:1, fm:v => fmt(v)}, {t:"EPS", num:1},
+    {t:ES ? "Mayor" : "Largest"}, {t:"%", num:1, fm:v => pct(v, 0)}, {t:"HHI", num:1, fm:v => fmt(v)}, {t:ES ? "% en EPS intervenidas" : "% in intervened", num:1, fm:v => pct(v, 0)}];
+  document.getElementById("n4b").textContent = mun ? (ES ? `Municipios${st.dep ? " de " + D.s.nombres_dep[st.dep] : ""}, último mes (${D.mu.periodo}). Haga clic en uno para seleccionarlo.` : `Municipalities, latest month (${D.mu.periodo}).`) : (ES ? `Departamentos, ${per}. Haga clic en uno para seleccionarlo.` : `Departments, ${per}.`);
+  tablaOrdenable(document.getElementById("t4"), cols, rows, {k:5, marca:r => r[7] === (mun ? st.mun : st.dep),
+    onRow:r => { if (mun) { st.mun = r[7]; st.dep = r[7].slice(0,2); } else { st.dep = r[7]; st.mun = ""; } sync(); todo(); window.scrollTo({top:0, behavior:"smooth"}); }});
 }
 function g5() {
   const e = st.eps, q = D.q.quinquenios, F = Array(q.length).fill(0), Mm = Array(q.length).fill(0), dn = st.dep ? D.s.nombres_dep[st.dep] : null;
@@ -143,7 +150,7 @@ function t6() {
 function todo() {
   const k = D.s.periodos.indexOf(st.per);
   kpis(k); g1(k); g2(); t4(k); g5(); t6();
-  escribirURL({dep:st.dep, mun:st.mun, reg:st.reg, per:st.per, eps:st.eps, mi:st.mi ? "" : "0", fi:st.fi, coos:st.coos ? "" : "0"});
+  escribirURL({dep:st.dep, mun:st.mun, reg:st.reg, per:st.per, eps:st.eps, mi:st.mi ? "" : "0", fi:st.fi, coos:st.coos ? "" : "0", niv4:st.niv4 === "mun" ? "mun" : ""});
 }
 function sync() {
   document.getElementById("dep").value = st.dep;
@@ -153,13 +160,14 @@ function sync() {
 (async function () {
   [D.s, D.mu, D.q, D.at] = await Promise.all(["eps_series.json", "eps_municipio.json", "eps_edad.json", "municipios_atributos.json"].map(cargar));
   const u = leerURL(), P = D.s.periodos;
-  st = {dep:u.dep || "", mun:u.mun || "", reg:["C","S"].includes(u.reg) ? u.reg : "", per:P.includes(u.per) ? u.per : P[P.length - 1], eps:u.eps || "NUEVA EPS", mi:u.mi !== "0", fi:["si","no"].includes(u.fi) ? u.fi : "", coos:u.coos !== "0"};
+  st = {dep:u.dep || "", mun:u.mun || "", reg:["C","S"].includes(u.reg) ? u.reg : "", per:P.includes(u.per) ? u.per : P[P.length - 1], eps:u.eps || "NUEVA EPS", mi:u.mi !== "0", fi:["si","no"].includes(u.fi) ? u.fi : "", coos:u.coos !== "0", niv4:u.niv4 === "mun" ? "mun" : "dep"};
   opciones(document.getElementById("dep"), Object.entries(D.s.nombres_dep).sort((a, b) => a[1].localeCompare(b[1])), "Colombia");
   opciones(document.getElementById("per"), P.map(p => [p, p]));
   opciones(document.getElementById("eps"), Object.keys(D.q.datos).sort().map(e => [e, e]));
   if (!D.q.datos[st.eps]) st.eps = Object.keys(D.q.datos)[0];
   ["reg","per","eps"].forEach(id => { document.getElementById(id).value = st[id]; document.getElementById(id).onchange = e => { st[id] = e.target.value; todo(); }; });
   document.getElementById("mi").checked = st.mi; document.getElementById("mi").onchange = e => { st.mi = e.target.checked; todo(); };
+  document.getElementById("niv4").value = st.niv4; document.getElementById("niv4").onchange = e => { st.niv4 = e.target.value; todo(); };
   document.getElementById("coos").checked = st.coos; document.getElementById("coos").onchange = e => { st.coos = e.target.checked; todo(); };
   document.getElementById("fi").value = st.fi; document.getElementById("fi").onchange = e => { st.fi = e.target.value; todo(); };
   sync();

@@ -251,3 +251,11 @@ guardar("intervenidas.json", {"periodos": pi, "campos": ["afiliados_c_s", "en_in
                               "datos": iv_d, "nacional": nac.astype(int).values.tolist(),
                               "nota": "Contributivo + subsidiado. Fuente: MinSalud; medidas en data/reference/eps_medidas_supersalud.csv."})
 print(nac.assign(pct=lambda x: (x.i + x.c) / x.t).round(3).to_string())
+
+# ---------------------------------------------------------------- protección laboral (contributivo), corte ADRES
+pr = a[a["regimen"] == "contributivo"].copy()
+pr["prot"] = pr["estado"].astype(str).str.contains("Protecci", case=False)
+pg = pr.groupby(["cod_municipio", "prot"])["afiliados"].sum().unstack(fill_value=0)
+guardar("proteccion_laboral.json", {"corte": corte, "campos": ["proteccion_laboral", "contributivo_total"],
+                                    "datos": {c: [int(r.get(True, 0)), int(r.get(True, 0) + r.get(False, 0))] for c, r in pg.iterrows()},
+                                    "fuente": "ADRES, BDUA régimen contributivo (datos.gov.co, tq4m-hmg2), estado «Protección Laboral»"})
