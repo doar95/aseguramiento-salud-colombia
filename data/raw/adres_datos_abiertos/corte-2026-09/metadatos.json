@@ -1,11 +1,8 @@
 {
- "fecha_descarga": "2026-10-15",
- "corte": "2026-09",
+ "fecha_publicacion_adres": "2026-10-03T03:33:13",
+ "consulta_soql": "dpr_nombre,mnc_nombre,ent_id,ent_nombre,tps_rgm_nombre,tps_est_afl_nombre,tps_gnr_nombre,tps_grp_etr_id,zns_nombre",
  "conjuntos": {
-  "contributivo": {"id": "tq4m-hmg2", "rowsUpdatedAt": "2026-10-02T23:09:37Z", "filas_fuente": 637506, "afiliados": 23120347},
-  "subsidiado":   {"id": "d7a5-cnra", "rowsUpdatedAt": "2026-10-03T03:33:13Z", "filas_fuente": 1341642, "afiliados": 27017440}
- },
- "licencia": "CC BY-SA 4.0",
- "consulta_soql": "$select=dpr_nombre,mnc_nombre,ent_id,ent_nombre,tps_rgm_nombre,tps_est_afl_nombre,tps_gnr_nombre,tps_grp_etr_id,zns_nombre,sum(cantidad::number) as afiliados&$group=(mismos campos)",
- "nota": "Se agregaron las columnas tipo de afiliado, condición del beneficiario, nivel Sisbén y grupo poblacional para reducir el tamaño. Para recuperarlas, cambie CAMPOS en scripts/00_descargar_fuentes.py."
+  "contributivo": "tq4m-hmg2",
+  "subsidiado": "d7a5-cnra"
+ }
 }
