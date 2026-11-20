@@ -1,0 +1,8 @@
+{
+ "fecha_publicacion_adres": "2026-11-03T17:53:20",
+ "consulta_soql": "dpr_nombre,mnc_nombre,ent_id,ent_nombre,tps_rgm_nombre,tps_est_afl_nombre,tps_gnr_nombre,tps_grp_etr_id,zns_nombre",
+ "conjuntos": {
+  "contributivo": "tq4m-hmg2",
+  "subsidiado": "d7a5-cnra"
+ }
+}
